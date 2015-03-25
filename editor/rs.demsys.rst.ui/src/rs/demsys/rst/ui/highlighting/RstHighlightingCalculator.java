@@ -112,6 +112,19 @@ public class RstHighlightingCalculator implements
 		}
 	}
 	
+	protected void highlight(IncludeDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
+		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
+		
+		while(leaves.hasNext())
+		{
+			ILeafNode n = leaves.next();
+			acceptor.addPosition(n.getOffset(), n.getLength(), DIRECTIVE);
+			
+			if (n.getText().equals("::"))
+				break;
+		}
+	}
+	
 	protected void highlight(DirectiveOption obj, INode node, IHighlightedPositionAcceptor acceptor) {
 //		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
 		Iterator<INode> leaves = node.getAsTreeIterable().iterator();

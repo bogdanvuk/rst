@@ -15,13 +15,15 @@ public class RstHighlightingConfiguration implements IHighlightingConfiguration
     public static final String DIRECTIVE_TYPE = "DirectiveType";
     public static final String ITALIC_TEXT = "Italic Text";
     public static final String BOLD_TEXT = "Bold Text";
+    public static final String FILE_NAME = "File Name";
     public static final String HEADING = "Heading";
     public static final String[] ALL_STRINGS = { 
         DIRECTIVE,
         DIRECTIVE_TYPE,
         HEADING,
         BOLD_TEXT,
-        ITALIC_TEXT
+        ITALIC_TEXT,
+        FILE_NAME
     };
     
     
@@ -31,6 +33,7 @@ public class RstHighlightingConfiguration implements IHighlightingConfiguration
         addType( acceptor, HEADING, 50, 0, 0, BOLD);
         addType( acceptor, ITALIC_TEXT, 50, 0, 0, ITALIC);
         addType( acceptor, BOLD_TEXT, 50, 0, 0, BOLD);
+        addType( acceptor, FILE_NAME, 50, 0, 0, UNDERLINE_LINK);
     }
     
     public void addType( IHighlightingConfigurationAcceptor acceptor, String s, int r, int g, int b, int style )

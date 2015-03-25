@@ -47,8 +47,8 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
         
         if (node != null && node.getSemanticElement() instanceof FileName) {
             
-        EObject obj = NodeModelUtils.findActualSemanticObjectFor(node);
-        INode semanticNode = NodeModelUtils.findActualNodeFor(obj);            
+	        EObject obj = NodeModelUtils.findActualSemanticObjectFor(node);
+	        INode semanticNode = NodeModelUtils.findActualNodeFor(obj);            
         //if (node != null && node.getSemanticElement() instanceof IncludeDirective) {
             //if (ga.getFileNameRule().equals(((RuleCall)node.getGrammarElement()).getRule())) {
 //                IncludeDirective i = (IncludeDirective) semanticNode.getParent().getSemanticElement();
@@ -57,18 +57,22 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
                 URI uri = URI.createURI(uriString);
                 final URIConverter uriConverter = resource.getResourceSet().getURIConverter();
                 final URI normalized = uri.isPlatformResource() ? uri : uriConverter.normalize(uri);
-                final URI targetURI = gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)).getResourceDescription(normalized).getURI();
-//                XtextHyperlink result = hyperlinkProvider.get();
-//                final URI targetURI = gsp.resourceDescriptionsProvider.getResourceDescriptions(resource).getURI();
-                XtextHyperlink result = hyperlinkProvider.get();
-                result.setURI(targetURI);
-                Region region = new Region(semanticNode.getOffset(), semanticNode.getLength());
-                result.setHyperlinkRegion(region);
-                result.setHyperlinkText(uriString);
-//                System.out.println(uriString);
-                //result.open();
-                acceptor.accept(result);
-//            }
+                
+                if (gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)) != null)
+                {
+                	
+	                final URI targetURI = gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)).getResourceDescription(normalized).getURI();
+	//                XtextHyperlink result = hyperlinkProvider.get();
+	//                final URI targetURI = gsp.resourceDescriptionsProvider.getResourceDescriptions(resource).getURI();
+	                XtextHyperlink result = hyperlinkProvider.get();
+	                result.setURI(targetURI);
+	                Region region = new Region(semanticNode.getOffset(), semanticNode.getLength());
+	                result.setHyperlinkRegion(region);
+	                result.setHyperlinkText(uriString);
+	//                System.out.println(uriString);
+	                //result.open();
+	                acceptor.accept(result);
+                }            
         }
         super.createHyperlinksByOffset(resource, offset, acceptor);
     }

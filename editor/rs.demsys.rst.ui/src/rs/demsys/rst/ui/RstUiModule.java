@@ -3,11 +3,13 @@
  */
 package rs.demsys.rst.ui;
 
+import rs.demsys.rst.ui.contentassist.RstProposalProvider;
 import rs.demsys.rst.ui.highlighting.RstHighlightingCalculator;
 import rs.demsys.rst.ui.highlighting.RstHighlightingConfiguration;
 import rs.demsys.rst.ui.hyperlink.RstHyperlinkHelper;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.contentassist.ITemplateProposalProvider;
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
