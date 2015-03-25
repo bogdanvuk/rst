@@ -10,4 +10,7 @@ import rs.demsys.rst.ui.contentassist.AbstractRstProposalProvider
  * on how to customize the content assistant.
  */
 class RstProposalProvider extends AbstractRstProposalProvider {
+	
+	
+	
 }

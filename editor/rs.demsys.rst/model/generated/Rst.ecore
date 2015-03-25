@@ -21,14 +21,18 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="line" upperBound="-1" eType="#//TextLine"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Directive" eSuperTypes="#//Section">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
-        eType="#//DirectiveOption" containment="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Directive" eSuperTypes="#//Section"/>
+  <eClassifiers xsi:type="ecore:EClass" name="IncludeDirective" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="importURI" eType="#//EString"
+        containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EString"/>
   <eClassifiers xsi:type="ecore:EClass" name="OtherDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//Text"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//DirectiveOption" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//Section" containment="true"/>
   </eClassifiers>
@@ -38,6 +42,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MathDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//DirectiveOption" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//LatexLine" containment="true"/>
   </eClassifiers>
@@ -85,4 +91,5 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Bold" eSuperTypes="#//StyledText"/>
   <eClassifiers xsi:type="ecore:EClass" name="Italic" eSuperTypes="#//StyledText"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FileName" eSuperTypes="#//EString"/>
 </ecore:EPackage>

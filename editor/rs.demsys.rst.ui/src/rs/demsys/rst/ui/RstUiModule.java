@@ -5,8 +5,10 @@ package rs.demsys.rst.ui;
 
 import rs.demsys.rst.ui.highlighting.RstHighlightingCalculator;
 import rs.demsys.rst.ui.highlighting.RstHighlightingConfiguration;
+import rs.demsys.rst.ui.hyperlink.RstHyperlinkHelper;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
@@ -25,6 +27,11 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
     
     public Class<? extends ISemanticHighlightingCalculator> bindISemanticHighlightingCalculator(){
         return RstHighlightingCalculator.class;
+    }
+    
+    @Override
+    public Class<? extends IHyperlinkHelper> bindIHyperlinkHelper() {
+        return RstHyperlinkHelper.class;
     }
     
 }

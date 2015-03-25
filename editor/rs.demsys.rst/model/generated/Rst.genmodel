@@ -24,12 +24,15 @@
     <genClasses ecoreClass="Rst.ecore#//Paragraph">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Paragraph/line"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//Directive">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Directive/options"/>
+    <genClasses ecoreClass="Rst.ecore#//Directive"/>
+    <genClasses ecoreClass="Rst.ecore#//IncludeDirective">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//IncludeDirective/importURI"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//EString"/>
     <genClasses ecoreClass="Rst.ecore#//OtherDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/firstLine"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//DirectiveOption">
@@ -38,6 +41,7 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//MathDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathDirective/firstLine"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//HyperlinkTarget">
@@ -81,5 +85,6 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Bold"/>
     <genClasses ecoreClass="Rst.ecore#//Italic"/>
+    <genClasses ecoreClass="Rst.ecore#//FileName"/>
   </genPackages>
 </genmodel:GenModel>
