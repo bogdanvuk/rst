@@ -1,0 +1,288 @@
+grammar rs.demsys.rst.Rst
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+generate rst "http://www.demsys.rs/rst/Rst"
+
+Document:
+    section+=Section*
+	;
+
+//SectionOrSpace:
+//		Section
+//	| 	(WS?) LINE_BREAK
+//;
+
+Section:
+	   BulletList
+    |  HyperlinkTarget
+    |  Replacement
+    |  Directive
+	|  Heading	   
+	|  Paragraph
+    |  (WS?) LINE_BREAK
+;
+
+Heading:
+    name=SimpleText LINE_BREAK
+    underline=HeadingUnderline
+;
+
+HeadingUnderline:
+      UnderlineEqual
+    | UnderlineStar
+    | UnderlineSemi
+    | UnderlineMinus
+;
+
+UnderlineEqual:
+    (EQUAL EQUAL EQUAL) EQUAL* LINE_BREAK
+;
+
+UnderlineStar:
+    (STAR STAR STAR) STAR* LINE_BREAK
+;
+
+UnderlineSemi:
+    (SEMI SEMI SEMI) SEMI* LINE_BREAK
+;
+
+UnderlineMinus:
+    (MINUS MINUS MINUS) MINUS* LINE_BREAK
+;
+
+BulletList:
+	(WS?) LINE_BREAK
+	item+=BulletLine+
+;
+
+BulletLine:
+	(WS?) MINUS WS text=Text (=> LINE_BREAK)
+;
+
+Paragraph:
+	(WS?) LINE_BREAK
+    (line+=TextLine)+
+;
+
+Directive:
+		MathDirective
+	|	OtherDirective
+;
+
+OtherDirective:
+    '.. ' name=SIMPLE_WORD '::' 
+    firstLine=Text?
+    LINE_BREAK
+    ( (WS?) 
+    BEGIN
+    	options+=DirectiveOption*
+//    	(WS?) LINE_BREAK
+       	block+=Section*
+    END)?
+//    (WS?) LINE_BREAK
+    ;
+
+DirectiveOption:
+	(WS?) (=> COLON) name=SIMPLE_WORD COLON WS value=SimpleText LINE_BREAK
+;
+
+MathDirective:
+	{MathDirective}
+	'.. ' 'math' '::' 
+    firstLine=Latex?
+    LINE_BREAK
+    ( (WS?) 
+    BEGIN
+    	options+=DirectiveOption*
+       	block+=LatexLine*
+    END)?
+;
+
+HyperlinkTarget:
+	'.. ' UNDERSCORE name=SIMPLE_WORD COLON
+	LINE_BREAK
+;
+
+Replacement:
+	'.. ' PIPE name=SIMPLE_WORD PIPE WS 'replace::'
+	text+=Literal+
+	LINE_BREAK
+;
+
+TextLine:
+     (WS?) (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK     
+;
+
+Text:
+    items+=Literal+
+;
+
+Literal:
+    	Reference
+    |	SimpleLiteral
+    | 	StyledText
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    
+;
+
+FirstTextLiteral:
+      SIMPLE_WORD
+    | StyledText
+    | UnderscoreWord
+//    | WS
+;
+
+SimpleTextLine:
+	SimpleText (=> LINE_BREAK)
+;
+
+SimpleText:
+//    (=> SIMPLE_WORD) SimpleLiteral*
+//    | WS
+	SimpleLiteral+
+;
+
+SimpleLiteral:
+      UnderscoreWord
+    | SIMPLE_WORD
+    | SPECIAL_CHAR
+    | WS
+;
+
+Role:
+		MathRole
+	| 	OtherRole
+;
+
+MathRole:
+	COLON 'math' COLON BACKTICK Latex BACKTICK
+;
+
+OtherRole:
+	COLON name=SIMPLE_WORD COLON BACKTICK text=SimpleText BACKTICK
+;
+
+ReplacementRef:
+	PIPE name=[Replacement|SIMPLE_WORD] PIPE 
+;
+
+Reference:
+	LongReference
+	| SimpleReference
+  ;
+
+SimpleReference
+  :  ReferenceName UNDERSCORE (WS | LINE_BREAK)
+  ;
+    
+ReferenceName:
+	name=[Heading|SIMPLE_WORD]
+;
+
+LongReference :  
+	BACKTICK LongReferenceName BACKTICK UNDERSCORE
+  ;
+  
+LongReferenceName:
+	name=[Heading|SimpleText]
+;
+
+LatexLine:
+     text=Latex LINE_BREAK     
+;
+
+Latex:
+	LatexLiteral+
+;
+
+LatexLiteral:
+		SIMPLE_WORD
+	| 	SPECIAL_CHAR
+	|	UNDERSCORE
+	|	STAR
+	|	WS
+;
+
+StyledText:
+      Bold
+    | Italic
+;
+
+Bold
+  :  {Bold}
+  	 STAR (=>STAR) 
+      text=SimpleText 
+      STAR STAR
+  ;  
+
+Italic
+  :  {Italic}
+  	STAR text=SimpleText STAR
+  ;
+  
+UnderscoreWord:
+	SIMPLE_WORD (UNDERSCORE SIMPLE_WORD)+
+;
+
+//terminal
+//SIMPLE_WORD:
+//    	('a'..'z' | 'A'..'Z' | '0'..'9') 
+//    | (('a'..'z' | 'A'..'Z' | '0'..'9') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' )* ('a'..'z' | 'A'..'Z' | '0'..'9'))
+//;
+
+terminal
+SIMPLE_WORD:
+	('a'..'z' | 'A'..'Z' | '0'..'9') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' )*
+;
+
+
+SPECIAL_CHAR:  (
+     '!'
+    |MINUS  
+    |'"'
+    |'#'
+    |'$'
+    |'%'
+    |'&'
+    |'\''
+    |'('
+    |')'
+    |'+'
+    |','
+    |'.'
+    |'/'
+    |SEMI
+    |'<'
+    |EQUAL
+    |'>'
+    |'?'
+    |'@'
+    |'['
+    |'\\'
+    |']'
+    |'^'
+    |'{'
+    |'}'
+    |'~'
+    )
+  ;
+  
+terminal EQUAL: '=';  
+terminal STAR: '*';
+terminal SEMI: ';';
+terminal UNDERSCORE :  '_';
+terminal BACKTICK :  '`';
+terminal PIPE:  '|';
+terminal COLON: ':';
+terminal MINUS: '-';
+
+terminal LINE_BREAK :  '\r'? '\n';
+
+terminal WS         : (' '|'\t')+;
+
+//terminal ANY_OTHER: .;
+//
+terminal BEGIN: 'synthetic:BEGIN';
+terminal END: 'synthetic:END';

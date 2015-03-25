@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: rs.demsys.rst.ui
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: rs.demsys.rst.ui; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: rs.demsys.rst;visibility:=reexport,
+ org.eclipse.xtext.ui,
+ org.eclipse.ui.editors;bundle-version="3.5.0",
+ org.eclipse.ui.ide;bundle-version="3.5.0",
+ org.eclipse.xtext.ui.shared,
+ org.eclipse.ui,
+ org.eclipse.xtext.builder,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.common.types.ui,
+ org.eclipse.xtext.ui.codetemplates.ui,
+ org.eclipse.compare
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: rs.demsys.rst.ui.quickfix,
+ rs.demsys.rst.ui.contentassist,
+ rs.demsys.rst.ui.internal,
+ rs.demsys.rst.ui.contentassist.antlr
+Bundle-Activator: rs.demsys.rst.ui.internal.RstActivator
