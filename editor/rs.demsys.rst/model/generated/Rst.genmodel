@@ -26,9 +26,8 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Directive"/>
     <genClasses ecoreClass="Rst.ecore#//IncludeDirective">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//IncludeDirective/importURI"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//IncludeDirective/importURI"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//EString"/>
     <genClasses ecoreClass="Rst.ecore#//OtherDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/firstLine"/>
@@ -85,6 +84,5 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Bold"/>
     <genClasses ecoreClass="Rst.ecore#//Italic"/>
-    <genClasses ecoreClass="Rst.ecore#//FileName"/>
   </genPackages>
 </genmodel:GenModel>

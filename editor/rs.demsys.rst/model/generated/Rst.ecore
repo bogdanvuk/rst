@@ -23,10 +23,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Directive" eSuperTypes="#//Section"/>
   <eClassifiers xsi:type="ecore:EClass" name="IncludeDirective" eSuperTypes="#//Directive">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="importURI" eType="#//EString"
-        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="importURI" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="EString"/>
   <eClassifiers xsi:type="ecore:EClass" name="OtherDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//Text"
@@ -91,5 +89,4 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Bold" eSuperTypes="#//StyledText"/>
   <eClassifiers xsi:type="ecore:EClass" name="Italic" eSuperTypes="#//StyledText"/>
-  <eClassifiers xsi:type="ecore:EClass" name="FileName" eSuperTypes="#//EString"/>
 </ecore:EPackage>

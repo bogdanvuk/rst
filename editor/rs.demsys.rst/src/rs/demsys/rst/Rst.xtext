@@ -72,17 +72,21 @@ Directive:
 
 IncludeDirective:
     '.. ' 'include' '::' WS?
-    importURI=FileName LINE_BREAK
+    importURI=FileName WS? LINE_BREAK
 ;
 
-FileName returns EString:
-    {FileName}
-    FilePath? SIMPLE_WORD '.' SIMPLE_WORD
+FileName:
+	(SIMPLE_WORD | '.' | '/' )+
 ;
 
-FilePath:
-    (SIMPLE_WORD '/')+
-;
+//FileName returns EString:
+//    {FileName}
+//    FilePath? SIMPLE_WORD '.' SIMPLE_WORD
+//;
+//
+//FilePath:
+//    (SIMPLE_WORD '/')+
+//;
 
 OtherDirective:
     '.. ' name=SIMPLE_WORD '::' 

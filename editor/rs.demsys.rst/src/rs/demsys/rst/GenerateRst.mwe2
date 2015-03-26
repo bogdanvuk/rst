@@ -8,7 +8,7 @@ var grammarURI = "classpath:/rs/demsys/rst/Rst.xtext"
 var fileExtensions = "rst"
 var projectName = "rs.demsys.rst"
 var runtimeProject = "../${projectName}"
-var generateXtendStub = true
+var generateXtendStub = false
 var encoding = "UTF-8"
 
 Workflow {
