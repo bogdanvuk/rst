@@ -3,6 +3,8 @@
  */
 package rs.demsys.rst.scoping
 
+import org.eclipse.emf.ecore.EReference
+
 /**
  * This class contains custom scoping description.
  * 
@@ -11,5 +13,7 @@ package rs.demsys.rst.scoping
  *
  */
 class RstScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider {
-
+//	def scope_CiteRole_entry(UseFilter ctx, EReference ref) {
+//		return Scopes.scopeFor(ctx.getType().getinport());
+//	}
 }

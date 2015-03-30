@@ -2,6 +2,7 @@ grammar rs.demsys.rst.Rst
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate rst "http://www.demsys.rs/rst/Rst"
+import "http://www.demsys.rs/rst/Bib" as bib
 
 Document:
     section+=Section*
@@ -14,15 +15,17 @@ Document:
 
 Section:
 	   BulletList
-    |  HyperlinkTarget
     |  Replacement
     |  Directive
-	|  Heading	   
 	|  Paragraph
+	|  Heading	   
     |  (WS?) LINE_BREAK
 ;
 
 Heading:
+	label=Label?
+	LINE_BREAK
+	underlineTop=HeadingUnderline?
     name=SimpleText LINE_BREAK
     underline=HeadingUnderline
 ;
@@ -67,7 +70,31 @@ Paragraph:
 Directive:
 		MathDirective
 	|   IncludeDirective
+	|	ImageDirective
+	|	BibDirective
 	|	OtherDirective
+;
+
+Block:
+	(WS?) 
+    BEGIN
+    	options+=DirectiveOption*
+       	block+=Section*
+    END
+;
+
+ImageDirective:
+	label=Label?
+	(WS?) LINE_BREAK
+    '.. ' ('image' | 'figure') '::' WS?
+    picture=FileName WS? LINE_BREAK
+    block=Block?
+;
+
+BibDirective:
+    '.. ' 'bibliography' '::' WS?
+    bib=FileName WS? LINE_BREAK
+    block=Block?
 ;
 
 IncludeDirective:
@@ -76,29 +103,14 @@ IncludeDirective:
 ;
 
 FileName:
-	(SIMPLE_WORD | '.' | '/' )+
+	(SIMPLE_WORD | UnderscoreWord | '.' | '/' )+
 ;
-
-//FileName returns EString:
-//    {FileName}
-//    FilePath? SIMPLE_WORD '.' SIMPLE_WORD
-//;
-//
-//FilePath:
-//    (SIMPLE_WORD '/')+
-//;
 
 OtherDirective:
     '.. ' name=SIMPLE_WORD '::' 
     firstLine=Text?
     LINE_BREAK
-    ( (WS?) 
-    BEGIN
-    	options+=DirectiveOption*
-//    	(WS?) LINE_BREAK
-       	block+=Section*
-    END)?
-//    (WS?) LINE_BREAK
+	block=Block?
     ;
 
 DirectiveOption:
@@ -117,15 +129,15 @@ MathDirective:
     END)?
 ;
 
-HyperlinkTarget:
-	'.. ' UNDERSCORE name=SIMPLE_WORD COLON
-	LINE_BREAK
-;
-
 Replacement:
 	'.. ' PIPE name=SIMPLE_WORD PIPE WS 'replace::'
 	text+=Literal+
 	LINE_BREAK
+;
+
+Label:
+	(WS?) LINE_BREAK
+	'.. ' UNDERSCORE name=SIMPLE_WORD COLON LINE_BREAK
 ;
 
 TextLine:
@@ -150,6 +162,7 @@ FirstTextLiteral:
       SIMPLE_WORD
     | StyledText
     | UnderscoreWord
+    | ReplacementRef
 //    | WS
 ;
 
@@ -172,11 +185,16 @@ SimpleLiteral:
 
 Role:
 		MathRole
+	|	CiteRole
 	| 	OtherRole
 ;
 
 MathRole:
 	COLON 'math' COLON BACKTICK Latex BACKTICK
+;
+
+CiteRole:
+	COLON 'cite' COLON BACKTICK entry=[bib::Entry|SIMPLE_WORD] BACKTICK
 ;
 
 OtherRole:
@@ -200,13 +218,16 @@ ReferenceName:
 	name=[Heading|SIMPLE_WORD]
 ;
 
-LongReference :  
-	BACKTICK LongReferenceName BACKTICK UNDERSCORE
-  ;
-  
-LongReferenceName:
-	name=[Heading|SimpleText]
+RefTarget:
+	Heading |
+	Label
 ;
+
+LongReference :  
+	BACKTICK 
+	ref=[RefTarget|SimpleText]
+	BACKTICK UNDERSCORE
+  ;
 
 LatexLine:
      text=Latex LINE_BREAK     
@@ -285,6 +306,7 @@ SPECIAL_CHAR:  (
     |'{'
     |'}'
     |'~'
+    |'...'
     )
   ;
   

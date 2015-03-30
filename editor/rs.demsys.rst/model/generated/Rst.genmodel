@@ -4,7 +4,7 @@
     editorDirectory="/rs.demsys.rst.editor/src" modelPluginID="rs.demsys.rst" forceOverwrite="true"
     modelName="Rst" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
     complianceLevel="6.0" copyrightFields="false" editPluginID="rs.demsys.rst.edit"
-    editorPluginID="rs.demsys.rst.editor" runtimeVersion="2.10">
+    editorPluginID="rs.demsys.rst.editor" runtimeVersion="2.10" usedGenPackages="platform:/resource/rs.demsys.rst.bib/model/generated/Bib.genmodel#//bib">
   <genPackages prefix="Rst" basePackage="rs.demsys.rst" disposableProviderFactory="true"
       fileExtensions="rst" ecorePackage="Rst.ecore#/">
     <genClasses ecoreClass="Rst.ecore#//Document">
@@ -12,7 +12,8 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Section"/>
     <genClasses ecoreClass="Rst.ecore#//Heading">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Heading/label"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underlineTop"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underline"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//BulletList">
@@ -25,13 +26,25 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Paragraph/line"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Directive"/>
+    <genClasses ecoreClass="Rst.ecore#//Block">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/options"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/block"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//ImageDirective">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/label"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ImageDirective/picture"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/block"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//BibDirective">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//BibDirective/bib"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BibDirective/block"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//IncludeDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//IncludeDirective/importURI"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//OtherDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/firstLine"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//DirectiveOption">
@@ -43,13 +56,11 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/block"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//HyperlinkTarget">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//HyperlinkTarget/name"/>
-    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Replacement">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Replacement/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Replacement/text"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//Label"/>
     <genClasses ecoreClass="Rst.ecore#//TextLine">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TextLine/first"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TextLine/text"/>
@@ -60,6 +71,9 @@
     <genClasses ecoreClass="Rst.ecore#//Literal"/>
     <genClasses ecoreClass="Rst.ecore#//FirstTextLiteral"/>
     <genClasses ecoreClass="Rst.ecore#//Role"/>
+    <genClasses ecoreClass="Rst.ecore#//CiteRole">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//CiteRole/entry"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//OtherRole">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherRole/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherRole/text"/>
@@ -72,9 +86,11 @@
     <genClasses ecoreClass="Rst.ecore#//ReferenceName">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//ReferenceName/name"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//LongReference"/>
-    <genClasses ecoreClass="Rst.ecore#//LongReferenceName">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//LongReferenceName/name"/>
+    <genClasses ecoreClass="Rst.ecore#//RefTarget">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//RefTarget/name"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//LongReference">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//LongReference/ref"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//LatexLine">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//LatexLine/text"/>

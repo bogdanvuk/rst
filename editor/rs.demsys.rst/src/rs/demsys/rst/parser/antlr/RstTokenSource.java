@@ -46,6 +46,10 @@ public class RstTokenSource extends AbstractIndentationTokenSource {
 	        
 //	    return (token.getType() == InternalRstParser.RULE_WS) ;
 	}
+	@Override
+	protected char getTabWidth() {
+		return 4;
+	}
 	
 //	void splitIntoBeginTokenEx(Token token, int indentation, ITokenAcceptor result) {
 //		indentationStack.push(indentation);

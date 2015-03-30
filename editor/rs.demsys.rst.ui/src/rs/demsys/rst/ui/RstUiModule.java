@@ -14,6 +14,7 @@ import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
+import rs.demsys.rst.ui.templates.RstTemplateProposalProvider;
 
 /**
  * Use this class to register components to be used within the IDE.
@@ -34,6 +35,11 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
     @Override
     public Class<? extends IHyperlinkHelper> bindIHyperlinkHelper() {
         return RstHyperlinkHelper.class;
+    }
+    
+    @Override
+    public Class<? extends ITemplateProposalProvider> bindITemplateProposalProvider() {
+      return RstTemplateProposalProvider.class;
     }
     
 }

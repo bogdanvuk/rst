@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension point="org.eclipse.ui.newWizards"><category id="rs.demsys.rst.plugin.category.wizards" name="Custom Wizards">
+      </category><wizard
+                       category="rs.demsys.rst.plugin.category.wizards"
+                       class="rs.demsys.rst.plugin.wizards.NewProjectWizard"
+                       icon="images/rst.png"
+                       id="rs.demsys.rst.plugin.wizard.newproject"
+                       name="Rst Project"
+                       project="true">
+      </wizard></extension>
+<extension
+      id="rs.demsys.rst.plugin.projectNature"
+      point="org.eclipse.core.resources.natures">
+   <runtime>
+      <run
+            class="rs.demsys.rst.plugin.natures.ProjectNature">
+      </run>
+   </runtime>
+</extension>
+</plugin>
