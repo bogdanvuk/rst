@@ -30,6 +30,10 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//Section" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawBlock" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ImageDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
         containment="true"/>

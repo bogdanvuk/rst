@@ -5,6 +5,7 @@
       </category><wizard
                        category="rs.demsys.rst.plugin.category.wizards"
                        class="rs.demsys.rst.plugin.wizards.NewProjectWizard"
+                       finalPerspective="rs.demsys.rst.plugin.perspective"
                        icon="images/rst.png"
                        id="rs.demsys.rst.plugin.wizard.newproject"
                        name="Rst Project"
@@ -18,5 +19,39 @@
             class="rs.demsys.rst.plugin.natures.ProjectNature">
       </run>
    </runtime>
+</extension>
+<extension
+      point="org.eclipse.ui.perspectives">
+   <perspective
+         class="rs.demsys.rst.plugin.PerspectiveFactory"
+         icon="images/rst.png"
+         id="rs.demsys.rst.plugin.perspective"
+         name="Rst">
+   </perspective>
+</extension>
+<extension
+      point="org.eclipse.ui.perspectiveExtensions">
+   <perspectiveExtension
+         targetID="rs.demsys.rst.plugin.perspective">
+      <view
+            id="org.eclipse.ui.navigator.ProjectExplorer"
+            minimized="false"
+            relationship="left">
+      </view>
+      <view
+            id="org.eclipse.ui.views.ContentOutline"
+            minimized="false"
+            relationship="right">
+      </view>
+   </perspectiveExtension>
+</extension>
+<extension
+      id="rs.demsys.rst.plugin.rstProjectBuilder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="rs.demsys.rst.plugin.RstProjectBuilder">
+      </run>
+   </builder>
 </extension>
 </plugin>

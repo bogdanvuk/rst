@@ -89,9 +89,10 @@ class RstProposalProvider extends AbstractRstProposalProvider {
 		
 	}
 	def private static void findFileNameProposals(Resource resource, ArrayList<String> fileProp, ArrayList<String> folderProp, List<String> exts, String fileName){
-		var String platformString=resource.getURI().toPlatformString(true) 
-		var IFile curFile=ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(platformString)) 
-		recursiveFindFileNameProposals(fileProp, folderProp, exts, fileName, curFile.getProject().getLocation(), ResourcesPlugin.getWorkspace().getRoot()) 
+		var String platformString=resource.getURI().trimSegments(1).toPlatformString(true) 
+		var IFile curFile=ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(platformString))
+		
+		recursiveFindFileNameProposals(fileProp, folderProp, exts, fileName, curFile.location, curFile, ResourcesPlugin.getWorkspace().getRoot()) 
 	}
 	
 	def private static boolean checkExtension(IResource iR, List<String> exts)
@@ -105,15 +106,20 @@ class RstProposalProvider extends AbstractRstProposalProvider {
 		return false;
 	}
 	
-	def private static void recursiveFindFileNameProposals(ArrayList<String> fileProp, ArrayList<String> folderProp, List<String> exts, String fileName, IPath path, IWorkspaceRoot myWorkspaceRoot){
-		var IContainer container=myWorkspaceRoot.getContainerForLocation(path) 
+	def private static void recursiveFindFileNameProposals(ArrayList<String> fileProp, ArrayList<String> folderProp, List<String> exts, String fileName, IPath path, IFile rootFile, IWorkspaceRoot myWorkspaceRoot){
+		var IContainer container=myWorkspaceRoot.getContainerForLocation(path)
+//		var fileNameRelative = rootFile.projectRelativePath.append(fileName).toString
+		 
 		try {
 			var IResource[] iResources 
 			iResources=container.members() for (IResource iR : iResources) {
 				// for c files
-				var IPath irPath=iR.getFullPath() 
-				var String resRelative=irPath.toString() 
-				resRelative=resRelative.substring(resRelative.indexOf("/", resRelative.indexOf("/") + 1) + 1) var boolean resContainsFileName=false 
+				var IPath irPath=iR.projectRelativePath
+				var String resRelative=irPath.toString().substring(rootFile.projectRelativePath.toString.length + 1)
+//				iR.projectRelativePath
+//				resRelative=resRelative.substring(resRelative.indexOf("/", resRelative.indexOf("/") + 1) + 1)
+				 
+				var boolean resContainsFileName=false 
 				var boolean fileNameContainsRes=false 
 				if (fileName == null) {
 					resContainsFileName=true fileNameContainsRes=false 
@@ -123,7 +129,7 @@ class RstProposalProvider extends AbstractRstProposalProvider {
 					if (resContainsFileName) {
 						folderProp.add(resRelative) 
 					} else if (fileNameContainsRes) {
-						recursiveFindFileNameProposals(fileProp, folderProp, exts, fileName, iR.getLocation(), myWorkspaceRoot) 
+						recursiveFindFileNameProposals(fileProp, folderProp, exts, fileName, iR.getLocation(), rootFile, myWorkspaceRoot) 
 					}
 					
 				} else if (resContainsFileName && checkExtension(iR, exts)) {

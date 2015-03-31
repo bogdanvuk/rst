@@ -11,9 +11,16 @@ import rs.demsys.rst.ui.hyperlink.RstHyperlinkHelper;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.contentassist.ITemplateProposalProvider;
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
+import org.eclipse.xtext.ui.editor.model.PartitionTokenScanner;
+import org.eclipse.xtext.ui.editor.model.TerminalsTokenTypeToPartitionMapper;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
+import org.eclipse.xtext.ui.editor.reconciler.XtextSpellingReconcileStrategy;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
+
+import rs.demsys.rst.ui.spelling.RstPartitionTokenScanner;
+import rs.demsys.rst.ui.spelling.RstSpellingReconcileStrategy;
+import rs.demsys.rst.ui.spelling.RstTerminalsTokenTypeToPartitionMapper;
 import rs.demsys.rst.ui.templates.RstTemplateProposalProvider;
 
 /**
@@ -41,5 +48,17 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
     public Class<? extends ITemplateProposalProvider> bindITemplateProposalProvider() {
       return RstTemplateProposalProvider.class;
     }
+    
+    public Class<? extends XtextSpellingReconcileStrategy.Factory> bindXtextSpellingReconcileStrategy$Factory() {
+		return RstSpellingReconcileStrategy.factory.class;
+	}
+      
+	public Class<? extends TerminalsTokenTypeToPartitionMapper> bindTerminalsTokenTypeToPartitionMapper(){
+		return RstTerminalsTokenTypeToPartitionMapper.class;
+	}
+	
+	public Class<? extends PartitionTokenScanner> bindXdocPartitionTokenScanner() {
+		return RstPartitionTokenScanner.class;
+	}
     
 }

@@ -30,6 +30,9 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/block"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//RawBlock">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/block"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//ImageDirective">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/label"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ImageDirective/picture"/>

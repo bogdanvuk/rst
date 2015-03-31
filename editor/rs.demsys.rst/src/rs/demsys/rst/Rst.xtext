@@ -72,6 +72,7 @@ Directive:
 	|   IncludeDirective
 	|	ImageDirective
 	|	BibDirective
+	|	RawBlock
 	|	OtherDirective
 ;
 
@@ -81,6 +82,13 @@ Block:
     	options+=DirectiveOption*
        	block+=Section*
     END
+;
+
+RawBlock:
+	'.. ' ('code' | 'code-block' | 'raw') '::' 
+	firstLine=Text? 
+	LINE_BREAK
+	block=Block
 ;
 
 ImageDirective:

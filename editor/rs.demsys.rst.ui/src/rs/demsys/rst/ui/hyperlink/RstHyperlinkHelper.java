@@ -93,16 +93,19 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
     
     public IFile findFileFromRelativePath(XtextResource resource, String relFileName)
     {
-    	URI uri = URI.createURI(relFileName);
-        
-        final URIConverter uriConverter = resource.getResourceSet().getURIConverter();
-        final URI normalized = uri.isPlatformResource() ? uri : uriConverter.normalize(uri);
-        
-        String platformString = resource.getURI().toPlatformString(true);
+    	String platformString = resource.getURI().toPlatformString(true);
 		IFile curFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(platformString));
+
+		URI uri = URI.createURI(relFileName);
+    	URI resFile = URI.createURI(curFile.getProjectRelativePath().toString());
+    	uri = resFile.trimSegments(1).appendSegments(uri.segments());
+        
+
+        
 		
-		IFile file = curFile.getProject().getFile(new Path(normalized.toString()));
 		
+		//IFile file = curFile.getProject().getFile(new Path(uriFile.toString()));
+    	IFile file = curFile.getProject().getFile(new Path(uri.toString()));
 		return file;
     }
     

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 
+import org.eclipse.core.internal.events.BuildCommand;
+import org.eclipse.core.resources.IBuildConfiguration;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -15,6 +18,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import rs.demsys.rst.plugin.RstProjectBuilder;
 import rs.demsys.rst.plugin.natures.ProjectNature;
 
 public class CustomProjectSupport {
@@ -36,7 +40,8 @@ public class CustomProjectSupport {
         IProject project = createBaseProject(projectName, location);
         try {
             addNature(project);
- 
+            addBuilder(project);
+            
             String[] cmd = new String[10];
             String s = null;
             
@@ -145,15 +150,42 @@ public class CustomProjectSupport {
         }
     }
  
+    private static void addBuilder(IProject project) throws CoreException
+    {
+    	   IProjectDescription desc = project.getDescription();
+    	   ICommand[] commands = desc.getBuildSpec();
+    	   boolean found = false;
+
+    	   for (int i = 0; i < commands.length; ++i) {
+    	      if (commands[i].getBuilderName().equals(RstProjectBuilder.BUILDER_ID)) {
+    	         found = true;
+    	         break;
+    	      }
+    	   }
+    	   if (!found) { 
+    	      //add builder to project
+    	      ICommand command = desc.newCommand();
+    	      command.setBuilderName(RstProjectBuilder.BUILDER_ID);
+    	      ICommand[] newCommands = new ICommand[commands.length + 1];
+
+    	      // Add it before other builders.
+    	      System.arraycopy(commands, 0, newCommands, 1, commands.length);
+    	      newCommands[0] = command;
+    	      desc.setBuildSpec(newCommands);
+    	      project.setDescription(desc, null);
+    	   }
+    }
+    
     private static void addNature(IProject project) throws CoreException {
         if (!project.hasNature(ProjectNature.NATURE_ID)) {
             IProjectDescription description = project.getDescription();
             String[] prevNatures = description.getNatureIds();
-            String[] newNatures = new String[prevNatures.length + 1];
+            String[] newNatures = new String[prevNatures.length + 2];
             System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
             newNatures[prevNatures.length] = ProjectNature.NATURE_ID;
+            newNatures[prevNatures.length+1] = "org.eclipse.xtext.ui.shared.xtextNature";
             description.setNatureIds(newNatures);
- 
+            
             IProgressMonitor monitor = null;
             project.setDescription(description, monitor);
         }
