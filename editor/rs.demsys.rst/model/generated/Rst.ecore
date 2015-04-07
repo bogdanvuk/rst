@@ -31,6 +31,8 @@
         eType="#//Section" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RawBlock" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//Text"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
         containment="true"/>
   </eClassifiers>
@@ -105,6 +107,10 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="LongReference" eSuperTypes="#//Reference">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//RefTarget"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ExternalReference" eSuperTypes="#//Reference">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="title" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="link" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="LatexLine">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>

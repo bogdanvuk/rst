@@ -163,6 +163,8 @@ Literal:
     |	Role
     |	ReplacementRef
     |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
     
 ;
 
@@ -214,7 +216,8 @@ ReplacementRef:
 ;
 
 Reference:
-	LongReference
+	  ExternalReference
+	| LongReference
 	| SimpleReference
   ;
 
@@ -237,6 +240,24 @@ LongReference :
 	BACKTICK UNDERSCORE
   ;
 
+ExternalReferenceLiteral:
+	SimpleLiteral
+	| COLON
+;
+
+ExternalReferenceText:
+	ExternalReferenceLiteral+
+;
+
+ExternalReference:
+	BACKTICK
+	title=SimpleText
+	L_ANGLE_BRACKET
+	link=ExternalReferenceText
+	R_ANGLE_BRACKET
+	BACKTICK UNDERSCORE
+;
+
 LatexLine:
      text=Latex LINE_BREAK     
 ;
@@ -250,6 +271,8 @@ LatexLiteral:
 	| 	SPECIAL_CHAR
 	|	UNDERSCORE
 	|	STAR
+	|	L_ANGLE_BRACKET
+	|	R_ANGLE_BRACKET
 	|	WS
 ;
 
@@ -302,9 +325,7 @@ SPECIAL_CHAR:  (
     |'.'
     |'/'
     |SEMI
-    |'<'
     |EQUAL
-    |'>'
     |'?'
     |'@'
     |'['
@@ -326,6 +347,8 @@ terminal BACKTICK :  '`';
 terminal PIPE:  '|';
 terminal COLON: ':';
 terminal MINUS: '-';
+terminal L_ANGLE_BRACKET: '<';
+terminal R_ANGLE_BRACKET: '>';
 
 terminal LINE_BREAK :  '\r'? '\n';
 

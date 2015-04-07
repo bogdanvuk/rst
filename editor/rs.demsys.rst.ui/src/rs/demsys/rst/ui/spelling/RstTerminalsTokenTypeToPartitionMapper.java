@@ -23,7 +23,6 @@ public class RstTerminalsTokenTypeToPartitionMapper extends
 
 	@Override
 	public String getPartitionType(int antlrTokenType) {
-		System.out.println(antlrTokenType);
 		return super.getPartitionType(antlrTokenType);
 	}
 	

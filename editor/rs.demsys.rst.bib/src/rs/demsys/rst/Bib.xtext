@@ -8,11 +8,11 @@ BibTex:
 	etnries+=Entry*;
 	
 Entry:
-	type=TYPE '{' name=SIMPLE_WORD (',' tags=Tags)? ','? '}'
+	type=TYPE '{' name=SIMPLE_WORD (COMMA tags=Tags)? COMMA? '}'
 ;
 
 Tags:
-	tags+=Tag (',' tags+=Tag)*
+	tags+=Tag (COMMA tags+=Tag)*
 ;
 
 Tag:
@@ -41,7 +41,7 @@ PrimaryToken returns String:
 	 '{' PrimaryString '}'
 	 ;
 
-terminal SPECIAL_CHAR:
+SPECIAL_CHAR:
      '!'
     |'#'
     |'$'
@@ -51,7 +51,7 @@ terminal SPECIAL_CHAR:
     |'('
     |')'
     |'+'
-    |','
+    |COMMA
     |'.'
     |'/'
     |'<'
@@ -65,6 +65,8 @@ terminal SPECIAL_CHAR:
     |'^'
     |'~'
 ;
+
+terminal COMMA: ',';
 
 terminal TYPE:
 	'@' ('a'..'z'|'A'..'Z')+

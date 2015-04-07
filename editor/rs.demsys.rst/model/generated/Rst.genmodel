@@ -31,6 +31,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//RawBlock">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/firstLine"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//ImageDirective">
@@ -94,6 +95,10 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//LongReference">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//LongReference/ref"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//ExternalReference">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ExternalReference/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ExternalReference/link"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//LatexLine">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//LatexLine/text"/>
