@@ -31,7 +31,7 @@ BracedContent returns String:
 ;
 
 PrimaryString returns String:
-	items+=PrimaryToken+
+	items+=PrimaryToken*
 ;
 
 PrimaryToken returns String:

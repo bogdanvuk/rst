@@ -12,7 +12,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underlineTop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TwoLevelBulletList" eSuperTypes="#//Section">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="item" upperBound="-1" eType="#//TwoLevelBulletLine"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BulletList" eSuperTypes="#//Section">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="item" upperBound="-1" eType="#//BulletLine"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TwoLevelBulletLine">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="text" eType="#//Text" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="item" upperBound="-1" eType="#//BulletLine"
         containment="true"/>
   </eClassifiers>
@@ -30,10 +39,30 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//Section" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RawBlock" eSuperTypes="#//Directive">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//Text"
+  <eClassifiers xsi:type="ecore:EClass" name="RawIndentBlock">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="line" unique="false" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
+        eType="#//RawIndentBlock" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawBlock">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//DirectiveOption" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="line" unique="false" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
+        eType="#//RawIndentBlock" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CodeBlockDirective" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawDirective" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ImageDirective" eSuperTypes="#//Directive">

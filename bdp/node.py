@@ -8,6 +8,8 @@ import copy
 import itertools
 import inspect
 import operator
+from alias_dict import AliasDict
+import subprocess
 
 bdp_config = {
               'grid':   10
@@ -39,6 +41,8 @@ class Point(object):
     def __str__(self):
         return 'p({0},{1})'.format(self.x,self.y)
     
+    __repr__ = __str__
+    
     def __add__(self, other):
         return Point(self[0] + other[0], self[1] + other[1])
     
@@ -46,6 +50,9 @@ class Point(object):
         return Point(self[0] - other[0], self[1] - other[1])
     
     def __mul__(self, other):
+        return Point(self[0] * other, self[1] * other)
+    
+    def __rmul__(self, other):
         return Point(self[0] * other, self[1] * other)
     
 #     def resolve(self):
@@ -98,211 +105,242 @@ class Node(object):
     classdocs
     '''
 
-    main_settings = ['p', 't', 'size', 'node_sep', 'conn_sep']
+#     main_settings = ['p', 't', 'size',
+#                      'node_sep', 'conn_sep',
+#                      'border', 'anchor', 'margin']
+    
+#     __slots__ = ['template', 'settings']
+    
+    template = None
+    settings = None
+    def_settings = {}
+    aliases = {}
+    meta_options = ['template', 'p', 't', 'resolve']
 
     def render_tikz_options(self):
-#         size = self.resolve('size')
-
         options = []
-        options.append('draw')
-        options.append("minimum width=" + to_units(self.size[0]))
-        options.append("minimum height=" + to_units(self.size[1]))
-#         
-#         size = self.resolve('size')
+        
+        if self.border:
+            options.append('draw')
+        
+        options.append('anchor=north west')
         
         for s, val in self.settings.items():
-            if not s in self.main_settings:
-                if val is True:
-                    options.append(s)
-                else:
-                    options.append(s + '=' + str(val))
+            if not s in self.meta_options:
+                try:
+                    options.append(getattr(self, "render_tikz_" + s)())
+                except AttributeError:
+                    if val is True:
+                        options.append(s)
+                    else:
+                        options.append(s + '=' + str(val))
                     
-        return options
-        
+        return ','.join(options)
+    
+    def render_tikz_p(self):
+        return "{0}, {1}".format(to_units(self.p[0]), to_units(self.p[1]))
+    
+    def render_tikz_t(self):
+        return self.t
+    
     def render_tikz(self):
-        node_temp = Template("\\node at (${x}, ${y}) [${options}] {$$${text}$$};\n")
-        return node_temp.substitute(
-                                    x         = to_units(self.p[0] + self.size[0]/2.0),
-                                    y         = to_units(self.p[1] - self.size[1]/2.0),
-                                    options   = ','.join(self.render_tikz_options()),
-                                    text      = self.t
-                                    )
+        pos = self.render_tikz_p()
+        
+        if pos:
+            pos = "at ({0})".format(pos)
+        
+        options = self.render_tikz_options()
+        
+        if options:
+            options = "[{0}]".format(options)
+            
+        text = self.render_tikz_t()
+        
+        if text:
+            text = "{{${0}$}}".format(text)
+        else:
+            text = "{}"
+        
+        return ' '.join(["\\node", pos, options, text, ";\n"])
 
     def __call__(self, *args, **kwargs):
-#         node = copy.deepcopy(self)
-#         for key,value in kwargs.items():
-#             setattr(node,key,value)
-
         kwargs['template'] = self
         
-        return Node(*args, **kwargs)
+        return self.__class__(*args, **kwargs)
 
-#     @proxy_bioper
     def __getattr__(self, attr):
         try:
             return self.settings[attr]
         except KeyError:
             return getattr(self.template, attr)
 
-#     @proxy_bioper
-    def n(self, pos):
-#         return PosOffset(self, (pos * self.conn_sep, self.size[1]))
-        return self.p + (pos * self.conn_sep, self.size[1])
-    
-#     @proxy_bioper
-    def r(self, pos):
-        return self.p + (self.size[0] + pos*self.node_sep[0], 0)
-    
-#     @proxy_bioper
-    def b(self, pos):
-        return self.p + (0, self.size[1] + pos*self.node_sep[1])
-    
-#     def resolve(self, attr):
-#         try:
-#             attr_val = self.settings[attr]
-#             
-#             try:
-#                 return attr_val.resolve()
-#             except AttributeError:
-#                 return attr_val
-#             
-#         except KeyError:
-#             return self.template.resolve(attr)
-    
-    
-#     def _get_resolved_settings(self):
-#         if self.template is not None:
-#             resolved = self.template._get_resolved_settings()
-#         else:
-#             resolved = {}
-#             
-#         for key, value in self.settings.items():
-#             try:
-#                 resolved[key] = value.resolve()
-#             except AttributeError:
-#                 resolved[key] = value
-#             
-#         return resolved    
-#     
-#     def resolve_all(self):
-#         self.settings = self._get_resolved_settings()
+    def __setattr__(self, attr, val):
+        if hasattr(self.__class__, attr):
+            object.__setattr__(self, attr, val)
+        else:
+            self.settings[attr] = val
         
-    
-#     def mv(self, x=0.0, y=0.0, **kwargs):
-#         pos = (self.pos[0] + x, self.pos[1] + y)
-#         kwargs["pos"] = pos
-#         
-#         return self.__call__(**kwargs)
-#     
-#     def left(self, step=1, **kwargs):
-#         node = self.__call__(**kwargs)
-#         node.pos = (self.pos[0] - self.size[0] - step*self.node_sep, self.pos[1])
-#         
-#         return node
-#     
-#     def right(self, step=1, **kwargs):
-#         node = self.__call__(**kwargs)
-#         node.pos = (self.pos[0] + self.size[0] + step*self.node_sep, self.pos[1])
-#         
-#         return node
-#    
-#     def top(self, step=1, **kwargs):
-#         return self.mv(y=-step*self.node_sep, **kwargs)
-#     
-#     def bottom(self, step=1, **kwargs):
-#         return self.mv(y=step*self.node_sep, **kwargs)
-#     
-#     def at(self, coord):
-#         
-#         side_pos = int(coord[1:]) * self.conn_sep
-#         
-#         if (coord[0] == 't'):
-#             conn_pos = (self.pos[0] + side_pos, self.pos[1] + self.size[1])
-#         elif (coord[0] == 'l'):
-#             conn_pos = (self.pos[0], self.pos[1] + self.size[1] - side_pos)
-#         elif (coord[0] == 'b'):
-#             conn_pos = (self.pos[0] + side_pos, self.pos[1])
-#         elif (coord[0] == 'r'):
-#             conn_pos = (self.pos[0] + self.size[0], self.pos[1] + self.size[1] - side_pos)
-#         
-#         return conn_pos
+    def __init__(self, **kwargs):
 
-    #def __init__(self, pos=(0, 0), size=(1,1), text="", options=[], node_sep=1, conn_sep=1, shape='rectangle'):
-    def __init__(self, p=None, t=None, size=None, template=None, resolve=True, **kwargs):
-        '''
-        Constructor
-        '''
-        
-        if template is None:
+        try:
+            self.template = kwargs['template']
+        except KeyError:
             try:
-                template = node
+                self.template = node
             except NameError:
-                pass
-            
-        self.template = template
-        self.settings = kwargs
+                self.template = None
         
-        if p is not None:
-            self.settings['p'] = p
-            
-        if size is not None:
-            self.settings['size'] = size
-            
-        if t is not None:
-            self.settings['t'] = t
+        self.settings = AliasDict()
         
-        if template is not None:
+        for k,v in self.aliases.items():
+            for alias in v:
+                self.settings.alias(k, alias)
+        
+        self.settings.update(self.def_settings.copy())
+        self.settings.update(kwargs)
+        
+#         if p is not None:
+#             self.settings['p'] = p
+#             
+#         if size is not None:
+#             self.settings['size'] = size
+#             
+#         if t is not None:
+#             self.settings['t'] = t
+#         
+#         self.settings['border'] = border
+        
+        if self.template is not None:
             for key, value in self.template.settings.items():
                 if not key in self.settings:
                     self.settings[key] = value
         
-        if resolve:
-#             self.resolve_all()
+        if self.resolve:
             obj_list.append(self)
+
+class Block(Node):
+    
+    meta_options = ['node_sep', 'conn_sep', 'border'] + Node.meta_options
+    
+    def_settings = {
+            'resolve':  True,
+            'border' :  True,
+            'margin' :  p(5,None)
+            }
+    
+#     def __getattr__(self, attr):
+#         return super().__getattr__(attr)
+# 
+#     def __setattr__(self, attr, val):
+#         super().__setattr__(attr, val)
+    
+    def render_tikz_size(self):
+        if self.size:
+            return "minimum width=" + to_units(self.size[0]) + "," + "minimum height=" + to_units(self.size[1])
             
+    def render_tikz_margin(self):
+        if self.margin[0] is not None:
+            return "text width=" + to_units(self.size[0] - (2*self.margin[0])/bdp_config['grid'])
             
-#             try:
-#                 resolved[key] = value.resolve()
-#             except AttributeError:
-#                 resolved[key] = value
-            
-       
+        if self.margin[1] is not None:
+            return "text height=" + to_units(self.size[1] - (2*self.margin[0])/bdp_config['grid'])
+    
+    import subprocess
+
+    @property
+    def size(self):
+        
+        tex = r"""
+\documentclass{article}
+\newlength\mylength
+\begin{document}
+\settowidth{\mylength}{\raggedright The quick brown fox jumps over the lazy dog}
+\typeout{\the\mylength}
+\end{document}
+"""        
+
+        
+#         tex = r'"\documentclass{standalone}\newlength\mylength\begin{document}\settowidth{\mylength}{\raggedright The quick brown fox jumps over the lazy dog}\typeout{\the\mylength}\end{document}"'
+#         tex = '"\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{\\raggedright The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}"'
+        tex = '"\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}"'
+        print(tex)
         
 #         try:
-#             self.size = size.size
-#         except AttributeError:
-#             self.size = (size[0], size[1])
-#             
-#         try:
-#             self.pos = pos.pos
-#         except AttributeError:
-#             self.pos = (pos[0], pos[1])
-#             
-#         self.text = text
-#         self.node_sep = node_sep
-#         self.options = options
-#         self.conn_sep = conn_sep
-
-origin = p(1000, 1000)
-
-node = Node(
-          resolve   = False,
-          template  = None,
-          p         = origin,
-          t         = "",
-          size      = p(10, 10),
-          node_sep  = p(1,1),
-          conn_sep  = 1,
-          )
-
-def templ(obj, *args, **kwargs):
-    kwargs['resolve'] = False
-    
-    return obj(*args, **kwargs)
-
-# def node(*args, **kwargs):
+#             print("ev")
+#         ret = subprocess.check_output('latex "\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{\\raggedright The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}" -draftmode -interaction=nonstopmode', shell=True)
+# #             ret = subprocess.check_output(["latex", tex, "-draftmode", "-interaction=nonstopmode"], shell=True)
+#         except:
+#             print("here?")
+        
+#         if super().size is None:
+        try:
+            ret = subprocess.check_output('latex "\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{Proba}\\typeout{\\the\\mylength}\\end{document}" -draftmode -interaction=nonstopmode', shell=True, universal_newlines=True)
+#             ret = subprocess.check_output(["latex", tex, "-draftmode", "-interaction=nonstopmode"])
+#             print("here?")
+            print(ret)
+        except subprocess.CalledProcessError as e:
+            print ("Ping stdout output:\n", e.output)
             
-
+#         print(ret)
+#         else:
+#             return super().size
+        
+    @size.setter
+    def size(self, value):   
+        self.settings['size'] = value
+    
+    @property
+    def p(self):
+        if 'anchor' in self.settings:
+            return 2*self.settings['p'] - self.settings['anchor']
+        else:
+            return self.settings['p']
+        
+    @p.setter
+    def p(self, value):
+        self.settings['p'] = value
+        
+    def n(self, pos):
+        return self.p + (pos * self.conn_sep, 0)
+    
+    def e(self, pos):
+        if isinstance( pos, int ):
+            return self.p + (self.size[0], pos * self.conn_sep)
+        else:
+            return self.p + (self.size[0], pos * self.size[1])
+    
+    def s(self, pos):
+        return self.p + (pos * self.conn_sep, self.size[1])
+    
+    def w(self, pos):
+        if isinstance( pos, int ):
+            return self.p + (0, pos * self.conn_sep)
+        else:        
+            return self.p + (0, pos * self.size[1])
+    
+    def r(self, pos):
+        return self.p + (self.size[0] + pos*self.node_sep[0], 0)
+    
+    def l(self, pos):
+        return self.p - (pos*self.node_sep[0], 0)
+    
+    def b(self, pos):
+        return self.p + (0, self.size[1] + pos*self.node_sep[1])
+    
+    def __init__(self, p=None, t=None, size=None, border=True, **kwargs):
+        super().__init__(**kwargs)
+        
+        if p is not None:
+            self.p = p
+             
+        if size is not None:
+            self.size = size
+             
+        if t is not None:
+            self.t = t
+         
+        self.border = border
+            
 class Path(object):
     
     def render_tikz_options(self):
@@ -314,7 +352,7 @@ class Path(object):
         return options
     
     def render_tikz_path(self):
-        path_iter = itertools.izip_longest(self.path, self.style, fillvalue=self.def_style)
+        path_iter = itertools.zip_longest(self.path, self.style, fillvalue=self.def_style)
         path_tikz = []
         
         for p in path_iter:
@@ -343,5 +381,46 @@ class Path(object):
         self.style = style
         self.def_style = def_style
         self.options = options
+
+def templ(obj, *args, **kwargs):
+    kwargs['resolve'] = False
+    
+    return obj(*args, **kwargs)
+
+origin = p(1000, 1000)
+
+node = Node(
+          resolve   = False,
+          template  = None,
+          p         = origin,
+          t         = "",
+          size      = p(10, 10),
+          node_sep  = p(1,1),
+          conn_sep  = 1,
+          align     = "center"
+          )
+
+block = Block(
+          resolve   = False,
+          template  = None,
+          p         = origin,
+          t         = "",
+#           size      = p(10, 10),
+          node_sep  = p(1,1),
+          conn_sep  = 1,
+          align     = "center"
+          )
+
+class Text(Node):
+    
+    def __init__(self, text, **kwargs):
+        if 'border' not in kwargs:
+            kwargs['border'] = False
+            
+        if 'size' not in kwargs:
+            kwargs['size'] = p(0,0)
         
+        kwargs['t'] = text
+        
+        super().__init__(**kwargs)
         

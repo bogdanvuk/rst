@@ -15,7 +15,7 @@ loader = importlib.machinery.SourceFileLoader("", bdp_file_name)
 bdp_mod = loader.load_module()
 
 tikz_prolog = r"""
-\documentclass{article}
+\documentclass{standalone}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows}
@@ -44,4 +44,7 @@ with open("test.tex", 'w') as f:
     f.write(tikz_epilog)
     
 from subprocess import call, STDOUT
-call(["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "test.tex"], stderr=STDOUT)
+call(["pdflatex", 
+      "-interaction=nonstopmode", 
+      "-file-line-error",
+      "-halt-on-error", "test.tex"], stderr=STDOUT)

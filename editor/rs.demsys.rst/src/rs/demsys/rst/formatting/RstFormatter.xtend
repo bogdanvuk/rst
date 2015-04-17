@@ -5,8 +5,9 @@ package rs.demsys.rst.formatting
 
 import org.eclipse.xtext.formatting.impl.AbstractDeclarativeFormatter
 import org.eclipse.xtext.formatting.impl.FormattingConfig
-// import com.google.inject.Inject;
-// import rs.demsys.rst.services.RstGrammarAccess
+import com.google.inject.Inject;
+import rs.demsys.rst.services.RstGrammarAccess
+import org.eclipse.xtext.GrammarUtil
 
 /**
  * This class contains custom formatting declarations.
@@ -18,9 +19,29 @@ import org.eclipse.xtext.formatting.impl.FormattingConfig
  */
 class RstFormatter extends AbstractDeclarativeFormatter {
 
-//	@Inject extension RstGrammarAccess
+	@Inject extension RstGrammarAccess
 	
 	override protected void configureFormatting(FormattingConfig c) {
+		
+//		var allKeywords = GrammarUtil.getAllKeywords(getGrammar());
+//	
+//		var keywords = findKeywords(allKeywords.to toArray() as String[]);
+		
+		val allKeywords = GrammarUtil::getAllKeywords(grammar.getGrammar())
+		val keywords = grammar.findKeywords(allKeywords.toArray(newArrayOfSize(allKeywords.size())))
+		
+		for (rule : getGrammar.rules) {
+			c.setNoSpace().before(rule);
+			c.setNoSpace().after(rule);
+			System.out.println(rule.toString)
+		}
+		
+		for (keyword : keywords) {
+			c.setNoSpace().before(keyword);
+			c.setNoSpace().after(keyword);
+			System.out.println(keyword.toString)
+		}
+		
 // It's usually a good idea to activate the following three statements.
 // They will add and preserve newlines around comments
 //		c.setLinewrap(0, 1, 2).before(SL_COMMENTRule)
