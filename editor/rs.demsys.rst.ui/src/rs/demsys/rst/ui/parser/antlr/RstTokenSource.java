@@ -3,9 +3,12 @@
  */
 package rs.demsys.rst.ui.parser.antlr;
 
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 import org.eclipse.xtext.parser.antlr.AbstractIndentationTokenSource;
+import org.eclipse.xtext.parser.antlr.ITokenAcceptor;
+
 import rs.demsys.rst.ui.contentassist.antlr.internal.InternalRstParser;
 
 public class RstTokenSource extends AbstractIndentationTokenSource {
@@ -17,7 +20,7 @@ public class RstTokenSource extends AbstractIndentationTokenSource {
 	@Override
 	protected boolean shouldSplitTokenImpl(Token token) {
 		// TODO Review assumption
-		return token.getType() == InternalRstParser.RULE_WS;
+		return token.getType() == InternalRstParser.RULE_LINE_BREAK;
 	}
 
 	@Override
@@ -35,6 +38,38 @@ public class RstTokenSource extends AbstractIndentationTokenSource {
 	@Override
 	protected boolean shouldEmitPendingEndTokens() {
 		return false;
+	}
+	
+	private void splitIntoBeginToken(Token token, int indentation, ITokenAcceptor result) {
+		result.accept(token);
+		indentationStack.push(indentation);
+		currentIndentation = indentation;
+		result.accept(createBeginToken(((CommonToken) token).getStopIndex() + 1));
+	}
+	
+	@Override
+	protected void doSplitTokenImpl(Token token, ITokenAcceptor result) {
+		String text = token.getText();
+		int indentation = computeIndentation(text);
+		if (indentation == -1 || indentation == currentIndentation) {
+			result.accept(token);
+		} else if (indentation > currentIndentation) {
+			splitIntoBeginToken(token, indentation, result);
+		} else if (indentation < currentIndentation) {
+			result.accept(token);
+			while(indentation < currentIndentation) {
+				indentationStack.pop();
+				currentIndentation = indentationStack.peek();
+				result.accept(createEndToken(nextOffset));
+			}
+			if (indentation > currentIndentation) {
+				splitIntoBeginToken(token, indentation, result);
+				return;
+			}
+//			result.accept(token);
+		} else {
+			throw new IllegalStateException(String.valueOf(indentation));
+		}
 	}
 	
 }

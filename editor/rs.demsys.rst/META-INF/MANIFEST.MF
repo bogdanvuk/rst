@@ -8,6 +8,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.equinox.common;bundle-version="3.5.0",
  org.eclipse.xtext.util,
+ org.eclipse.xtext.ui,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
  org.eclipse.xtext.xbase.lib,
@@ -25,8 +26,8 @@ Export-Package: rs.demsys.rst,
  rs.demsys.rst.serializer,
  rs.demsys.rst.parser.antlr,
  rs.demsys.rst.parser.antlr.internal,
- rs.demsys.rst.parser.antlr.lexer,
  rs.demsys.rst.validation,
  rs.demsys.rst.scoping,
  rs.demsys.rst.generator,
- rs.demsys.rst.formatting
+ rs.demsys.rst.formatting2,
+ rs.demsys.rst.parser.antlr.lexer

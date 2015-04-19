@@ -109,18 +109,18 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
 		return file;
     }
     
-    public void createHyperlink(BibDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
-    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
-				 RstPackage.eINSTANCE.getBibDirective_Bib());
-	    if (!nodes.isEmpty()) 
-	    {
-			IFile file = findFileFromRelativePath(resource, obj.getBib());
-			
-			if (file.isAccessible()) {
-			    acceptor.accept(createGeneralHyperlink(obj.getBib(), file, nodes.get(0).getOffset(), nodes.get(0).getLength()));
-			}
-	    }
-    }
+//    public void createHyperlink(BibDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
+//    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
+//				 RstPackage.eINSTANCE.getBibDirective_Bib());
+//	    if (!nodes.isEmpty()) 
+//	    {
+//			IFile file = findFileFromRelativePath(resource, obj.getBib());
+//			
+//			if (file.isAccessible()) {
+//			    acceptor.accept(createGeneralHyperlink(obj.getBib(), file, nodes.get(0).getOffset(), nodes.get(0).getLength()));
+//			}
+//	    }
+//    }
     
     public void createHyperlink(ImageDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
     	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
@@ -138,35 +138,35 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
 	    }
     }
     
-    public void createHyperlink(IncludeDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
-    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
-				 RstPackage.eINSTANCE.getIncludeDirective_ImportURI());
-	    if (!nodes.isEmpty()) {
-	    	INode node = nodes.get(0);
-	        String uriString = ((IncludeDirective) obj).getImportURI();
-	         
-	        URI uri = URI.createURI(uriString);
-//            final URIConverter uriConverter = resource.getResourceSet().getURIConverter();
-//            final URI normalized = uri.isPlatformResource() ? uri : uriConverter.normalize(uri);
-           
-            IFile file = findFileFromRelativePath(resource, uriString);
-			
-			if (file.isAccessible()) {
-			    acceptor.accept(createXtextHyperlink(uriString, file, node.getOffset(), node.getLength()));
-			}
-           
-//           if (gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)) != null)
-//           {
-//               final URI targetURI = gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)).getResourceDescription(normalized).getURI();
-//               XtextHyperlink result = hyperlinkProvider.get();
-//               result.setURI(targetURI);
-//               Region region = new Region(node.getOffset(), node.getLength());
-//               result.setHyperlinkRegion(region);
-//               result.setHyperlinkText(uriString);
-//               acceptor.accept(result);
-//           } 
-	    }
-    }
+//    public void createHyperlink(IncludeDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
+//    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
+//				 RstPackage.eINSTANCE.getIncludeDirective_ImportURI());
+//	    if (!nodes.isEmpty()) {
+//	    	INode node = nodes.get(0);
+//	        String uriString = ((IncludeDirective) obj).getImportURI();
+//	         
+//	        URI uri = URI.createURI(uriString);
+////            final URIConverter uriConverter = resource.getResourceSet().getURIConverter();
+////            final URI normalized = uri.isPlatformResource() ? uri : uriConverter.normalize(uri);
+//           
+//            IFile file = findFileFromRelativePath(resource, uriString);
+//			
+//			if (file.isAccessible()) {
+//			    acceptor.accept(createXtextHyperlink(uriString, file, node.getOffset(), node.getLength()));
+//			}
+//           
+////           if (gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)) != null)
+////           {
+////               final URI targetURI = gsp.getResourceDescriptions(resource, Lists.newArrayList(normalized)).getResourceDescription(normalized).getURI();
+////               XtextHyperlink result = hyperlinkProvider.get();
+////               result.setURI(targetURI);
+////               Region region = new Region(node.getOffset(), node.getLength());
+////               result.setHyperlinkRegion(region);
+////               result.setHyperlinkText(uriString);
+////               acceptor.accept(result);
+////           } 
+//	    }
+//    }
     
     @Override
     public void createHyperlinksByOffset(XtextResource resource, int offset,

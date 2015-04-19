@@ -7,10 +7,14 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Section"/>
   <eClassifiers xsi:type="ecore:EClass" name="Heading" eSuperTypes="#//Section #//RefTarget">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
-        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underlineTop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ReplacementDirective" eSuperTypes="#//Section"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Replacement" eSuperTypes="#//ReplacementDirective">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="text" eType="#//Text" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TwoLevelBulletList" eSuperTypes="#//Section">
     <eStructuralFeatures xsi:type="ecore:EReference" name="item" upperBound="-1" eType="#//TwoLevelBulletLine"
@@ -33,12 +37,6 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Directive" eSuperTypes="#//Section"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Block">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
-        eType="#//DirectiveOption" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
-        eType="#//Section" containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RawIndentBlock">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="line" unique="false" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -65,13 +63,6 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ImageDirective" eSuperTypes="#//Directive">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="picture" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
-        containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BibDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="bib" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
@@ -80,16 +71,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="IncludeDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="importURI" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="OtherDirective" eSuperTypes="#//Directive">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//Text"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
-        containment="true"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="DirectiveOption">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Block">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//DirectiveOption" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
+        eType="#//Section" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MathDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -98,12 +84,25 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//LatexLine" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Replacement" eSuperTypes="#//Section">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="text" upperBound="-1" eType="#//Literal"
+  <eClassifiers xsi:type="ecore:EClass" name="ImageDirective" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="picture" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Label" eSuperTypes="#//RefTarget"/>
+  <eClassifiers xsi:type="ecore:EClass" name="LabelDirective" eSuperTypes="#//Directive"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Label" eSuperTypes="#//LabelDirective #//RefTarget">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OtherDirective" eSuperTypes="#//Directive">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DirectiveOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TextLine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="first" eType="#//FirstTextLiteral"
         containment="true"/>
@@ -116,6 +115,17 @@
   <eClassifiers xsi:type="ecore:EClass" name="Literal"/>
   <eClassifiers xsi:type="ecore:EClass" name="FirstTextLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="Role" eSuperTypes="#//Literal"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MathRole" eSuperTypes="#//Role">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HashRef">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//Label"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NumfigRole" eSuperTypes="#//Role">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//HashRef"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CiteRole" eSuperTypes="#//Role">
     <eStructuralFeatures xsi:type="ecore:EReference" name="entry" eType="ecore:EClass platform:/resource/rs.demsys.rst.bib/model/generated/Bib.ecore#//Entry"/>
   </eClassifiers>
@@ -123,17 +133,11 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//Literal #//FirstTextLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//Literal">
     <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Replacement"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Reference" eSuperTypes="#//Literal"/>
-  <eClassifiers xsi:type="ecore:EClass" name="SimpleReference" eSuperTypes="#//Reference"/>
-  <eClassifiers xsi:type="ecore:EClass" name="ReferenceName" eSuperTypes="#//SimpleReference">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Heading"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RefTarget">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RefTarget"/>
   <eClassifiers xsi:type="ecore:EClass" name="LongReference" eSuperTypes="#//Reference">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//RefTarget"/>
   </eClassifiers>

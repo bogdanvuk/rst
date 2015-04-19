@@ -6,6 +6,7 @@ package rs.demsys.rst.ui;
 import rs.demsys.rst.ui.contentassist.RstProposalProvider;
 import rs.demsys.rst.ui.highlighting.RstHighlightingCalculator;
 import rs.demsys.rst.ui.highlighting.RstHighlightingConfiguration;
+import rs.demsys.rst.ui.highlighting.RstAntlrTokenToAttributeIdMapper;
 import rs.demsys.rst.ui.hyperlink.RstHyperlinkHelper;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -15,6 +16,7 @@ import org.eclipse.xtext.ui.editor.model.PartitionTokenScanner;
 import org.eclipse.xtext.ui.editor.model.TerminalsTokenTypeToPartitionMapper;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
 import org.eclipse.xtext.ui.editor.reconciler.XtextSpellingReconcileStrategy;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
 
@@ -31,22 +33,26 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
 		super(plugin);
 	}
 	
+	@Override
+    public Class<? extends ITemplateProposalProvider> bindITemplateProposalProvider() {
+      return RstTemplateProposalProvider.class;
+    }
+	
 	public Class<? extends IHighlightingConfiguration> bindIHighlightingConfiguration () {
         return RstHighlightingConfiguration.class;
     }
-    
-    public Class<? extends ISemanticHighlightingCalculator> bindISemanticHighlightingCalculator(){
+	
+	public Class<? extends ISemanticHighlightingCalculator> bindISemanticHighlightingCalculator(){
         return RstHighlightingCalculator.class;
     }
+	
+	public Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
+		return RstAntlrTokenToAttributeIdMapper.class ;
+	}
     
     @Override
     public Class<? extends IHyperlinkHelper> bindIHyperlinkHelper() {
         return RstHyperlinkHelper.class;
-    }
-    
-    @Override
-    public Class<? extends ITemplateProposalProvider> bindITemplateProposalProvider() {
-      return RstTemplateProposalProvider.class;
     }
     
     public Class<? extends XtextSpellingReconcileStrategy.Factory> bindXtextSpellingReconcileStrategy$Factory() {
@@ -61,4 +67,7 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
 		return RstPartitionTokenScanner.class;
 	}
     
+//    public Class<? extends XtextDocumentProvider> bindDocumentProvider() 	{
+//    	return RstDocumentProvider.class;
+//    }
 }

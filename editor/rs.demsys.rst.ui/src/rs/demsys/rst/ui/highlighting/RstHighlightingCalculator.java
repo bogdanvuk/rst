@@ -112,18 +112,18 @@ public class RstHighlightingCalculator implements
 		}
 	}
 	
-	protected void highlight(IncludeDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
-		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
-		
-		while(leaves.hasNext())
-		{
-			ILeafNode n = leaves.next();
-			acceptor.addPosition(n.getOffset(), n.getLength(), DIRECTIVE);
-			
-			if (n.getText().equals("::"))
-				break;
-		}
-	}
+//	protected void highlight(IncludeDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
+//		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
+//		
+//		while(leaves.hasNext())
+//		{
+//			ILeafNode n = leaves.next();
+//			acceptor.addPosition(n.getOffset(), n.getLength(), DIRECTIVE);
+//			
+//			if (n.getText().equals("::"))
+//				break;
+//		}
+//	}
 	
 	protected void highlight(ImageDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
 		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
@@ -138,18 +138,18 @@ public class RstHighlightingCalculator implements
 		}
 	}
 	
-	protected void highlight(BibDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
-		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
-		
-		while(leaves.hasNext())
-		{
-			ILeafNode n = leaves.next();
-			acceptor.addPosition(n.getOffset(), n.getLength(), DIRECTIVE);
-			
-			if (n.getText().equals("::"))
-				break;
-		}
-	}
+//	protected void highlight(BibDirective obj, INode node, IHighlightedPositionAcceptor acceptor) {
+//		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
+//		
+//		while(leaves.hasNext())
+//		{
+//			ILeafNode n = leaves.next();
+//			acceptor.addPosition(n.getOffset(), n.getLength(), DIRECTIVE);
+//			
+//			if (n.getText().equals("::"))
+//				break;
+//		}
+//	}
 	
 	protected void highlight(DirectiveOption obj, INode node, IHighlightedPositionAcceptor acceptor) {
 //		Iterator<ILeafNode> leaves = node.getLeafNodes().iterator();
@@ -190,9 +190,9 @@ public class RstHighlightingCalculator implements
 		}
 	}
 	
-	protected void highlight(ReplacementRef obj, INode node, IHighlightedPositionAcceptor acceptor) {
-		acceptor.addPosition(node.getOffset(), node.getLength(), DIRECTIVE);
-	}
+//	protected void highlight(ReplacementRef obj, INode node, IHighlightedPositionAcceptor acceptor) {
+//		acceptor.addPosition(node.getOffset(), node.getLength(), DIRECTIVE);
+//	}
 
 	protected void highlight(Bold obj, INode node, IHighlightedPositionAcceptor acceptor) {
 		acceptor.addPosition(node.getOffset(), node.getLength(), BOLD_TEXT);

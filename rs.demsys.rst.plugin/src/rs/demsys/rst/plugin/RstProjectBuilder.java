@@ -46,46 +46,46 @@ public class RstProjectBuilder extends IncrementalProjectBuilder {
 		// get the project to build
 		IProject project = getProject();
 
-//        try {
-//        	
-//    		String[] cmd = new String[4];
-//    		String s = null;
-//    		
-//    		cmd[0] = "make";
-//            cmd[1] = "-f";
-//            cmd[2] = project.getLocation().toString() + "/Makefile";
-//            cmd[3] = "latexpdf";
-//            		
-//            MessageConsole console = findConsole("Rst Console");
-//            MessageConsoleStream consoleOut = console.newMessageStream();
-//            
-//			Process p = Runtime.getRuntime().exec(cmd, null, new File(project.getLocation().toString()));
-//			
-//			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-//					p.getInputStream()));
-//
-//			BufferedReader stdError = new BufferedReader(new InputStreamReader(
-//					p.getErrorStream()));
-//
-////			while (p.isAlive())
-////			{
-//				while ((s = stdInput.readLine()) != null) {
-//					System.out.println(s);
-//					consoleOut.println(s);
-//				}
-//				
-//				while ((s = stdError.readLine()) != null) {
-//					System.out.println(s);
-//					consoleOut.println(s);
-//				}
-////			}
-//				
-//			p.destroy();
-//
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+        try {
+        	
+    		String[] cmd = new String[4];
+    		String s = null;
+    		
+    		cmd[0] = "make";
+            cmd[1] = "-f";
+            cmd[2] = project.getLocation().toString() + "/Makefile";
+            cmd[3] = "latexpdf";
+            		
+            MessageConsole console = findConsole("Rst Console");
+            MessageConsoleStream consoleOut = console.newMessageStream();
+            
+			Process p = Runtime.getRuntime().exec(cmd, null, new File(project.getLocation().toString()));
+			
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(
+					p.getErrorStream()));
+
+//			while (p.isAlive())
+//			{
+				while ((s = stdInput.readLine()) != null) {
+					System.out.println(s);
+					consoleOut.println(s);
+				}
+				
+				while ((s = stdError.readLine()) != null) {
+					System.out.println(s);
+					consoleOut.println(s);
+				}
+//			}
+				
+			p.destroy();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		switch (kind) {
 

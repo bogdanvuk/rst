@@ -12,9 +12,14 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Section"/>
     <genClasses ecoreClass="Rst.ecore#//Heading">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Heading/label"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underlineTop"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underline"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//ReplacementDirective"/>
+    <genClasses ecoreClass="Rst.ecore#//Replacement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Replacement/text"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Replacement/name"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//TwoLevelBulletList">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletList/item"/>
@@ -33,10 +38,6 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Paragraph/line"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Directive"/>
-    <genClasses ecoreClass="Rst.ecore#//Block">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/options"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/block"/>
-    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//RawIndentBlock">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//RawIndentBlock/line"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawIndentBlock/block"/>
@@ -55,11 +56,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//RawDirective/firstLine"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawDirective/block"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//ImageDirective">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/label"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ImageDirective/picture"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/block"/>
-    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//BibDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//BibDirective/bib"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BibDirective/block"/>
@@ -67,25 +63,32 @@
     <genClasses ecoreClass="Rst.ecore#//IncludeDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//IncludeDirective/importURI"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//OtherDirective">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/name"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/firstLine"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/block"/>
-    </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//DirectiveOption">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//DirectiveOption/name"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//DirectiveOption/value"/>
+    <genClasses ecoreClass="Rst.ecore#//Block">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/options"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Block/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//MathDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathDirective/firstLine"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/block"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//Replacement">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Replacement/name"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Replacement/text"/>
+    <genClasses ecoreClass="Rst.ecore#//ImageDirective">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ImageDirective/picture"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/block"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//Label"/>
+    <genClasses ecoreClass="Rst.ecore#//LabelDirective"/>
+    <genClasses ecoreClass="Rst.ecore#//Label">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Label/name"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//OtherDirective">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherDirective/firstLine"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//OtherDirective/block"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//DirectiveOption">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//DirectiveOption/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//DirectiveOption/value"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//TextLine">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TextLine/first"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TextLine/text"/>
@@ -96,6 +99,16 @@
     <genClasses ecoreClass="Rst.ecore#//Literal"/>
     <genClasses ecoreClass="Rst.ecore#//FirstTextLiteral"/>
     <genClasses ecoreClass="Rst.ecore#//Role"/>
+    <genClasses ecoreClass="Rst.ecore#//MathRole">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathRole/text"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//HashRef">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//HashRef/ref"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//NumfigRole">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//NumfigRole/text"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//NumfigRole/ref"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//CiteRole">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//CiteRole/entry"/>
     </genClasses>
@@ -107,13 +120,7 @@
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//ReplacementRef/name"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Reference"/>
-    <genClasses ecoreClass="Rst.ecore#//SimpleReference"/>
-    <genClasses ecoreClass="Rst.ecore#//ReferenceName">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//ReferenceName/name"/>
-    </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//RefTarget">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//RefTarget/name"/>
-    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//RefTarget"/>
     <genClasses ecoreClass="Rst.ecore#//LongReference">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//LongReference/ref"/>
     </genClasses>

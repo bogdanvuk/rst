@@ -63,16 +63,17 @@ Workflow {
     		// a custom ResourceFactory for use with EMF
     		fragment = resourceFactory.ResourceFactoryFragment auto-inject {}
     
+			// The antlr parser generator fragment.
+			fragment = parser.antlr.ex.rt.AntlrGeneratorFragment auto-inject {
+				options = auto-inject {}
+			}
+
     		// The antlr parser generator fragment.
     		//fragment = parser.antlr.XtextAntlrGeneratorFragment auto-inject {
     		//  options = {
     		//      backtrack = true
     		//  }
     		//}
-    		
-    		fragment = parser.antlr.ex.rt.AntlrGeneratorFragment auto-inject {
-                options = auto-inject {}
-            }
     
     		// Xtend-based API for validation
     		fragment = validation.ValidatorFragment auto-inject {
@@ -81,8 +82,8 @@ Workflow {
     		}
     
     		// old scoping and exporting API
-    		//fragment = scoping.ImportURIScopingFragment auto-inject {}
-    		fragment = exporting.SimpleNamesFragment auto-inject {}
+    		// fragment = scoping.ImportURIScopingFragment auto-inject {}
+    		 fragment = exporting.SimpleNamesFragment auto-inject {}
     
     		// scoping and exporting API
     		fragment = scoping.ImportNamespacesScopingFragment auto-inject {}
@@ -92,8 +93,8 @@ Workflow {
     		// generator API
     		fragment = generator.GeneratorFragment auto-inject {}
     
-    		// formatter API
-    		fragment = formatting.FormatterFragment auto-inject {}
+			// formatter API 
+			fragment = formatting2.Formatter2Fragment {}
     
     		// labeling API
     		fragment = labeling.LabelProviderFragment auto-inject {}
@@ -109,7 +110,7 @@ Workflow {
     		fragment = contentAssist.ContentAssistFragment auto-inject {}
     
     		// generates a more lightweight Antlr parser and lexer tailored for content assist
-    		fragment = parser.antlr.XtextAntlrUiGeneratorFragment auto-inject {}
+    		fragment = parser.antlr.ex.ca.ContentAssistParserGeneratorFragment auto-inject {}
     
     		// generates junit test support classes into Generator#pathTestProject
     		fragment = junit.Junit4Fragment auto-inject {}

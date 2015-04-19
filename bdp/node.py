@@ -8,16 +8,18 @@ import copy
 import itertools
 import inspect
 import operator
-from alias_dict import AliasDict
+# from alias_dict import AliasDict
 import subprocess
-
-bdp_config = {
-              'grid':   10
-              }
+import math
 
 def to_units(num):
 #     return "{0}{1}".format(float(int(num)*bdp_config['grid']), "pt")
-    return "{0}{1}".format(int(num)*bdp_config['grid'], "pt")
+    return "{0}{1}".format(num*bdp_config['grid'], "pt")
+
+def from_units(str):
+#     return "{0}{1}".format(float(int(num)*bdp_config['grid']), "pt")
+    str = str.replace('pt', '')
+    return float(str) / bdp_config['grid']
 
 obj_list = []
        
@@ -34,6 +36,12 @@ class Point(object):
             return self.x
         else:
             return self.y
+        
+    def __setitem__(self, key, val):
+        if key == 0:
+            self.x = val
+        else:
+            self.y = val
     
     def copy(self):
         return Point(self.x, self.y)
@@ -62,7 +70,7 @@ class Point(object):
 #             x = self.x
 #             
 #         try:
-#             y = self.y.resolve()
+#             y = self.y.k()
 #         except AttributeError:
 #             y = self.y
 #             
@@ -115,7 +123,27 @@ class Node(object):
     settings = None
     def_settings = {}
     aliases = {}
-    meta_options = ['template', 'p', 't', 'resolve']
+    meta_options = ['template', 'p', 't']
+
+    def options(self, excluded=None):
+        if not excluded:
+            excluded = set()
+        
+        excluded |= set(self.meta_options)
+        
+        for s in self.settings:
+            if s not in excluded:
+                excluded.add(s)
+                yield s
+                
+        if self.template:
+            yield from self.template.options(excluded)
+            
+        for s in self.def_settings:
+            if s not in excluded:
+                excluded.add(s)
+                yield s
+                 
 
     def render_tikz_options(self):
         options = []
@@ -125,23 +153,29 @@ class Node(object):
         
         options.append('anchor=north west')
         
-        for s, val in self.settings.items():
-            if not s in self.meta_options:
-                try:
-                    options.append(getattr(self, "render_tikz_" + s)())
-                except AttributeError:
-                    if val is True:
-                        options.append(s)
-                    else:
-                        options.append(s + '=' + str(val))
+#         for s, val in self.settings.items():
+#             if not s in self.meta_options:
+        for s in self.options():
+            val = getattr(self, s)
+            try:
+                options.append(getattr(self, "render_tikz_" + s)())
+            except AttributeError:
+                if val is True:
+                    options.append(s)
+                else:
+                    options.append(s + '=' + str(val))
                     
         return ','.join(options)
     
     def render_tikz_p(self):
-        return "{0}, {1}".format(to_units(self.p[0]), to_units(self.p[1]))
+        pos = self.p + bdp_config['origin_offset']
+        return "{0}, {1}".format(to_units(pos[0]), to_units(pos[1]))
     
     def render_tikz_t(self):
-        return self.t
+        try:
+            return self.t
+        except AttributeError:
+            return ''
     
     def render_tikz(self):
         pos = self.render_tikz_p()
@@ -157,22 +191,33 @@ class Node(object):
         text = self.render_tikz_t()
         
         if text:
-            text = "{{${0}$}}".format(text)
+            text = "{{{0}}}".format(text)
         else:
             text = "{}"
         
         return ' '.join(["\\node", pos, options, text, ";\n"])
 
     def __call__(self, *args, **kwargs):
-        kwargs['template'] = self
+        if (not args) and (not kwargs):
+            obj_list.append(self.render_tikz())
+            
+            return self
+        else:
+            kwargs['template'] = self
         
-        return self.__class__(*args, **kwargs)
-
+            return self.__class__(*args, **kwargs)
+        
     def __getattr__(self, attr):
         try:
             return self.settings[attr]
-        except KeyError:
-            return getattr(self.template, attr)
+        except (KeyError, TypeError):
+            try:
+                return getattr(self.template, attr)
+            except AttributeError:
+                try:
+                    return self.def_settings[attr]
+                except KeyError:
+                    raise AttributeError
 
     def __setattr__(self, attr, val):
         if hasattr(self.__class__, attr):
@@ -190,42 +235,17 @@ class Node(object):
             except NameError:
                 self.template = None
         
-        self.settings = AliasDict()
+        import copy
+        self.settings = copy.deepcopy(kwargs)
         
-        for k,v in self.aliases.items():
-            for alias in v:
-                self.settings.alias(k, alias)
-        
-        self.settings.update(self.def_settings.copy())
-        self.settings.update(kwargs)
-        
-#         if p is not None:
-#             self.settings['p'] = p
-#             
-#         if size is not None:
-#             self.settings['size'] = size
-#             
-#         if t is not None:
-#             self.settings['t'] = t
-#         
-#         self.settings['border'] = border
-        
-        if self.template is not None:
-            for key, value in self.template.settings.items():
-                if not key in self.settings:
-                    self.settings[key] = value
-        
-        if self.resolve:
-            obj_list.append(self)
-
 class Block(Node):
     
-    meta_options = ['node_sep', 'conn_sep', 'border'] + Node.meta_options
+    meta_options = ['node_sep', 'conn_sep', 'border', 'anchor'] + Node.meta_options
     
     def_settings = {
-            'resolve':  True,
             'border' :  True,
-            'margin' :  p(5,None)
+            'margin' :  p(0.3,0.3),
+            'size'   :  p(None, None)
             }
     
 #     def __getattr__(self, attr):
@@ -240,50 +260,62 @@ class Block(Node):
             
     def render_tikz_margin(self):
         if self.margin[0] is not None:
-            return "text width=" + to_units(self.size[0] - (2*self.margin[0])/bdp_config['grid'])
+            return "text width=" + to_units(self.size[0] - 2*self.margin[0])
             
         if self.margin[1] is not None:
-            return "text height=" + to_units(self.size[1] - (2*self.margin[0])/bdp_config['grid'])
+            return "text height=" + to_units(self.size[1] - 2*self.margin[1])
     
     import subprocess
 
     @property
     def size(self):
-        
-        tex = r"""
-\documentclass{article}
-\newlength\mylength
-\begin{document}
-\settowidth{\mylength}{\raggedright The quick brown fox jumps over the lazy dog}
-\typeout{\the\mylength}
-\end{document}
-"""        
-
-        
-#         tex = r'"\documentclass{standalone}\newlength\mylength\begin{document}\settowidth{\mylength}{\raggedright The quick brown fox jumps over the lazy dog}\typeout{\the\mylength}\end{document}"'
-#         tex = '"\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{\\raggedright The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}"'
-        tex = '"\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}"'
-        print(tex)
-        
-#         try:
-#             print("ev")
-#         ret = subprocess.check_output('latex "\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{\\raggedright The quick brown fox jumps over the lazy dog}\\typeout{\\the\\mylength}\\end{document}" -draftmode -interaction=nonstopmode', shell=True)
-# #             ret = subprocess.check_output(["latex", tex, "-draftmode", "-interaction=nonstopmode"], shell=True)
-#         except:
-#             print("here?")
-        
-#         if super().size is None:
         try:
-            ret = subprocess.check_output('latex "\\documentclass{standalone}\\newlength\\mylength\\begin{document}\\settowidth{\\mylength}{Proba}\\typeout{\\the\\mylength}\\end{document}" -draftmode -interaction=nonstopmode', shell=True, universal_newlines=True)
-#             ret = subprocess.check_output(["latex", tex, "-draftmode", "-interaction=nonstopmode"])
-#             print("here?")
-            print(ret)
-        except subprocess.CalledProcessError as e:
-            print ("Ping stdout output:\n", e.output)
+            size = self.__getattr__('size')
+        except AttributeError:
+            size = p(None,None)
+        
+        if (size[0] is None) or (size[1] is None):
+        
+            if self.t:
+                bdp_console_header = '[BDP]'
+                tex = ('latex '
+                      '"\\documentclass{standalone}'
+                      '\\newlength\\mywidth\\newlength\\myheight'
+                      '\\begin{document}'
+                      '\\settowidth{\\mywidth}{' + self.t + '}'
+                      '\\settoheight{\\myheight}{' + self.t + '}'
+                      '\\typeout{' + bdp_console_header + '\\the\\mywidth,\\the\\myheight}'
+                      '\\end{document}"'
+                      ' -draftmode -interaction=nonstopmode')
+        
+                try:
+                    ret = subprocess.check_output(tex, shell=True, universal_newlines=True)
+                    for line in ret.split('\n'):
+                        if line.startswith(bdp_console_header):
+                            line = line.replace(bdp_console_header, '')
+                            vals = line.split(',')
+                            
+                            if size[0] is None:
+                                size[0] = math.ceil(from_units(vals[0]) + (2*self.margin[0]))
+                                
+                                if size[0] == 0:
+                                    size[0] = 1
+                                
+                            if size[1] is None:
+                                size[1] = math.ceil(from_units(vals[1]) + (2*self.margin[1]))
+                                
+                                if size[1] == 0:
+                                    size[1] = 1
+                                
+                            break
+                            
+                except subprocess.CalledProcessError as e:
+                    print ("Ping stdout output:\n", e.output)
+                
+            else:
+                return p(1,1)
             
-#         print(ret)
-#         else:
-#             return super().size
+        return size
         
     @size.setter
     def size(self, value):   
@@ -291,10 +323,14 @@ class Block(Node):
     
     @property
     def p(self):
-        if 'anchor' in self.settings:
-            return 2*self.settings['p'] - self.settings['anchor']
-        else:
-            return self.settings['p']
+        pos = self.__getattr__('p')
+        
+        try:
+            anchor = self.anchor
+        
+            return 2*pos - anchor
+        except AttributeError:
+            return pos
         
     @p.setter
     def p(self, value):
@@ -327,7 +363,7 @@ class Block(Node):
     def b(self, pos):
         return self.p + (0, self.size[1] + pos*self.node_sep[1])
     
-    def __init__(self, p=None, t=None, size=None, border=True, **kwargs):
+    def __init__(self, p=None, t=None, size=None, **kwargs):
         super().__init__(**kwargs)
         
         if p is not None:
@@ -338,8 +374,6 @@ class Block(Node):
              
         if t is not None:
             self.t = t
-         
-        self.border = border
             
 class Path(object):
     
@@ -387,10 +421,14 @@ def templ(obj, *args, **kwargs):
     
     return obj(*args, **kwargs)
 
-origin = p(1000, 1000)
+origin = p(0, 0)
+
+bdp_config = {
+              'grid'            : 10,
+              'origin_offset'   : p(1000, 1000)
+              }
 
 node = Node(
-          resolve   = False,
           template  = None,
           p         = origin,
           t         = "",
@@ -401,26 +439,14 @@ node = Node(
           )
 
 block = Block(
-          resolve   = False,
           template  = None,
           p         = origin,
-          t         = "",
-#           size      = p(10, 10),
           node_sep  = p(1,1),
           conn_sep  = 1,
           align     = "center"
           )
 
-class Text(Node):
-    
-    def __init__(self, text, **kwargs):
-        if 'border' not in kwargs:
-            kwargs['border'] = False
-            
-        if 'size' not in kwargs:
-            kwargs['size'] = p(0,0)
-        
-        kwargs['t'] = text
-        
-        super().__init__(**kwargs)
+text = block(
+            border = False
+            )
         

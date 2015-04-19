@@ -1,4 +1,4 @@
-grammar rs.demsys.rst.Rst
+grammar rs.demsys.rst.Rst hidden(WS)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate rst "http://www.demsys.rs/rst/Rst"
@@ -8,107 +8,87 @@ Document:
     section+=Section*
 	;
 
-//SectionOrSpace:
-//		Section
-//	| 	(WS?) LINE_BREAK
-//;
-
 Section:
 	   TwoLevelBulletList
 	|  BulletList
-    |  Replacement
+    |  ReplacementDirective
     |  Directive
 	|  Paragraph
-	|  Heading	   
-    |  (WS?) LINE_BREAK
+	|  Heading
+//	|  Block
 ;
 
 Heading:
-	label=Label?
+//	label=Label?
 	LINE_BREAK
-	underlineTop=HeadingUnderline?
+	(underlineTop=HeadingUnderline LINE_BREAK)?
     name=SimpleText LINE_BREAK
-    underline=HeadingUnderline
+//    underline=HeadingUnderline
+	underline=HeadingUnderline LINE_BREAK
 ;
 
 HeadingUnderline:
-      UnderlineEqual
-    | UnderlineStar
-    | UnderlineSemi
-    | UnderlineMinus
+      EQUAL_LINE
+    | STAR_LINE
+    | SEMI_LINE
+    | MINUS_LINE
 ;
 
-UnderlineEqual:
-    (EQUAL EQUAL EQUAL) EQUAL* LINE_BREAK
+ReplacementDirective:
+	'..' Replacement 'replace::'
+//	text+=SimpleLiteral+
+	text=Text
+	LINE_BREAK
 ;
 
-UnderlineStar:
-    (STAR STAR STAR) STAR* LINE_BREAK
-;
-
-UnderlineSemi:
-    (SEMI SEMI SEMI) SEMI* LINE_BREAK
-;
-
-UnderlineMinus:
-    (MINUS MINUS MINUS) MINUS* LINE_BREAK
+Replacement hidden():
+	PIPE name=SIMPLE_WORD PIPE
 ;
 
 TwoLevelBulletList:
-	(WS?) LINE_BREAK
+	LINE_BREAK
 	item+=TwoLevelBulletLine+
 ;
 
 BulletList:
-	(WS?) LINE_BREAK
+	LINE_BREAK
 	item+=BulletLine+
 ;
 
 TwoLevelBulletLine:
-	(WS?) STAR WS (=> MINUS) WS text=Text LINE_BREAK
-	(WS?)
+	STAR (=> MINUS) text=Text LINE_BREAK
 	BEGIN
 		item+=BulletLine+
 	END
 ;
 
 BulletLine:
-	(WS?) MINUS WS text=Text (=> LINE_BREAK)
+	MINUS text=Text (=> LINE_BREAK)
 ;
 
 Paragraph:
-	(WS?) LINE_BREAK
-    (line+=TextLine)+
+	LINE_BREAK
+    (line+=TextLine)*
 ;
 
 Directive:
-	//	Label
 		MathDirective
 	|   IncludeDirective
 	|	ImageDirective
 	|	BibDirective
 	|   CodeBlockDirective
 	|	RawDirective
+	|	LabelDirective
 	|	OtherDirective
 ;
 
-Block:
-	(WS?) 
-    BEGIN
-    	options+=DirectiveOption*
-       	block+=Section*
-    END
-;
-
 RawIndentBlock:
-	(WS?) 
     BEGIN
        	(line+=RawLine | block+=RawIndentBlock)*
     END
 ;
 
 RawBlock:
-	(WS?) 
     BEGIN
     	options+=DirectiveOption*
        	(line+=RawLine | block+=RawIndentBlock)*
@@ -121,79 +101,85 @@ RawLine:
 
 CodeBlockDirective:
 	label=Label?
-	(WS?) LINE_BREAK
-	'.. ' ('code' | 'code-block') '::'
+	LINE_BREAK
+	'..' ('code::' | 'code-block::')
 	firstLine=RawText? 
 	LINE_BREAK
 	block=RawBlock?
 ;
 
 RawDirective:
-	'.. ' ('raw' | 'tabularcolumns') '::'
+	'..' ('raw::' | 'tabularcolumns::')
 	firstLine=RawText? 
 	LINE_BREAK
 	block=RawBlock?
 ;
 
-ImageDirective:
-	label=Label?
-	(WS?) LINE_BREAK
-    '.. ' ('image' | 'figure') '::' WS?
-    picture=FileName WS? LINE_BREAK
-    block=Block?
-;
-
 BibDirective:
-    '.. ' 'bibliography' '::' WS?
-    bib=FileName WS? LINE_BREAK
+    '..' 'bibliography::'
+    bib=FileName LINE_BREAK
     block=Block?
 ;
 
 IncludeDirective:
-    '.. ' 'include' '::' WS?
-    importURI=FileName WS? LINE_BREAK
+    '..' 'include::'
+    importURI=FileName LINE_BREAK
 ;
 
-FileName:
-	(SIMPLE_WORD | UnderscoreWord | '.' | '/' )+
-;
-
-OtherDirective:
-    '.. ' name=SIMPLE_WORD '::' 
-    firstLine=Text?
-    LINE_BREAK
-	block=Block?
-    ;
-
-DirectiveOption:
-	(WS?) COLON name=SIMPLE_WORD COLON (WS value=SimpleText)? LINE_BREAK
+Block:
+    BEGIN
+    	options+=DirectiveOption*
+       	block+=Section*
+    END
 ;
 
 MathDirective:
-	{MathDirective}
-	'.. ' 'math' '::' 
+//	{MathDirective}
+	LINE_BREAK
+	'..' 'math::' 
     firstLine=Latex?
     LINE_BREAK
-    ( (WS?) 
+    (
     BEGIN
     	options+=DirectiveOption*
        	block+=LatexLine*
     END)?
 ;
 
-Replacement:
-	'.. ' PIPE name=SIMPLE_WORD PIPE WS 'replace::'
-	text+=Literal+
+ImageDirective:
+//	label=LabelDirective
 	LINE_BREAK
+    '..' ('image::' | 'figure::')
+    picture=FileName LINE_BREAK
+    block=Block?
 ;
 
-Label:
-	(WS?) LINE_BREAK
-	'.. ' UNDERSCORE name=SIMPLE_WORD COLON LINE_BREAK
+LabelDirective:
+	LINE_BREAK
+	'..' Label LINE_BREAK
+;
+
+Label hidden():
+	UNDERSCORE name=SIMPLE_WORD COLON
+;
+
+FileName:
+	(SIMPLE_WORD | '.' | '/' )+
+;
+
+OtherDirective:
+    '..' name=SIMPLE_WORD '::' 
+    firstLine=SimpleText?
+    LINE_BREAK
+	block=Block?
+    ;
+
+DirectiveOption:
+	name=ROLE_WORD (value=SimpleText)? LINE_BREAK
 ;
 
 TextLine:
-     (WS?) (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK     
+     (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK     
 ;
 
 Text:
@@ -201,7 +187,7 @@ Text:
 ;
 
 Literal:
-    	Reference
+       Reference
     |	SimpleLiteral
     | 	StyledText
     |	Role
@@ -215,45 +201,50 @@ Literal:
 FirstTextLiteral:
       SIMPLE_WORD
     | StyledText
-    | UnderscoreWord
-    | ReplacementRef
-//    | WS
+//    | UnderscoreWord
+//    | ReplacementRef
 ;
-
-SimpleTextLine:
-	SimpleText (=> LINE_BREAK)
-;
-
+//
+//SimpleTextLine:
+//	SimpleText (=> LINE_BREAK)
+//;
+//
 SimpleText:
-//    (=> SIMPLE_WORD) SimpleLiteral*
-//    | WS
 	SimpleLiteral+
 ;
 
 SimpleLiteral:
-      UnderscoreWord
-    | KEYWORDS
-    | SIMPLE_WORD
+//      UnderscoreWord
+//      KEYWORDS
+      SIMPLE_WORD
     | SPECIAL_CHAR
-    | WS
 ;
-
+//
 Role:
 		MathRole
 	|	CiteRole
+	|	NumfigRole
 	| 	OtherRole
 ;
 
 MathRole:
-	COLON 'math' COLON BACKTICK Latex BACKTICK
+	':math:' BACKTICK text=Latex BACKTICK
+;
+
+HashRef hidden():
+	'#' ref=[Label|SIMPLE_WORD]
+;
+
+NumfigRole:
+	':num:' BACKTICK text=SimpleText ref=HashRef BACKTICK
 ;
 
 CiteRole:
-	COLON 'cite' COLON BACKTICK entry=[bib::Entry|SIMPLE_WORD] BACKTICK
+	':cite:' BACKTICK entry=[bib::Entry|SIMPLE_WORD] BACKTICK
 ;
 
 OtherRole:
-	COLON name=SIMPLE_WORD COLON BACKTICK text=SimpleText BACKTICK
+	name=ROLE_WORD BACKTICK text=SimpleText BACKTICK
 ;
 
 ReplacementRef:
@@ -263,17 +254,17 @@ ReplacementRef:
 Reference:
 	  ExternalReference
 	| LongReference
-	| SimpleReference
+//	| SimpleReference
   ;
-
-SimpleReference
-  :  ReferenceName UNDERSCORE (WS | LINE_BREAK)
-  ;
-    
-ReferenceName:
-	name=[Heading|SIMPLE_WORD]
-;
-
+//
+//SimpleReference
+//  :  ReferenceName UNDERSCORE (WS | LINE_BREAK)
+//  ;
+//    
+//ReferenceName:
+//	name=[Heading|SIMPLE_WORD]
+//;
+//
 RefTarget:
 	Heading |
 	Label
@@ -285,20 +276,11 @@ LongReference :
 	BACKTICK UNDERSCORE
   ;
 
-ExternalReferenceLiteral:
-	SimpleLiteral
-	| COLON
-;
-
-ExternalReferenceText:
-	ExternalReferenceLiteral+
-;
-
 ExternalReference:
 	BACKTICK
 	title=SimpleText
 	L_ANGLE_BRACKET
-	link=ExternalReferenceText
+	link=SimpleText
 	R_ANGLE_BRACKET
 	BACKTICK UNDERSCORE
 ;
@@ -318,7 +300,7 @@ LatexLiteral:
 	|	STAR
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
-	|	WS
+	|	SIMPLE_REFERENCE
 ;
 
 RawText:
@@ -327,7 +309,7 @@ RawText:
 
 RawLiteral:
 		SIMPLE_WORD
-	|	KEYWORDS
+//	|	KEYWORDS
 	| 	SPECIAL_CHAR
 	|	UNDERSCORE
 	|	STAR
@@ -335,7 +317,6 @@ RawLiteral:
 	|	R_ANGLE_BRACKET
 	|	PIPE
 	|	COLON
-	|	WS
 ;
 
 StyledText:
@@ -345,41 +326,45 @@ StyledText:
 
 Bold
   :  {Bold}
-  	 STAR (=>STAR) 
+  	 '**' 
       text=SimpleText 
-      STAR STAR
+     '**'
   ;  
 
 Italic
   :  {Italic}
   	STAR text=SimpleText STAR
   ;
-  
-UnderscoreWord:
-	SIMPLE_WORD (UNDERSCORE SIMPLE_WORD)+
+
+terminal fragment
+ALPHA_NUM:
+	('a'..'z' | 'A'..'Z' | '0'..'9') 
 ;
 
-//terminal
-//SIMPLE_WORD:
-//    	('a'..'z' | 'A'..'Z' | '0'..'9') 
-//    | (('a'..'z' | 'A'..'Z' | '0'..'9') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' )* ('a'..'z' | 'A'..'Z' | '0'..'9'))
-//;
+terminal fragment
+SIMPLE_WORD_FRAGMENT:
+	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))* 
+;
 
-KEYWORDS:
-	  'figure'
-	| 'code'
+terminal
+SIMPLE_REFERENCE:
+	ALPHA_NUM+ '_'
 ;
 
 terminal
 SIMPLE_WORD:
-	('a'..'z' | 'A'..'Z' | '0'..'9') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' )*
+	SIMPLE_WORD_FRAGMENT
+;
+
+terminal
+ROLE_WORD:
+	':' (SIMPLE_WORD_FRAGMENT ':')+
 ;
 
 SPECIAL_CHAR:  (
      '!'
-    |MINUS  
+    |MINUS
     |'"'
-    |'#'
     |'$'
     |'%'
     |'&'
@@ -391,7 +376,7 @@ SPECIAL_CHAR:  (
     |'.'
     |'/'
     |SEMI
-    |EQUAL
+    |'='
     |'?'
     |'@'
     |'['
@@ -404,8 +389,28 @@ SPECIAL_CHAR:  (
     |'...'
     )
   ;
+
+terminal EQUAL_LINE:
+	'=' '=' '='+
+;
+
+terminal STAR_LINE:
+	'*' '*' '*'+
+;
+
+terminal SEMI_LINE:
+	';' ';' ';'+
+;
+
+terminal MINUS_LINE:
+	'-' '-' '-'+
+;
+  
+//terminal SPECIAL_CHAR_LINE:
+//	('-' | '=' | '+') ('-' | '=') ('-' | '=')+
+//;
  
-terminal EQUAL: '=';  
+//terminal EQUAL: '=';  
 terminal STAR: '*';
 terminal SEMI: ';';
 terminal UNDERSCORE :  '_';
@@ -416,7 +421,7 @@ terminal MINUS: '-';
 terminal L_ANGLE_BRACKET: '<';
 terminal R_ANGLE_BRACKET: '>';
 
-terminal LINE_BREAK :  '\r'? '\n';
+terminal LINE_BREAK :  ('\r'? '\n' (' '|'\t')*);
 
 terminal WS         : (' '|'\t')+;
 

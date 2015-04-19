@@ -9,7 +9,7 @@ import org.eclipse.xtext.ui.editor.utils.TextStyle;
 import static org.eclipse.swt.SWT.*;
 
 
-public class RstHighlightingConfiguration implements IHighlightingConfiguration
+public class RstHighlightingConfiguration extends DefaultHighlightingConfiguration
 {
     public static final String DIRECTIVE = "Directive";
     public static final String DIRECTIVE_TYPE = "DirectiveType";
@@ -28,6 +28,7 @@ public class RstHighlightingConfiguration implements IHighlightingConfiguration
     
     
     public void configure(IHighlightingConfigurationAcceptor acceptor) {
+    	addType( acceptor, KEYWORD_ID, 127, 0, 85, BOLD );
         addType( acceptor, DIRECTIVE, 50, 0, 0, NORMAL );
         addType( acceptor, DIRECTIVE_TYPE, 50, 0, 0, NORMAL );
         addType( acceptor, HEADING, 50, 0, 0, BOLD);
@@ -38,7 +39,7 @@ public class RstHighlightingConfiguration implements IHighlightingConfiguration
     
     public void addType( IHighlightingConfigurationAcceptor acceptor, String s, int r, int g, int b, int style )
     {
-        TextStyle textStyle = new TextStyle();
+    	TextStyle textStyle = defaultTextStyle().copy();
         textStyle.setBackgroundColor(new RGB(255, 255, 255));
         textStyle.setColor(new RGB(r, g, b));
         textStyle.setStyle(style);

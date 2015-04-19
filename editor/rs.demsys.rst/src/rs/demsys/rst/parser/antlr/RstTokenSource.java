@@ -3,103 +3,25 @@
  */
 package rs.demsys.rst.parser.antlr;
 
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 import org.eclipse.xtext.parser.antlr.AbstractIndentationTokenSource;
+import org.eclipse.xtext.parser.antlr.ITokenAcceptor;
 
 import rs.demsys.rst.parser.antlr.internal.InternalRstParser;
 
 public class RstTokenSource extends AbstractIndentationTokenSource {
 	
-	private boolean line_break_prev;
-    private boolean line_break_seen;
-    private String nextTokenText;
-    
 	public RstTokenSource(TokenSource delegate) {
 		super(delegate);
-		line_break_prev = false;
-		line_break_seen = false;
 	}
 	
 	@Override
 	protected boolean shouldSplitTokenImpl(Token token) {
 		// TODO Review assumption
-    
-	    line_break_prev = line_break_seen;
-	    
-	    if (token.getType() == InternalRstParser.RULE_LINE_BREAK)
-	        line_break_seen = true;
-	    else
-	        line_break_seen = false;
-	    
-	    if (line_break_prev)
-	    {
-            if (token.getType() == InternalRstParser.RULE_WS)
-                nextTokenText = "\r\n" + token.getText();
-            else
-                nextTokenText = "\r\n";
-            
-            return true;
-	    }
-	    else
-	        return false;
-	        
-//	    return (token.getType() == InternalRstParser.RULE_WS) ;
+		return token.getType() == InternalRstParser.RULE_LINE_BREAK;
 	}
-	@Override
-	protected char getTabWidth() {
-		return 4;
-	}
-	
-//	void splitIntoBeginTokenEx(Token token, int indentation, ITokenAcceptor result) {
-//		indentationStack.push(indentation);
-//		result.accept(createBeginToken(((CommonToken) token).getStopIndex() + 1));
-//		result.accept(token);
-//		currentIndentation = indentation;
-//	}
-//	
-//	protected void doSplitTokenImpl(Token token, ITokenAcceptor result) {
-//		String text = token.getText();
-//		int indentation = computeIndentation(text);
-//		if (indentation == -1 || indentation == currentIndentation) {
-//			result.accept(token);
-//		} else if (indentation > currentIndentation) {
-//			splitIntoBeginTokenEx(token, indentation, result);
-//		} else if (indentation < currentIndentation) {
-//			while(indentation < currentIndentation) {
-//				indentationStack.pop();
-//				currentIndentation = indentationStack.peek();
-//				result.accept(createEndToken(nextOffset));
-//			}
-//			if (indentation > currentIndentation) {
-//				splitIntoBeginTokenEx(token, indentation, result);
-//				return;
-//			}
-//			result.accept(token);
-//		} else {
-//			throw new IllegalStateException(String.valueOf(indentation));
-//		}
-//	}
-	
-	 protected int computeIndentation(String text) {
-	     return super.computeIndentation(nextTokenText);
-	 }
-//        int result = 0;
-//        text = nextTokenText;
-//        for(int i = text.length() - 1; i>=0; i--) {
-//            char c = text.charAt(i);
-//            if (c == '\t') {
-//                result+=getTabWidth();
-//            } else {
-//                result++;
-//            }
-//        }
-////        if (line_break_prev)
-////            return result;
-////        else
-////            return -1;
-//        return result;
-//    }
 
 	@Override
 	protected int getBeginTokenType() {
@@ -111,6 +33,38 @@ public class RstTokenSource extends AbstractIndentationTokenSource {
 	protected int getEndTokenType() {
 		// TODO Review assumption
 		return InternalRstParser.RULE_END;
+	}
+	
+	private void splitIntoBeginToken(Token token, int indentation, ITokenAcceptor result) {
+		result.accept(token);
+		indentationStack.push(indentation);
+		currentIndentation = indentation;
+		result.accept(createBeginToken(((CommonToken) token).getStopIndex() + 1));
+	}
+	
+	@Override
+	protected void doSplitTokenImpl(Token token, ITokenAcceptor result) {
+		String text = token.getText();
+		int indentation = computeIndentation(text);
+		if (indentation == -1 || indentation == currentIndentation) {
+			result.accept(token);
+		} else if (indentation > currentIndentation) {
+			splitIntoBeginToken(token, indentation, result);
+		} else if (indentation < currentIndentation) {
+			result.accept(token);
+			while(indentation < currentIndentation) {
+				indentationStack.pop();
+				currentIndentation = indentationStack.peek();
+				result.accept(createEndToken(nextOffset));
+			}
+			if (indentation > currentIndentation) {
+				splitIntoBeginToken(token, indentation, result);
+				return;
+			}
+//			result.accept(token);
+		} else {
+			throw new IllegalStateException(String.valueOf(indentation));
+		}
 	}
 	
 }
