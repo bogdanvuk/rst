@@ -2,9 +2,11 @@ import importlib.machinery
 import sys
 import os
 
+import node
+
 def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     found = False
-    
+    importlib.reload(node)
     try:
         bdp_file_name = file_name
         print(bdp_file_name)

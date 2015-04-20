@@ -81,7 +81,6 @@ class RstFormatter extends AbstractFormatter2 {
 
 	def dispatch void format(ImageDirective imagedirective, extension IFormattableDocument document) {
 		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
-		format(imagedirective.getLabel(), document);
 		format(imagedirective.getBlock(), document);
 	}
 
