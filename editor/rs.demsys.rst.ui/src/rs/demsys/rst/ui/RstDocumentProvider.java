@@ -1,22 +1,25 @@
-package rs.demsys.rst.formatting2;
+package rs.demsys.rst.ui;
 
 import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
+import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.XtextDocumentProvider;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
 import rs.demsys.rst.rst.Heading;
 import rs.demsys.rst.rst.SimpleTextHeading;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.ui.editor.model.IXtextDocument;
-import org.eclipse.xtext.util.concurrent.IUnitOfWork;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
-import org.eclipse.xtext.resource.XtextResource;
+public class RstDocumentProvider extends XtextDocumentProvider {
+//	private static final String XTEXT_FORMAT_ACTION_COMMAND_ID = "org.eclipse.xtext.ui.FormatAction";
 
-public class RstFormatterHelper {
-	
-	private static String setUnderline(String underline, int length) {
+	private String setUnderline(String underline, int length) {
 		char chUnderline = underline.charAt(0);
 		
 		StringBuffer newUnderline = new StringBuffer(length);
@@ -27,7 +30,7 @@ public class RstFormatterHelper {
 		return newUnderline.toString();
 	}
 	
-	public static void format(IDocument document)
+	public void format(IDocument document)
 			throws CoreException {
 
 		IXtextDocument xDocument = (IXtextDocument) document;
@@ -84,5 +87,19 @@ public class RstFormatterHelper {
 			);
 
 	}
-
+	
+	@Override
+	protected void doSaveDocument(IProgressMonitor monitor, Object element, IDocument document, boolean overwrite)
+			throws CoreException {
+		// auto-format
+//		IHandlerService service = (IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class);
+//		try {
+//			service.executeCommand(XTEXT_FORMAT_ACTION_COMMAND_ID, null);
+//		} catch (ExecutionException | NotDefinedException | NotEnabledException | NotHandledException e) {
+//			e.printStackTrace();
+//		}
+		format(document);
+		// save
+		super.doSaveDocument(monitor, element, document, overwrite);
+	}
 }

@@ -3,6 +3,9 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+*.egg-info/
+.settings/
+
 # Package Files #
 *.jar
 *.war

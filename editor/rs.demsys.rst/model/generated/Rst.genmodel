@@ -12,9 +12,16 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Section"/>
     <genClasses ecoreClass="Rst.ecore#//Heading">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Heading/label"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underlineTop"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Heading/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underline"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//SimpleTextHeading">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//SimpleTextHeading/label"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/underlineTop"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/underline"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//ReplacementDirective"/>
     <genClasses ecoreClass="Rst.ecore#//Replacement">
@@ -69,6 +76,7 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//MathDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathDirective/firstLine"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathDirective/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//MathDirective/block"/>
     </genClasses>
@@ -98,6 +106,7 @@
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Literal"/>
     <genClasses ecoreClass="Rst.ecore#//FirstTextLiteral"/>
+    <genClasses ecoreClass="Rst.ecore#//StyledTextLiteral"/>
     <genClasses ecoreClass="Rst.ecore#//Role"/>
     <genClasses ecoreClass="Rst.ecore#//MathRole">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//MathRole/text"/>
@@ -109,8 +118,14 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//NumfigRole/text"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//NumfigRole/ref"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//CiteRoleEntryList">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//CiteRoleEntryList/entry"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//CiteRole">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//CiteRole/entry"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//CiteRole/entry_list"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//EqRole">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Rst.ecore#//EqRole/ref"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//OtherRole">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//OtherRole/name"/>
@@ -132,7 +147,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//LatexLine/text"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//StyledText">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//StyledText/text"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//StyledText/text"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Bold"/>
     <genClasses ecoreClass="Rst.ecore#//Italic"/>

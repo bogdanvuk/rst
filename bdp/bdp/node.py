@@ -245,7 +245,11 @@ class Block(Node):
     def_settings = {
             'border' :  True,
             'margin' :  p(0.3,0.3),
-            'size'   :  p(None, None)
+            'size'   :  p(None, None),
+            'p'      :  p(0,0),
+            'node_sep' : p(1,1),
+            'conn_sep' : 1,
+            'align'    : "center"
             }
     
 #     def __getattr__(self, attr):
@@ -428,23 +432,8 @@ bdp_config = {
               'origin_offset'   : p(1000, 1000)
               }
 
-node = Node(
-          template  = None,
-          p         = origin,
-          t         = "",
-          size      = p(10, 10),
-          node_sep  = p(1,1),
-          conn_sep  = 1,
-          align     = "center"
-          )
-
-block = Block(
-          template  = None,
-          p         = origin,
-          node_sep  = p(1,1),
-          conn_sep  = 1,
-          align     = "center"
-          )
+node = Node()
+block = Block()
 
 text = block(
             border = False

@@ -49,7 +49,7 @@ class DocTranslator(BaseTranslator):
             self.table.longtable = True
         self.body = self._body
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\n\n\\centering\\begin{threeparttable}\n'
+            self.body.append(u'\n\n\\begin{threeparttable}\n\\centering\n'
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))

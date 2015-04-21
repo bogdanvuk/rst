@@ -206,6 +206,10 @@ public class RstHighlightingCalculator implements
 		acceptor.addPosition(node.getOffset(), node.getLength(), HEADING);
 	}
 	
+	protected void highlight(SimpleTextHeading obj, INode node, IHighlightedPositionAcceptor acceptor) {
+		acceptor.addPosition(node.getOffset(), node.getLength(), HEADING);
+	}
+	
 //    void setStyles(IHighlightedPositionAcceptor acceptor,
 //            BidiIterator<INode> it, String... styles) {
 //        for (String s : styles) {

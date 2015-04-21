@@ -9,7 +9,7 @@ from docutils.parsers.rst.directives.images import Figure
 from sphinx.util.osutil import ensuredir
 from subprocess import Popen, PIPE
 import os, os.path, tempfile, shutil
-from render import render_tikz
+from bdp.render import render_tikz
 from hashlib import sha1 as sha
 
 class BdpFigureDirective(Figure):
@@ -17,7 +17,7 @@ class BdpFigureDirective(Figure):
     required_arguments = 0
     has_content = True
 
-    option_spec = directives.images.Figure.option_spec.copy()
+    option_spec = Figure.option_spec.copy()
     option_spec['caption'] = directives.unchanged
 
     def run(self):
@@ -25,10 +25,13 @@ class BdpFigureDirective(Figure):
         self.arguments = ['']
         text = '\n'.join(self.content)
         
-        while len(self.content) > 1:
-            self.content.trim_end(len(self.content) - 1)
-        
-        self.content[0] = self.options['caption']
+        try:
+            self.content[0] = self.options['caption']
+            
+            while len(self.content) > 1:
+                self.content.trim_end(len(self.content) - 1)
+        except:
+            self.content = None
         
         (figure_node,) = Figure.run(self)
         if isinstance(figure_node, nodes.system_message):
@@ -51,54 +54,48 @@ def render_bdpfigure(app, filename, options):
     basename = os.path.basename(filename)
     stem = os.path.splitext(basename)[0]
     name = stem + '.png'
-    outdir = app.builder.outdir
-    try:
-        bdpinputs = [directory]
-        for bdpdir in app.env.config.bdpfigure_bdpinputs:
-            bdpdir = os.path.join(app.env.srcdir, bdpdir)
-            bdpinputs.append(bdpdir)
+    outdir = os.path.join(app.builder.outdir, '_bdpfigure')
+    
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+    
+    bdpinputs = [directory]
+    for bdpdir in app.env.config.bdpfigure_bdpinputs:
+        bdpdir = os.path.join(app.env.srcdir, bdpdir)
+        bdpinputs.append(bdpdir)
 #        bdpinputs.append('')
 #         bdpinputs = ':'.join(bdpinputs)
-        environ = os.environ.copy()
-        environ['TEXINPUTS'] = outdir + ':'
-        render_tikz(basename, outdir, bdpinputs)
-        cmdline = [app.env.config.bdpfigure_pdftex,
-                   '-halt-on-error',
-                   '-interaction', 'nonstopmode',
-                   '-output-directory', outdir,
-                   os.path.join(outdir, stem) + '.tex']
-        shell(cmdline, env=environ)
-        cmdline = [app.env.config.bdpfigure_pdftoppm,
-                   '-r', str(app.env.config.bdpfigure_resolution),
-                   '-f', '1', '-l', '1',
-                   os.path.join(outdir, stem)+'.pdf',
-                   os.path.join(outdir, stem)]
-        shell(cmdline)
-        ppmfile = os.path.join(outdir, stem)+'-1.ppm'
-        if not os.path.exists(ppmfile):
-            raise BdpFigureError("file not found: %s" % ppmfile)
-        
-        data = open(ppmfile, 'rb').read()
-        cmdline = [app.env.config.bdpfigure_pnmcrop]
-        data = shell(cmdline, data)
-        line = data.splitlines()[1]
-        width, height = [int(chunk) for chunk in line.split()]
-        cmdline = [app.env.config.bdpfigure_pnmtopng,
-                   '-transparent', 'white',
-                   '-compression', '9']
-        
-        data = shell(cmdline, data)
-        
-        print(os.path.join(outdir, name))
-        open(os.path.join(outdir, name), 'wb').write(data)
-        
-    finally:
-        pass
-        #shutil.rmtree(temp)
+    environ = os.environ.copy()
+    environ['TEXINPUTS'] = outdir + ':'
+    render_tikz(basename, outdir, bdpinputs)
+    cmdline = [app.env.config.bdpfigure_pdftex,
+               '-halt-on-error',
+               '-interaction', 'nonstopmode',
+               '-output-directory', outdir,
+               os.path.join(outdir, stem) + '.tex']
+    shell(cmdline, env=environ)
+    cmdline = [app.env.config.bdpfigure_pdftoppm,
+               '-r', str(app.env.config.bdpfigure_resolution),
+               '-f', '1', '-l', '1',
+               os.path.join(outdir, stem)+'.pdf',
+               os.path.join(outdir, stem)]
+    shell(cmdline)
+    ppmfile = os.path.join(outdir, stem)+'-1.ppm'
+    if not os.path.exists(ppmfile):
+        raise BdpFigureError("file not found: %s" % ppmfile)
     
+    data = open(ppmfile, 'rb').read()
+    cmdline = [app.env.config.bdpfigure_pnmcrop]
+    data = shell(cmdline, data)
+    line = data.splitlines()[1]
+    width, height = [int(chunk) for chunk in line.split()]
+    cmdline = [app.env.config.bdpfigure_pnmtopng,
+               '-transparent', 'white',
+               '-compression', '9']
     
+    data = shell(cmdline, data)
     
-#     return name, data, width, height
+    open(os.path.join(app.builder.outdir, name), 'wb').write(data)
 
     return name
 
@@ -135,29 +132,32 @@ def render_bdp_images(app, doctree):
             text = fig.bdpfigure
             hashid = get_hashid(text)
             fname = 'plot-%s' % (hashid)
-            filename = os.path.join(app.builder.outdir, fname)
+            filename = os.path.join(app.builder.outdir, '_bdpfigure', fname + '.py')
             with open(filename, 'wb') as f:
-                f.write("from node import *\n\n".encode())
+                f.write("from bdp.node import *\n\n".encode())
                 f.write(text.encode())
         else:
-            image=fig.children[0]
-            filename = image['uri']
+            try:
+                image=fig.children[0]
+                filename = image['uri']
+                
+                basename = os.path.basename(filename)
+                extension = os.path.splitext(basename)[1]
+                
+                if (extension != '.py'):
+                    continue
             
-            basename = os.path.basename(filename)
-            extension = os.path.splitext(basename)[1]
-            
-            if (extension != '.py'):
+                env = app.env
+                docdir = os.path.dirname(env.doc2path(env.docname, base=None))
+                
+                if filename.startswith('/'):
+                    filename = os.path.normpath(filename[1:])
+                else:
+                    filename = os.path.normpath(os.path.join(docdir, filename))
+                env.note_dependency(filename)
+                filename = os.path.join(env.srcdir, filename)
+            except:
                 continue
-        
-            env = app.env
-            docdir = os.path.dirname(env.doc2path(env.docname, base=None))
-            
-            if filename.startswith('/'):
-                filename = os.path.normpath(filename[1:])
-            else:
-                filename = os.path.normpath(os.path.join(docdir, filename))
-            env.note_dependency(filename)
-            filename = os.path.join(env.srcdir, filename)
 
         try:
             fname = render_bdpfigure(app, filename, fig)
@@ -177,7 +177,7 @@ def setup(app):
     app.add_config_value('bdpfigure_pnmcrop', 'pnmcrop', 'env')
     app.add_config_value('bdpfigure_pnmtopng', 'pnmtopng', 'env')
     app.add_config_value('bdpfigure_bdpinputs', [], 'env')
-    app.add_config_value('bdpfigure_resolution', 110, 'env')
+    app.add_config_value('bdpfigure_resolution', 256, 'env')
     app.connect('doctree-read', render_bdp_images)
     app.add_directive('bdpfigure', BdpFigureDirective)
 #     app.add_node(bdpfigure,

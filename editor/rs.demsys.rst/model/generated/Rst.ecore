@@ -6,7 +6,16 @@
         eType="#//Section" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Section"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Heading" eSuperTypes="#//Section #//RefTarget">
+  <eClassifiers xsi:type="ecore:EClass" name="Heading" eSuperTypes="#//Section">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="underlineTop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Text" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SimpleTextHeading" eSuperTypes="#//Section #//RefTarget">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underlineTop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -79,6 +88,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MathDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
         eType="#//DirectiveOption" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
@@ -96,7 +106,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="OtherDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//Block"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DirectiveOption">
@@ -114,7 +124,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Literal"/>
   <eClassifiers xsi:type="ecore:EClass" name="FirstTextLiteral"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Role" eSuperTypes="#//Literal"/>
+  <eClassifiers xsi:type="ecore:EClass" name="StyledTextLiteral"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Role" eSuperTypes="#//Literal #//StyledTextLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="MathRole" eSuperTypes="#//Role">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -126,17 +137,25 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//HashRef"
         containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CiteRoleEntryList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entry" unique="false" upperBound="-1"
+        eType="ecore:EClass platform:/resource/rs.demsys.rst.bib/model/generated/Bib.ecore#//Entry"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CiteRole" eSuperTypes="#//Role">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="entry" eType="ecore:EClass platform:/resource/rs.demsys.rst.bib/model/generated/Bib.ecore#//Entry"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entry_list" eType="#//CiteRoleEntryList"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EqRole" eSuperTypes="#//Role">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//MathDirective"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OtherRole" eSuperTypes="#//Role">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//Literal">
+  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//Literal #//StyledTextLiteral">
     <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Replacement"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Reference" eSuperTypes="#//Literal"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Reference" eSuperTypes="#//Literal #//StyledTextLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="RefTarget"/>
   <eClassifiers xsi:type="ecore:EClass" name="LongReference" eSuperTypes="#//Reference">
     <eStructuralFeatures xsi:type="ecore:EReference" name="ref" eType="#//RefTarget"/>
@@ -149,7 +168,8 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="StyledText" eSuperTypes="#//Literal #//FirstTextLiteral">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="text" upperBound="-1" eType="#//StyledTextLiteral"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Bold" eSuperTypes="#//StyledText"/>
   <eClassifiers xsi:type="ecore:EClass" name="Italic" eSuperTypes="#//StyledText"/>

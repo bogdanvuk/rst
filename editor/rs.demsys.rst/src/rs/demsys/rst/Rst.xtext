@@ -14,18 +14,27 @@ Section:
     |  ReplacementDirective
     |  Directive
 	|  Paragraph
+	|  SimpleTextHeading
 	|  Heading
 //	|  Block
 ;
 
 Heading:
-//	label=Label?
+	label=Label?
+	LINE_BREAK
+	(underlineTop=HeadingUnderline LINE_BREAK)?
+    name=Text LINE_BREAK
+	underline=HeadingUnderline LINE_BREAK
+;
+
+SimpleTextHeading:
+	label=Label?
 	LINE_BREAK
 	(underlineTop=HeadingUnderline LINE_BREAK)?
     name=SimpleText LINE_BREAK
-//    underline=HeadingUnderline
 	underline=HeadingUnderline LINE_BREAK
 ;
+
 
 HeadingUnderline:
       EQUAL_LINE
@@ -141,6 +150,7 @@ MathDirective:
     LINE_BREAK
     (
     BEGIN
+    	(':label:' name=SIMPLE_WORD LINE_BREAK)?
     	options+=DirectiveOption*
        	block+=LatexLine*
     END)?
@@ -171,7 +181,7 @@ OtherDirective:
     '..' name=SIMPLE_WORD '::' 
     firstLine=SimpleText?
     LINE_BREAK
-	block=Block?
+	block=RawBlock?
     ;
 
 DirectiveOption:
@@ -219,11 +229,23 @@ SimpleLiteral:
       SIMPLE_WORD
     | SPECIAL_CHAR
 ;
+
+StyledTextLiteral:
+	   Reference
+    |	SimpleLiteral
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
+;
+
 //
 Role:
 		MathRole
 	|	CiteRole
 	|	NumfigRole
+	|	EqRole
 	| 	OtherRole
 ;
 
@@ -239,8 +261,16 @@ NumfigRole:
 	':num:' BACKTICK text=SimpleText ref=HashRef BACKTICK
 ;
 
+CiteRoleEntryList:
+	entry+=[bib::Entry|SIMPLE_WORD] (',' entry+=[bib::Entry|SIMPLE_WORD])*
+;
+
 CiteRole:
-	':cite:' BACKTICK entry=[bib::Entry|SIMPLE_WORD] BACKTICK
+	':cite:' BACKTICK entry_list=CiteRoleEntryList BACKTICK
+;
+
+EqRole:
+	':eq:' BACKTICK ref=[MathDirective|SIMPLE_WORD] BACKTICK
 ;
 
 OtherRole:
@@ -266,7 +296,7 @@ Reference:
 //;
 //
 RefTarget:
-	Heading |
+	SimpleTextHeading |
 	Label
 ;
 
@@ -327,13 +357,13 @@ StyledText:
 Bold
   :  {Bold}
   	 '**' 
-      text=SimpleText 
+      text+=StyledTextLiteral+ 
      '**'
   ;  
 
 Italic
   :  {Italic}
-  	STAR text=SimpleText STAR
+  	STAR text+=StyledTextLiteral+ STAR
   ;
 
 terminal fragment

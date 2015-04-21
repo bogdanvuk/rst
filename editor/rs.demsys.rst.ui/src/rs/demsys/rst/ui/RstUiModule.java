@@ -67,7 +67,7 @@ public class RstUiModule extends rs.demsys.rst.ui.AbstractRstUiModule {
 		return RstPartitionTokenScanner.class;
 	}
     
-//    public Class<? extends XtextDocumentProvider> bindDocumentProvider() 	{
-//    	return RstDocumentProvider.class;
-//    }
+    public Class<? extends XtextDocumentProvider> bindDocumentProvider() 	{
+    	return RstDocumentProvider.class;
+    }
 }

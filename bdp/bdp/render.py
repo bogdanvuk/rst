@@ -1,12 +1,13 @@
 import importlib.machinery
 import sys
 import os
+import argparse
 
-import node
+import bdp
 
 def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     found = False
-    importlib.reload(node)
+    importlib.reload(bdp)
     try:
         bdp_file_name = file_name
         print(bdp_file_name)
@@ -65,8 +66,8 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     """ 
     
 #     os.chdir(bdp_gen_path)
-    print(os.path.join(bdp_gen_path, tex_name))
-    with open(os.path.join(bdp_gen_path, tex_name), 'w') as f:
+    tex_file = os.path.join(bdp_gen_path, tex_name)
+    with open(tex_file, 'w') as f:
         f.write(tikz_prolog)
     
         for obj in bdp_mod.obj_list:
@@ -75,14 +76,29 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     
         f.write(tikz_epilog)
         
-#     from subprocess import call, STDOUT
-#     call(["pdflatex", 
-#           "-interaction=nonstopmode", 
-#           "-file-line-error",
-#           "-halt-on-error", "test.tex"], stderr=STDOUT)
+    return tex_file
+        
+def convert_pdf(tex_file):
+    from subprocess import call, STDOUT
+    call(["pdflatex", 
+          "-interaction=nonstopmode", 
+          "-file-line-error",
+          '-output-directory', os.path.dirname(tex_file),
+          "-halt-on-error", tex_file], stderr=STDOUT)
 
 if __name__ == '__main__':
-    bdp_gen_path = "/home/projects/workspace/runtime-Runtime_Eclipse/bdp_test/"
-    bdp_file_name = "/home/projects/workspace/runtime-Runtime_Eclipse/bdp_test/test.py"
     
-    render_tikz(bdp_file_name, bdp_gen_path)
+    parser = argparse.ArgumentParser(
+        description='Block Diagram in Python renderer.'
+    )
+
+    parser.add_argument('input', metavar='input',
+                        help="Input BDP file")
+    parser.add_argument('output', metavar='output',
+                        help="Input BDP file")
+
+    opts = parser.parse_args(sys.argv[1:])
+    
+    tex_file = render_tikz(opts.input, opts.output)
+    
+    convert_pdf(tex_file)
