@@ -23,8 +23,17 @@ Heading:
 	label=Label?
 	LINE_BREAK
 	(underlineTop=HeadingUnderline LINE_BREAK)?
-    name=Text LINE_BREAK
+    name=HeadingText LINE_BREAK
 	underline=HeadingUnderline LINE_BREAK
+;
+
+HeadingText:
+	items+=HeadingLiteral+
+;
+
+HeadingLiteral:
+	SimpleLiteral |
+	ReplacementRef
 ;
 
 SimpleTextHeading:
@@ -331,6 +340,7 @@ LatexLiteral:
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
 	|	SIMPLE_REFERENCE
+	|   PIPE
 ;
 
 RawText:

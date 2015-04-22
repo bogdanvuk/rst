@@ -17,6 +17,10 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Heading/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Heading/underline"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//HeadingText">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//HeadingText/items"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//HeadingLiteral"/>
     <genClasses ecoreClass="Rst.ecore#//SimpleTextHeading">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//SimpleTextHeading/label"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/underlineTop"/>

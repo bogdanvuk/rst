@@ -57,6 +57,7 @@ public class RstDocumentProvider extends XtextDocumentProvider {
 						if (h.getName() != null) {
 							
 							int nameLen = NodeModelUtils.getTokenText(NodeModelUtils.getNode(h.getName())).length();
+//							int nameLen = h.getName().length();
 							
 							if (h.getUnderline() != null)
 								h.setUnderline(setUnderline(h.getUnderline(), nameLen));

@@ -3,7 +3,7 @@ package rs.demsys.rst.formatting2;
 import java.util.List;
 
 import rs.demsys.rst.rst.Heading;
-import rs.demsys.rst.rst.SimpleTextHeading;
+//import rs.demsys.rst.rst.SimpleTextHeading;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.ecore.EObject;
@@ -63,21 +63,21 @@ public class RstFormatterHelper {
 						}
 					}
 					
-					List<SimpleTextHeading> sthList = EcoreUtil2.getAllContentsOfType(root, SimpleTextHeading.class);					
-					
-					for (SimpleTextHeading h : sthList) {
-						if (h.getName() != null) {
-							
-							int nameLen = h.getName().length();
-							
-							if (h.getUnderline() != null)
-								h.setUnderline(setUnderline(h.getUnderline(), nameLen));
-							
-							if (h.getUnderlineTop() != null)
-								h.setUnderlineTop(setUnderline(h.getUnderlineTop(), nameLen));
-						}
-					}
-					
+//					List<SimpleTextHeading> sthList = EcoreUtil2.getAllContentsOfType(root, SimpleTextHeading.class);					
+//					
+//					for (SimpleTextHeading h : sthList) {
+//						if (h.getName() != null) {
+//							
+//							int nameLen = h.getName().length();
+//							
+//							if (h.getUnderline() != null)
+//								h.setUnderline(setUnderline(h.getUnderline(), nameLen));
+//							
+//							if (h.getUnderlineTop() != null)
+//								h.setUnderlineTop(setUnderline(h.getUnderlineTop(), nameLen));
+//						}
+//					}
+//					
 					return null;
 			    }
 			}
