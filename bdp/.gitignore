@@ -2,3 +2,6 @@ build/
 dist/
 bdp.egg-info/
 __pycache__/
+*.aux
+*.dvi
+*.log

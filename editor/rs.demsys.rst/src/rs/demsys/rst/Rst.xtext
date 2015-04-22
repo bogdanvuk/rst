@@ -27,15 +27,6 @@ Heading:
 	underline=HeadingUnderline LINE_BREAK
 ;
 
-HeadingText:
-	items+=HeadingLiteral+
-;
-
-HeadingLiteral:
-	SimpleLiteral |
-	ReplacementRef
-;
-
 SimpleTextHeading:
 	label=Label?
 	LINE_BREAK
@@ -44,6 +35,13 @@ SimpleTextHeading:
 	underline=HeadingUnderline LINE_BREAK
 ;
 
+HeadingText:
+	items += HeadingTextLiteral+
+;
+
+HeadingTextLiteral:
+	SimpleLiteral | ReplacementRef
+;
 
 HeadingUnderline:
       EQUAL_LINE
@@ -263,7 +261,7 @@ MathRole:
 ;
 
 HashRef hidden():
-	'#' ref=[Label|SIMPLE_WORD]
+	HASH ref=[Label|SIMPLE_WORD]
 ;
 
 NumfigRole:
@@ -339,8 +337,11 @@ LatexLiteral:
 	|	STAR
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
-	|	SIMPLE_REFERENCE
 	|   PIPE
+//	|	SIMPLE_REFERENCE
+	|	PIPE
+	|	COLON
+	|	COLON_WORD
 ;
 
 RawText:
@@ -357,6 +358,8 @@ RawLiteral:
 	|	R_ANGLE_BRACKET
 	|	PIPE
 	|	COLON
+	|	HASH
+	|	COLON_WORD
 ;
 
 StyledText:
@@ -383,22 +386,35 @@ ALPHA_NUM:
 
 terminal fragment
 SIMPLE_WORD_FRAGMENT:
-	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))* 
+//	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))* 
+	ALPHA_NUM (ALPHA_NUM | '-' | '_')*
 ;
 
-terminal
-SIMPLE_REFERENCE:
-	ALPHA_NUM+ '_'
-;
+//terminal
+//SIMPLE_REFERENCE:
+//	ALPHA_NUM+ '_'
+//;
 
 terminal
 SIMPLE_WORD:
 	SIMPLE_WORD_FRAGMENT
+//	ALPHA_NUM (('_' | ':' )? (ALPHA_NUM | '-'))*
+//	ALPHA_NUM ('_' | ALPHA_NUM | '-')*
 ;
+
+//terminal
+//COLON_SEP_WORD:
+//	ALPHA_NUM ((':')? (ALPHA_NUM | '-'))* (':') ((':')? (ALPHA_NUM | '-'))+
+//;
 
 terminal
 ROLE_WORD:
 	':' (SIMPLE_WORD_FRAGMENT ':')+
+;
+
+terminal
+COLON_WORD:
+	':' SIMPLE_WORD_FRAGMENT+
 ;
 
 SPECIAL_CHAR:  (
@@ -460,6 +476,7 @@ terminal COLON: ':';
 terminal MINUS: '-';
 terminal L_ANGLE_BRACKET: '<';
 terminal R_ANGLE_BRACKET: '>';
+terminal HASH : '#';
 
 terminal LINE_BREAK :  ('\r'? '\n' (' '|'\t')*);
 

@@ -1,12 +1,12 @@
 .. |algo| replace:: *FTEI*
 .. |cop| replace:: *FTEIP*
-.. |NA| replace:: :math:`\left | A \right |`
+.. |NA| replace:: :math:`\left | \mathbf{A} \right |`
 .. |na| replace:: :math:`\bar{n}`
 .. |NI| replace:: :math:`N_{I}`
 .. |Da| replace:: :math:`\bar{D}`
-.. |NL| replace:: :math:`N_{L}`
+.. |Nl| replace:: :math:`\bar{l}`
 .. |NM| replace:: :math:`N_{M}`
-.. |NC| replace:: :math:`N_{C}`
+.. |Nc| replace:: :math:`N_{c}`
 .. |RA| replace:: :math:`R_{A}`
 .. |alpha| replace:: :math:`{\alpha}`
 .. |rho| replace:: :math:`{\rho}`
@@ -122,7 +122,7 @@ Lets calculate the complexity of the DT Mutation task. Let |Da| be the average D
 
 Each node in DT has |NA| + 1 coefficients, and the portion |alpha| is mutated each iteration, so the complexity of mutating coefficients is:
 
-.. math:: O(\alpha \cdot \bar{n} \cdot \left | A \right |)
+.. math:: O(\alpha \cdot \bar{n} \cdot \left | \mathbf{A} \right |)
 
 The topology can be mutated by either adding or removing the node from the DT. When the node is removed, only a pointer to the removed child is altered so the complexity is:
 
@@ -130,77 +130,74 @@ The topology can be mutated by either adding or removing the node from the DT. W
 
 When the node is added, the new set of node test coefficients are calculated at radnom, hence the complexity of:
 
-.. math:: O(\left | A \right |)
+.. math:: O(\left | \mathbf{A} \right |)
 
-The complexity of the whole DT Mutation task sums to:
+Since :math:`\rho\ll\alpha\cdot\bar{n}` The complexity of the whole DT Mutation task sums to:
 
-.. math:: O(\alpha \cdot \bar{n} \cdot \left | A \right | + \rho (O(1)+O(\left | A \right |)) = O(\alpha \cdot \bar{n} \cdot \left | A \right |)
+.. math:: O(\alpha \cdot \bar{n} \cdot \left | \mathbf{A} \right | + \rho (O(1)+O(\left | \mathbf{A} \right |))) = O(\alpha \cdot \bar{n} \cdot \left | \mathbf{A} \right |)
+    :label: cplx_mutation
 
 Fitness Evaluation
 ------------------
 
-The fitness of an individual is evaluated using the training set. The pseudo-code for this task is given in :num:`Figure #fig-fitness-eval-pca`. The input parameter **dt** is the current decision tree individual.
+The fitness of a mutated individual (DT) is evaluated using the training set. The DT is let to classify all the problem instances and the results are then compared to the known classification given in the training set. The pseudo-code for this task is given in :num:`Figure #fig-fitness-eval-pca`. The input parameter **dt** is the current decision tree individual.
 
 .. include:: fitness_eval_pca.rst
 
 The fitness evaluation task performs the following:
 
-- Find the distribution of the classes over the leaves
-- Find the dominant class for each leaf
-- Calculate the fitness as the percentage of classification hits
+- It finds the distribution of the classes over the leaves
+- It finds the dominant class for each leaf
+- It calculates the fitness as the percentage of classification hits
+
+Let |NI| be the number of instances in the training set, |Nl| the average number of leaves and |Nc| the total number of classes in the classification problem. The number of leaves in DT can be approximated by:
+
+.. math:: \bar{l} = 2^{\bar{D} - 1}
+
+The complexity of the fitness_eval() function is then as follows:
+
+.. math:: O(N_{I})\cdot (O(find\_dt\_leaf\_for\_inst) + O(1)) + O(\bar{l}\cdot (N_{c} + 1))
+    :label: fitness_eval
 
 First, the classes distribution is determined by letting all the instances from the training set traverse the DT, i.e. by calling the find_dt_leaf_for_inst() function whose pseudo-code is given in :num:`Figure #fig-find-dt-leaf-for-inst-pca`. This function returns the ID of a leaf node in which the instance ended-up. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt`.
 
 .. include:: find_dt_leaf_for_inst_pca.rst
 
-The evaluate_node_test() function performs the node test evaluation described given in equation :eq:`oblique_test`. The pseudo-code of this function is given in :num:`Figure #fig-evaluate-node-test-pca`.
+The complexity of the find_dt_leaf_for_inst() function is then:
+
+.. math:: O(\bar{D})\cdot O(evaluate\_node\_test)
+    :label: find_dt_leaf
+
+The evaluate_node_test() function performs the node test evaluation given by equation :eq:`oblique_test`. The pseudo-code of this function is given in :num:`Figure #fig-evaluate-node-test-pca`.
 
 .. include:: evaluate_node_test_pca.rst
 
-The classes of all the instances from the training set are known and stored in *instance_class* variable for each instance in the fitness_eval() function pseudo-code. Based on the leaf nodes IDs returned by find_dt_leaf_for_inst() and the instance_class variable value, the *distribution* matrix is updated. The :math:`d_{i,j}` element of the *distribution* matrix contains the number of instances of class *j* than ended up in the leaf node with ID *i* after traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
+The complexity of the node test evaluation is:
 
-Second, the next loop of the fitness_eval() finds the dominant class for each leaf node, i.e. the class with largest number of it's instances in that leaf node. If we were to do a classification run with current DT over the training set, the maximum accuracy would be attained if all the leaf nodes were assigned the dominant class calculated in this way. So we could qualify as a hit each instance that ended up in a certain leaf node, if it is of the node's dominant class, otherwise we could qualify it as a miss.
+.. math:: O(\left | \mathbf{A} \right |)
+    :label: node_test_eval
+
+The classes of all the instances from the training set are known and stored in *instance_class* variable (from the fitness_eval() function) for each instance. Based on the leaf nodes' IDs returned by find_dt_leaf_for_inst() and the *instance_class* variable value, the *distribution* matrix is updated. The :math:`d_{i,j}` element of the *distribution* matrix contains the number of instances of class *j* than ended up in the leaf node with ID *i* after traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
+
+Second, the next loop of the fitness_eval() finds the dominant class for each leaf node, i.e. the class with largest number of its instances that have ended up in that leaf node after traversal. If we were to do a classification run with current DT over the training set, the maximum accuracy would be attained if all the leaf nodes were assigned their corresponding dominant class calculated in this way. Thus, we could qualify as a hit each instance that ended up in a certain leaf node if it is of the node's dominant class, otherwise we could qualify it as a miss.
 
 Therefore, the fitness assigned to the current DT individual (returned via the *fitness* variable of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`) equals the accuracy of the DT over the training set if it's leaf nodes were assigned their corresponding dominant classes.
 
 Algorithm complexity
 --------------------
 
-Let |NL| the number of leaves, |NA| be the number of attributes, |NC| the number of classes, |NI| the number of instances in the training set and the |Da| the average DT depth. The number of leaves in DT can be approximated by:
+By inserting equation :eq:`node_test_eval` into the equation :eq:`find_dt_leaf`, and then both of them into the equation :eq:`fitness_eval`, we obtain the complexity for the fitness_eval() function:
 
-.. math:: N_{L} = 2^{N_{Da} - 1}
+.. math:: O(N_{I}\cdot (\bar{D}\cdot \left | \mathbf{A} \right | + 1) + \bar{l}\cdot (N_{c} + 1)) = O(N_{I}\cdot\bar{D}\cdot N_{A} + \bar{l}\cdot N_{c})
+    :label: fitness_eval_tot
 
-Second, lets calculate the complexity of fitness evaluation task. The complexity of the evaluate_node_test() function is obviously:
+By inserting equations :eq:`fitness_eval_tot` and :eq:`cplx_mutation` into the equation :eq:`cplx_algo_tot_components`, we obtain:
 
-.. math:: O(N_{A})
+.. math:: max\_iter\cdot(N_{I}\cdot\bar{D}\cdot \left | \mathbf{A} \right | + \bar{l}\cdot N_{c} + \alpha \cdot \bar{n} \cdot \left | \mathbf{A} \right |)
 
-Hence, the complexity of the find_dt_leaf_for_inst() is:
+Since :math:`\alpha\cdot\bar{n} \ll N_{I}\cdot\bar{D}`, we finally obtain that algorithm complexity is dominated by the fitness evaluation complexity, and sums up to:
 
-.. math:: O(N_{Da})\cdot O(N_{A})=O(N_{Da}\cdot N_{A})
-
-It followis that the complexity of the class distribution calculation is:
-
-.. math:: O(N_{I})\cdot O(N_{A}\cdot N_{Da})=O(N_{I}\cdot N_{Da}\cdot N_{A})
-
-The complexity of the dominant class determination is:
-
-.. math:: O(N_{I})
-
-Finally, the complexity of the fitness evaluation task (fitness_eval() function) is:
-
-.. math:: O(N_{I}\cdot N_{Da}\cdot N_{A} + N_{I}) = O(N_{I}\cdot N_{Da}\cdot N_{A})
-
-The complexity of the |algo| is thus:
-
-.. math:: N_{M}(O(N_{I}\cdot N_{Da}\cdot N_{A})) + O(\alpha \cdot N_{Na} \cdot N_{A}) + \rho (O(1)+O(N_{A}))
-
-Changing to many node test coefficients would result in large search space moves, thus parameter |alpha| is set low enough for the following to be true:
-
-.. math:: \alpha \cdot N_{Na} \cdot N_{A} \sim N_{Da} \ll N_{I}\cdot N_{Da}\cdot N_{A}
-
-Also, the complexity of mutating the topology is obviously insignificant over the fitness calculation complexity, making |algo| complexity predominantly influenced by the fitness calculation:
-
-.. math:: O(N_{I}\cdot N_{Da}\cdot N_{A})
+.. math:: O(max\_iter\cdot(N_{I}\cdot\bar{D}\cdot N_{A} + \bar{l}\cdot N_{c}))
 
 Profiling results
 -----------------
@@ -209,9 +206,10 @@ The |algo| was implemented in C using many optimization techniques:
 
 - Arithmetic operation on 64-bit operands only (optimized for 64-bit CPUs)
 - Loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`
+- Maximum compiler optimization settings
 
-It was compiled using GCC 4.8.2 compiler and profiled using GProf. It was run on AMD Phenom(tm) II X4 965 computer.
-As the :num:`Figure #fig-profiling` shows, the results were consistent with the algorithm complexity analysis performed in the previous chapter
+It was compiled using GCC 4.8.2 compiler and run on AMD Phenom(tm) II X4 965 computer.
+After the profiling with GProf tool, thre results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
 
 .. _fig-profiling:
 
@@ -222,20 +220,18 @@ As the :num:`Figure #fig-profiling` shows, the results were consistent with the 
 Conclusion
 ----------
 
-The |algo| has obviuous computational bottleneck in the fitness calculation task.
+The |algo| has obvious computational bottleneck in the fitness calculation task, which takes almost 100% of computational time in the example run shown in :num:`Figure #fig-profiling`. So the fitness calculation is clear candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task.
 
-- Prednost je sto je deo u softveru, pa se lakse menja
+Co-processor for DT induction - |cop|
+=====================================
 
-Co-processor for fitness calculation
-====================================
-
-The block diagram of the system is given in :num:`Figure #fig-system-bd`
+The |cop| performs the task of fitness evaluation (:num:`Figure #fig-fitness-eval-pca`) within the |algo| algorithm. The block diagram of the |cop| system is given in :num:`Figure #fig-system-bd`
 
 .. _fig-system-bd:
 
-.. figure:: images/system_bd.png
+.. bdpfigure:: 
     
-    Profiling results.
+    block(size=p(10,20), t="Processing System")()
 
 The co-processor is connected to the CPU via AXI4 AMBA bus. It has several parts:
 

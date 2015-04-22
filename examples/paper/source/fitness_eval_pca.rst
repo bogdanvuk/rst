@@ -4,8 +4,8 @@
 .. code-block:: python
     
     def fitness_eval(dt):
-	
-		for instance, instance_class in training_set:
+    
+        for instance, instance_class in training_set:
             leaf = find_dt_leaf_for_inst(dt, instance)
         
             distribution[leaf][instance_class] += 1
