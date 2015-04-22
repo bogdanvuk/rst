@@ -23,6 +23,10 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleTextHeading/underline"/>
     </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//HeadingText">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//HeadingText/items"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//HeadingTextLiteral"/>
     <genClasses ecoreClass="Rst.ecore#//ReplacementDirective"/>
     <genClasses ecoreClass="Rst.ecore#//Replacement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Replacement/text"/>

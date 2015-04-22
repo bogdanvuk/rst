@@ -190,9 +190,9 @@ public class RstHighlightingCalculator implements
 		}
 	}
 	
-//	protected void highlight(ReplacementRef obj, INode node, IHighlightedPositionAcceptor acceptor) {
-//		acceptor.addPosition(node.getOffset(), node.getLength(), DIRECTIVE);
-//	}
+	protected void highlight(ReplacementRef obj, INode node, IHighlightedPositionAcceptor acceptor) {
+		acceptor.addPosition(node.getOffset(), node.getLength(), DIRECTIVE);
+	}
 
 	protected void highlight(Bold obj, INode node, IHighlightedPositionAcceptor acceptor) {
 		acceptor.addPosition(node.getOffset(), node.getLength(), BOLD_TEXT);

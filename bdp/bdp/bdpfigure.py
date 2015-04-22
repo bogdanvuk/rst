@@ -132,7 +132,11 @@ def render_bdp_images(app, doctree):
             text = fig.bdpfigure
             hashid = get_hashid(text)
             fname = 'plot-%s' % (hashid)
-            filename = os.path.join(app.builder.outdir, '_bdpfigure', fname + '.py')
+            outdir = os.path.join(app.builder.outdir, '_bdpfigure')
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+            
+            filename = os.path.join(outdir, fname + '.py')
             with open(filename, 'wb') as f:
                 f.write("from bdp.node import *\n\n".encode())
                 f.write(text.encode())

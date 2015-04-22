@@ -280,7 +280,7 @@ latex_elements = {
 'releasename': "",
 'maketitle': latex_title,
 'tableofcontents' : "",
-'babel': '\\usepackage[english]{babel}',
+#'babel': '\\usepackage[english]{babel}',
 
 }
 

@@ -10,7 +10,8 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underlineTop" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Text" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//HeadingText"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SimpleTextHeading" eSuperTypes="#//Section #//RefTarget">
@@ -20,6 +21,11 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="underline" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HeadingText">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1"
+        eType="#//HeadingTextLiteral" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="HeadingTextLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="ReplacementDirective" eSuperTypes="#//Section"/>
   <eClassifiers xsi:type="ecore:EClass" name="Replacement" eSuperTypes="#//ReplacementDirective">
     <eStructuralFeatures xsi:type="ecore:EReference" name="text" eType="#//Text" containment="true"/>
@@ -152,7 +158,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//Literal #//StyledTextLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="ReplacementRef" eSuperTypes="#//HeadingTextLiteral #//Literal #//StyledTextLiteral">
     <eStructuralFeatures xsi:type="ecore:EReference" name="name" eType="#//Replacement"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Reference" eSuperTypes="#//Literal #//StyledTextLiteral"/>
