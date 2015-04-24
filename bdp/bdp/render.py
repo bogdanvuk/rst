@@ -27,11 +27,12 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
                 try:
                     bdp_file_name = os.path.join(s, file_name)
                     print(bdp_file_name)
-                    loader = importlib.machinery.SourceFileLoader("", bdp_file_name)
-                    bdp_mod = loader.load_module()
+                    loader = importlib.machinery.SourceFileLoader("tmp", bdp_file_name)
+                    bdp_mod = loader.load_module("tmp")
                     found = True
                     break
-                except FileNotFoundError:
+                except FileNotFoundError as e:
+                    print(e)
                     pass
             
     if not found:

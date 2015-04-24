@@ -337,7 +337,6 @@ LatexLiteral:
 	|	STAR
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
-	|   PIPE
 //	|	SIMPLE_REFERENCE
 	|	PIPE
 	|	COLON

@@ -11,6 +11,7 @@ from subprocess import Popen, PIPE
 import os, os.path, tempfile, shutil
 from bdp.render import render_tikz
 from hashlib import sha1 as sha
+from shutil import copyfile
 
 class BdpFigureDirective(Figure):
 
@@ -53,7 +54,7 @@ def render_bdpfigure(app, filename, options):
     directory = os.path.dirname(filename)
     basename = os.path.basename(filename)
     stem = os.path.splitext(basename)[0]
-    name = stem + '.png'
+    name = stem + '.pdf'
     outdir = os.path.join(app.builder.outdir, '_bdpfigure')
     
     if not os.path.exists(outdir):
@@ -74,28 +75,32 @@ def render_bdpfigure(app, filename, options):
                '-output-directory', outdir,
                os.path.join(outdir, stem) + '.tex']
     shell(cmdline, env=environ)
-    cmdline = [app.env.config.bdpfigure_pdftoppm,
-               '-r', str(app.env.config.bdpfigure_resolution),
-               '-f', '1', '-l', '1',
-               os.path.join(outdir, stem)+'.pdf',
-               os.path.join(outdir, stem)]
-    shell(cmdline)
-    ppmfile = os.path.join(outdir, stem)+'-1.ppm'
-    if not os.path.exists(ppmfile):
-        raise BdpFigureError("file not found: %s" % ppmfile)
     
-    data = open(ppmfile, 'rb').read()
-    cmdline = [app.env.config.bdpfigure_pnmcrop]
-    data = shell(cmdline, data)
-    line = data.splitlines()[1]
-    width, height = [int(chunk) for chunk in line.split()]
-    cmdline = [app.env.config.bdpfigure_pnmtopng,
-               '-transparent', 'white',
-               '-compression', '9']
+    copyfile(os.path.join(outdir, stem) + '.pdf', 
+             os.path.join(app.builder.outdir, name))
     
-    data = shell(cmdline, data)
-    
-    open(os.path.join(app.builder.outdir, name), 'wb').write(data)
+#     cmdline = [app.env.config.bdpfigure_pdftoppm,
+#                '-r', str(app.env.config.bdpfigure_resolution),
+#                '-f', '1', '-l', '1',
+#                os.path.join(outdir, stem)+'.pdf',
+#                os.path.join(outdir, stem)]
+#     shell(cmdline)
+#     ppmfile = os.path.join(outdir, stem)+'-1.ppm'
+#     if not os.path.exists(ppmfile):
+#         raise BdpFigureError("file not found: %s" % ppmfile)
+#     
+#     data = open(ppmfile, 'rb').read()
+#     cmdline = [app.env.config.bdpfigure_pnmcrop]
+#     data = shell(cmdline, data)
+#     line = data.splitlines()[1]
+#     width, height = [int(chunk) for chunk in line.split()]
+#     cmdline = [app.env.config.bdpfigure_pnmtopng,
+#                '-transparent', 'white',
+#                '-compression', '9']
+#     
+#     data = shell(cmdline, data)
+#     
+#     open(os.path.join(app.builder.outdir, name), 'wb').write(data)
 
     return name
 
@@ -163,16 +168,16 @@ def render_bdp_images(app, doctree):
             except:
                 continue
 
-        try:
-            fname = render_bdpfigure(app, filename, fig)
-            print('Evo nas ovde!')
-            print(fname)
-            image=fig.children[0]
-            image['uri'] = fname
-        except BdpFigureError as exc:
-            app.builder.warn('gnuplot error: ' + str(exc))
-            fig.replace_self(nodes.literal_block(text, text))
-            continue
+#         try:
+        fname = render_bdpfigure(app, filename, fig)
+        print('Evo nas ovde!')
+        print(fname)
+        image=fig.children[0]
+        image['uri'] = fname
+#         except BdpFigureError as exc:
+#             app.builder.warn('gnuplot error: ' + str(exc))
+#             fig.replace_self(nodes.literal_block(text, text))
+#             continue
 
 
 def setup(app):

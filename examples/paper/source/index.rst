@@ -229,9 +229,10 @@ The |cop| performs the task of fitness evaluation (:num:`Figure #fig-fitness-eva
 
 .. _fig-system-bd:
 
-.. bdpfigure:: 
+.. figure:: images/system_bd.py
+    :width: 100%
     
-    block(size=p(10,20), t="Processing System")()
+    System
 
 The co-processor is connected to the CPU via AXI4 AMBA bus. It has several parts:
 
