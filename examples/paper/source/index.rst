@@ -234,26 +234,26 @@ The |cop| performs the task of fitness evaluation (:num:`Figure #fig-fitness-eva
     
     System
 
-The co-processor is connected to the CPU via AXI4 AMBA bus. It has several parts:
+The co-processor connects to the CPU via AXI4 AMBA bus. The major parts and their connections are depicted in the :num:`Figure #fig-system-bd`:
 
-- Training Set Memory: The memory for storing all training set instances
-- DT Memory Array: The array of memories used to store the DT description
-- DT Classificator: Performs the DT traversal for each instance
-- Fitness Calculator: Based on the instance class and it's end leaf in DT, calculates the number of hits
-- Control Unit: Translates the memory-mapped AXI4 commands from the CPU
+- **Control Unit**: Acts as a bridge between the AXI4 and internal protocols and controls the fitness evaluation process.
+- **Training Set Memory**: The memory for storing all training set instances
+- **Classifier**: Performs the DT traversal for each instance, i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The instance traversal path is determined by the outcome of the node tests, of which there is only one per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The stages :math:`L_{0}` through :math:`L_{D-1}` are separated by dotted lines in Classifier block in figure. For each instance in training set, the Classifier outputs the ID assigned to the leaf into which the instance was classified after traversal (please refer to fitness_eval() function :num:`Figure #fig-fitness-eval-pca`).
+- **DT Memory Array**: The array of memories used to store the DT description. The Classifier calculates node test for each DT level in parallel. Each Classifier pipeline stage requires its own memory that holds description of all nodes on the DT level it is associated with.
+- **Fitness Calculator**: calculates the accuracy of the DT based on the classification data received from the Classifier. For each instance of the training set, the Classifier supplies the ID of the leaf into which the instance was classified. Based on this information, the Fitness Calculator forms the distribution matrix and calculates the DT accuracy which is sent to the Control Unit and stored in the memory-maped register, ready to be read by the user.
 
-DT Classificator
-----------------
+Classifier
+----------
 
-DT Classificator performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The classificator was implemented after the design described in :cite:`RS09`. The architecture was adapted to support the DT induction as well, and is shown in :num:`Figure #fig-dt-classificator-bd`. Figure shows main pipeline levels, one for each level of the DT.
+Classifier performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The Classifier was implemented after the design described in :cite:`RS09`. The architecture was adapted to support the DT induction as well, and is shown in :num:`Figure #fig-dt-classifier-bd`. Figure shows main pipeline stages, one for each level of the DT.
 
-.. _fig-dt-classificator-bd:
+.. _fig-dt-classifier-bd:
 
 .. figure:: images/dt_classificator_bd.png
     
-    DT Classificator architecture used in the induction mode.
+    DT Classifier architecture used in the induction mode.
 
-Every pipeline level performs DT node test calculation for one level in DT as it is shown in :num:`Figure #fig-dt-classificator-bd`. Thus, each pipeline level can perform test calculation for any DT node of the corresponding DT level. First pipeline level always processes the root DT node. However, which nodes are processed by other levels, depends on the path of traversal for each individual instance.
+Every pipeline level performs DT node test calculation for one level in DT as it is shown in :num:`Figure #fig-dt-classifier-bd`. Thus, each pipeline level can perform test calculation for any DT node of the corresponding DT level. First pipeline level always processes the root DT node. However, which nodes are processed by other levels, depends on the path of traversal for each individual instance.
 
 Each pipeline level has two main blocks:
 
@@ -309,7 +309,7 @@ Training set memory can be accessed via two ports:
 DT Memory Array
 ---------------
 
-This is the memory that holds the DT description. For each pipeline stage shown in :num:`Figure #fig-dt-classificator-bd`, there is one DT Memory array element that holds the description of all nodes on the corresponding DT level as shown in :num:`Figure #fig-dt-classificator-bd`. 
+This is the memory that holds the DT description. For each pipeline stage shown in :num:`Figure #fig-dt-classifier-bd`, there is one DT Memory array element that holds the description of all nodes on the corresponding DT level as shown in :num:`Figure #fig-dt-classifier-bd`. 
 
 .. _fig-dt-mem-array-org:
 
@@ -337,12 +337,12 @@ DT memory array element can be accessed via two ports:
 Fitness calculator
 ------------------
 
-This module performs the *distribution* matrix and the number of hits calculation as described in `Fitness Evaluation`_ chapter. It monitors the output of the DT Classificator which outputs classification for a new instance every clock cycle. Based on the leaf node in which the instance ended up, and the class of the instance, appropriate cell of the *distribution* matrix is incremented.
+This module performs the *distribution* matrix and the number of hits calculation as described in `Fitness Evaluation`_ chapter. It monitors the output of the DT Classifier which outputs classification for a new instance every clock cycle. Based on the leaf node in which the instance ended up, and the class of the instance, appropriate cell of the *distribution* matrix is incremented.
 
 The fitness calculator was implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. The number of calculators is thus equal to the maximum number of leaf nodes supported. Each calculator comprises:
 
 - Memory for keeping track of the class distribution in the node
-- Memory incrementer that updates the memory based on the DT Classificator output
+- Memory incrementer that updates the memory based on the DT Classifier output
 - The *dominant_class* calculator which operates once all the instances have been classified
 
 Each calculator outputs the number of instances of the dominant class for its leaf node. Fitness calculator then sums outputs from all calculators and outputs the sum as the number of hits. The number is then stored in the register of the control unit from where it can be read-out by the CPU.

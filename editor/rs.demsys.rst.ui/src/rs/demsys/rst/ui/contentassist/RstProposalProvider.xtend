@@ -29,6 +29,9 @@ import org.eclipse.xtext.ui.editor.contentassist.ConfigurableCompletionProposal
 import org.eclipse.emf.ecore.EObject
 import rs.demsys.rst.rst.IncludeDirective
 import rs.demsys.rst.rst.BibDirective
+import java.util.Set
+import com.google.common.collect.Sets
+import org.eclipse.xtext.Keyword
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -36,6 +39,16 @@ import rs.demsys.rst.rst.BibDirective
  */
 class RstProposalProvider extends AbstractRstProposalProvider {
 	@Inject PluginImageHelper imageHelper
+	
+	private static final Set<String> FILTERED_KEYWORDS = Sets.newHashSet("**", "..", ":num:", ":cite:", ":eq:", ":math:");
+    
+    override public void completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
+        if (FILTERED_KEYWORDS.contains(keyword.getValue())) {
+            // don't propose keyword
+            return;
+        }
+        super.completeKeyword(keyword, contentAssistContext, acceptor);
+    }
 	
 	static class RefProposalDelegate extends Delegate {
 		

@@ -57,6 +57,14 @@ def render_bdpfigure(app, filename, options):
     name = stem + '.pdf'
     outdir = os.path.join(app.builder.outdir, '_bdpfigure')
     
+    print(os.path.getmtime(filename))
+    print(os.path.getmtime(os.path.join(app.builder.outdir, name)))
+    if (os.path.getmtime(filename) > 
+        os.path.getmtime(os.path.join(app.builder.outdir, name))):
+        return name
+
+    print("Prosli smo!")
+    
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
@@ -137,6 +145,10 @@ def render_bdp_images(app, doctree):
             text = fig.bdpfigure
             hashid = get_hashid(text)
             fname = 'plot-%s' % (hashid)
+            
+            if os.path.exists(os.path.join(app.builder.outdir, fname) + '.pdf'):
+                continue
+            
             outdir = os.path.join(app.builder.outdir, '_bdpfigure')
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
@@ -169,8 +181,8 @@ def render_bdp_images(app, doctree):
                 continue
 
 #         try:
+        print(filename)
         fname = render_bdpfigure(app, filename, fig)
-        print('Evo nas ovde!')
         print(fname)
         image=fig.children[0]
         image['uri'] = fname

@@ -216,10 +216,11 @@ class TikzMeta(TemplatedObjects):
 #             if not s in self.meta_options:
         for s in self.options():
 #             print(s)
-            val = getattr(self, s)
             try:
                 options.append(getattr(self, "render_tikz_" + s)())
             except AttributeError:
+                val = getattr(self, s)
+                
                 if s in self.aliases:
                     s = self.aliases[s]
                 
@@ -248,6 +249,9 @@ class Node(TikzMeta):
     aliases.update({
                     'rel_anchor'    : 'anchor'
                     })
+
+    def render_tikz_font(self):
+        return "font=\\" + self.font
 
     def render_tikz_p(self):
         pos = self.p + bdp_config['origin_offset']
@@ -303,12 +307,9 @@ class Element(Node):
     
     tikz_options = Node.tikz_options + ['draw']
     
-    def __init__(self, p=None, size=None, **kwargs):
+    def __init__(self, size=None, **kwargs):
         super().__init__(**kwargs)
         
-        if p is not None:
-            self.p = p
-             
         if size is not None:
             self.size = size
     
@@ -469,17 +470,22 @@ class Shape(Element):
 #     def r(self, pos):
 #         return self.p + (self.size[0] + pos*self.node_sep[0], 0)
     
-    def u(self, shape, pos=1):
+    def up(self, shape, pos=1):
 #         return self.p - shape.anchor + (0, self.size[1] + pos*self.node_sep[1])
         self.p = shape.p - (0, self.size[1] + pos*shape.node_sep[1])
         return self
     
-    def l(self, shape, pos=1):
+    def right(self, shape, pos=1):
 #         return self.p - (pos*self.node_sep[0], 0)
         self.p = shape.p + (shape.size[0] + pos*shape.node_sep[0], 0)
         return self
     
-    def b(self, shape, pos=1):
+    def left(self, shape, pos=1):
+#         return self.p - (pos*self.node_sep[0], 0)
+        self.p = shape.p - (self.size[0] + pos*shape.node_sep[0], 0)
+        return self
+    
+    def bellow(self, shape, pos=1):
 #         return self.p - shape.anchor + (0, self.size[1] + pos*self.node_sep[1])
         self.p = shape.p + (0, shape.size[1] + pos*shape.node_sep[1])
         return self
@@ -541,10 +547,13 @@ class Text(Element):
                         'margin'        :  p(0.3,0.3),
                         'text_align'    : "center",
                         })
+    
+    tikz_non_options = Element.tikz_non_options.copy()
+    
     memo = None
     
-    def __init__(self, p=None, t=None, size=None, **kwargs):
-        super().__init__(p, size, **kwargs)
+    def __init__(self, t=None, size=None, **kwargs):
+        super().__init__(size, **kwargs)
         
         self.memo = Memoizer({})  
         
@@ -562,25 +571,67 @@ class Text(Element):
         if self.t:
             bdp_console_header = '[BDP]'
             
-            try:
-                font = self.font
-                text = font + '{' + self.t + '}'
-            except AttributeError:
-                text = self.t 
+#             try:
+#                 font = self.font
+#                 text = '\\' + font + '{' + self.t + '}'
+#             except AttributeError:
+#                 text = self.t
+
+            self.tikz_non_options.extend(['size', 'margin'])
+            text = self.render_tikz()
+            self.tikz_non_options.remove('size')
+            self.tikz_non_options.remove('margin')
             
+#             latex = Template(r"""\documentclass{article}
+# \begin{document}
+# \newlength\mywidth
+# \newlength\myheight
+# \settowidth{\mywidth}{$text}
+# \settoheight{\myheight}{$text}
+# \typeout{$bdp_console_header\the\mywidth,\the\myheight}
+# \end{document}""")
             latex = Template(r"""\documentclass{article}
-\begin{document}
+\usepackage{calc} 
+\usepackage{tikz}
+\usepackage{makecell}
+
 \newlength\mywidth
 \newlength\myheight
-\settowidth{\mywidth}{$text}
-\settoheight{\myheight}{$text}
+\newlength\myminx
+\newlength\mymaxx
+\newlength\myminy
+\newlength\mymaxy
+
+\newcommand{\PgfPosition}{%
+    \global\let\myminx=\pgfpositionnodelaterminx%
+    \global\let\mymaxx=\pgfpositionnodelatermaxx%
+    \global\let\myminy=\pgfpositionnodelaterminy%
+    \global\let\mymaxy=\pgfpositionnodelatermaxy%
+}%
+
+\begin{document}
+\begin{tikzpicture}
+\pgfpositionnodelater{\PgfPosition}%
+$node
+\setlength{\mywidth}{\mymaxx}%
+\addtolength{\mywidth}{-\myminx}%
+\global\mywidth=\mywidth
+\setlength{\myheight}{\mymaxy}%
+\addtolength{\myheight}{-\myminy}%
+\global\myheight=\myheight
+\end{tikzpicture}
+
 \typeout{$bdp_console_header\the\mywidth,\the\myheight}
 \end{document}""")
             
             f = NamedTemporaryFile(delete=False)
-            f.write(latex.substitute(text=text,bdp_console_header=bdp_console_header).encode())
+            f.write(latex.substitute(node=text,bdp_console_header=bdp_console_header).encode())
             
-            latex_cmd = 'latex ' + f.name + ' -draftmode -interaction=errorstopmode'
+            temp_dir = os.path.dirname(f.name)
+            
+            latex_cmd = 'latex ' + f.name + \
+                        ' -draftmode -interaction=errorstopmode' + \
+                        '-output-directory=' + temp_dir
             
             f.close()
 
@@ -745,7 +796,7 @@ class Block(Shape):
         shape_node = super().render_tikz()
         return shape_node + '\n' + text_node 
     
-    def __init__(self, p=None, t=None, size=None, **kwargs):
+    def __init__(self, t=None, size=None, **kwargs):
         
         text_args_dict = {}
         
@@ -757,7 +808,7 @@ class Block(Shape):
         if t is not None:
             text_args_dict['t'] = t
 
-        super().__init__(p, size, **kwargs)
+        super().__init__(size, **kwargs)
         
         self._text = Text()
         
@@ -832,7 +883,8 @@ class Path(TikzMeta):
                          })
     
     tikz_non_options = TikzMeta.tikz_non_options + ['path']
-    tikz_options = TikzMeta.tikz_options + ['thick', 'double', 'line_width', 'dotted']
+    tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 
+                                            'double', 'line_width', 'dotted']
     
     def render_tikz_path(self):
 #         path_iter = itertools.zip_longest(self.path, self.routing, fillvalue=self.def_routing)
