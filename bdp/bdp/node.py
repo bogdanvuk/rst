@@ -437,6 +437,8 @@ class Shape(Element):
                     'border' : 'draw'
                     })
     
+    tikz_options = Element.tikz_options + ['dotted']
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
@@ -696,7 +698,7 @@ class Block(Shape):
                          'text_align': 'cc'
                          })
     
-    text_args = ['margin', 'text_align']
+    text_args = ['margin', 'font']
     
     _text = None
     
@@ -813,7 +815,7 @@ class Block(Shape):
         self._text = Text()
         
         for k,v in text_args_dict.items():
-            setattr(self, k, v)
+            setattr(self._text, k, v)
 
 class Segment(object):
     
