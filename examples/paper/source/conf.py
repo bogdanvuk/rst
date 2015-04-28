@@ -220,8 +220,11 @@ latex_preamble = ur'''
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
-\newcommand{\NA}{\left | \mathbf{A} \right |}
+\newcommand{\NA}{N_{A}}
+\newcommand{\DM}{D^{M}}
+\newcommand{\NAM}{N^{M}_{A}}
 \newcommand{\Nl}{\bar{N_l}}
+\newcommand{\NlM}{N^{M}_{l}}
 
 \lhead{}
 \chead{}

@@ -2,11 +2,13 @@
 .. |cop| replace:: *EFTIP*
 .. |A| replace:: :math:`\mathbf{A}`
 .. |a| replace:: :math:`\mathbf{a}`
-.. |NA| replace:: :math:`\left | \mathbf{A} \right |`
+.. |NA| replace:: :math:`N_{A}`
+.. |NAM| replace:: :math:`N^{M}_{A}`
 .. |na| replace:: :math:`\bar{n}`
 .. |NI| replace:: :math:`N_{I}`
 .. |Da| replace:: :math:`\bar{D}`
 .. |Nl| replace:: :math:`\bar{N_l}`
+.. |NlM| replace:: :math:`N^{M}_{l}`
 .. |NM| replace:: :math:`N_{M}`
 .. |DM| replace:: :math:`D^{M}`
 .. |Nc| replace:: :math:`N_{c}`
@@ -255,7 +257,7 @@ Classifier performs the classification of an arbitrary set of instances on an ar
     
     Classifier architecture used in the induction mode.
 
-The Classifier performs the DT traversal for each instance (:num:`Figure #fig-oblique-dt`), i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The instance traversal path is determined by the outcome of the node tests :eq:`oblique_test`, of which there is only one per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The number of stages in the pipeline determines the maximum depth of the DT that can be induced, and is specified by the user during the design phase.
+The Classifier performs the DT traversal for each instance (:num:`Figure #fig-oblique-dt`), i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The instance traversal path is determined by the outcome of the node tests :eq:`oblique_test`, of which there is only one per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The number of stages in the pipeline, |DM|, determines the maximum depth of the DT that can be induced, and is arbitrary value specified by the user during the design phase.
 
 Each pipeline stage can perform node test calculation for any DT node of the corresponding DT level. First stage always processes the root DT node, however, which nodes are processed by other stages, depends on the path of traversal for each individual instance. Every stage has one DT Memory associated to it that holds the descriptions of all the nodes on that DT level.
 
@@ -275,9 +277,14 @@ The NTE operation is again pipelined internally for maximal throughput. Block di
     
     DT test evaluation block architecture
 
-The NTE block performs main task is the calculation of sum of products given by :eq:`oblique_test`. By using only binary multipliers and adders, the computation is parallelized and pipelined as much as possible. The multiplications are performed in parallel for all |NA| coefficient and attribute pairs. Since there are only binary adders at disposal and the |NA|-rnary sum is needed, the tree of binary adders is formed. The tree needs to be :math:`\left \lceil log_{2}(\NA)  \right \rceil` deep. 
+The NTE block performs main task is the calculation of sum of products given by :eq:`oblique_test`. The maximum supported number of arguments per instance - |NAM|, is arbitrary, but needs to be specified at design time. If the instances have less than |NAM| number of attributes, the surplus inputs should be supplied with zeros in order not to affect the sum. 
 
-Each calculation step is pipelined so that maximum speed of execution is achieved. Finally, the total number of pipeline stages |NP| needed equals the depth of the adder tree, plus a DT Memory fetch and the multiplication stage :math:`\left \lceil log_{2}(\NA) + 2 \right \rceil`.
+By using only binary multipliers and adders, the computation is parallelized and pipelined as much as possible. The multiplications are performed in parallel for all |NAM| coefficient and attribute pairs. Since there are only binary adders at disposal and the |NAM|-rnary sum is needed, the tree of binary adders is formed. The tree needs to be :math:`\left \lceil log_{2}(\NAM)  \right \rceil` deep. 
+
+Each calculation step is pipelined so that maximum speed of execution is achieved. Finally, the total number of pipeline stages |NP| needed equals the depth of the adder tree, plus a DT Memory fetch and the multiplication stage:
+
+.. math:: N_{P}=\left \lceil log_{2}(\NAM) + 2 \right \rceil
+	:label: np
 
 The Instance Queue and Node Queue are necessary due to the pipelining. Instance Queue delays the output of the instance to the next NTE until its corresponding calculation is done, i.e. all the NTE internal pipeline stages are passed and the *Leaf ID Output* and *Child ID Output* are determined. Node Queue is necessary since the *Leaf ID Input* and *Child ID Input* are received at the first pipeline stage, but are not needed until the last pipeline stage. Additionally, in order not to use separate memory for the information about the node's children, it is kept together with the node test coefficients in DT Memory and read at first pipeline stage. Hence, Node Queue is also used to memorize information about node's children together with the *Leaf ID Input* and *Child ID Input* and make it available at the last stage of the pipeline, where it is needed for making a traversal choice. 
 
@@ -290,18 +297,18 @@ Training Set Memory
 
 This is the memory that holds all training set instances. The memory organization is shown in :num:`Figure #fig-inst-mem-org`. It is comprised of 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Each instance description comprises the following fields:
 
-- Array of instance attribute values: :math:`\mathbf{A}_{1}` to :math:`\mathbf{A}_{\left | \mathbf{A} \right |}`.
+- Array of instance attribute values: :math:`\mathbf{A}_{1}` to :math:`\mathbf{A}_{\NAM}`.
 - Instance class: *C*
 
-Whole training set instance can span multiple stripes, depending on the number of attributes, and attribute and class encoding resolution :math:`R_{A}*\left | \mathbf{A} \right | + R_{C}`.
+Whole training set instance can span multiple stripes, depending on the number of attributes, and attribute and class encoding resolution :math:`R_{A}\cdot\NAM + R_{C}`.
 
 .. _fig-inst-mem-org:
 
-.. figure:: images/instance_mem_org.png
+.. figure:: images/inst_mem.py
     
     Training set memory organization
 
-Instance attributes can be encoded using arbitrary fixed point format. However, the same format has to be used for all instances attribute encodings.
+Instance attributes can be encoded using arbitrary fixed point format. However, the same format has to be used for all instances attribute encodings. The total maximum number of instances - :math:`N^{M}_{I}`, is an arbitrary value selected by the user at the design time.
 
 Training set memory can be accessed via two ports:
 
@@ -315,23 +322,24 @@ This is the memory that holds the DT description. For each pipeline stage shown 
 
 .. _fig-dt-mem-array-org:
 
-.. figure:: images/instance_mem_org.png
+.. figure:: images/dt_mem.py
     
     DT memory organization
 
 Each DT memory array element contains a list of node descriptions as shown in :num:`Figure #fig-dt-mem-array-org`, comprising the following fields:
 
-- Array of node test coefficients: :math:`\mathbf{a}_{1}` to :math:`\mathbf{a}_{\left | \mathbf{A} \right |}`.
+- Array of node test coefficients: :math:`\mathbf{a}_{1}` to :math:`\mathbf{a}_{\NAM}`.
 - The node test threshold: *threshold*
 - ID of the left child if it is leaf: *Leaf Left ID*
 - ID of the left child if it is non-leaf: *Child Left ID* 
 - ID of the right child if it is leaf: *Leaf Right ID*
 - ID of the right child if it is non-leaf: *Child Right ID* 
-- Instance class: *C*
 
-As it was already described in the Chapter `Classifier`_, for both left and right child IDs, if the leaf ID field has non-zero value, the child is interpreted as a leaf and the field value represents the leaf node ID and the child ID field value is ignored. On the other hand, if the leaf ID field value is zero, the child ID field value represents the index in the next DT Memory Array element at which the child description located.
+The total maximum number of nodes storable in the DT Memory element - :math:`N^{M}_{nl}`, is an arbitrary value selected by the user at the design time. This value imposes a constraint on the maximum number of nodes induced DT can have per level.
 
-The memory elements are implemented as 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Node descriptions can span multiple stripes, depending on the number of attributes, and the attribute, child IDs and class encoding resolutions :math:`R_{A}*\left | \mathbf{A} \right | + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C}`.
+As it was already described in the Chapter `Classifier`_, for both left and right child IDs, if the leaf ID field has non-zero value, the child is interpreted as a leaf and the child ID field value is ignored. On the other hand, if the leaf ID field value is zero, the child ID field value represents the index in the next DT Memory Array element at which the child description is located.
+
+The memory elements are implemented as 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Node descriptions can span multiple stripes, depending on the number of attributes, and the attribute, child IDs and class encoding resolutions :math:`R_{A}*\NAM + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID} + R_{C}`.
 
 DT memory array element can be accessed via two ports:
 
@@ -341,9 +349,15 @@ DT memory array element can be accessed via two ports:
 Fitness calculator
 ------------------
 
-This module calculates the accuracy of the DT via *distribution* matrix as described in `Fitness Evaluation`_ chapter. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based its class (*C*) and the node into which it was classified (*leaf_id*), appropriate cell of the *distribution* matrix is incremented.
+This module calculates the accuracy of the DT via *distribution* matrix as described in `Fitness Evaluation`_ chapter. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based on its class (*C*) and the node into which it was classified (*Leaf ID*), appropriate cell of the *distribution* matrix is incremented. Fitness Calculator block is shown in :num:`Figure #fig-fit-calc-bd`:
 
-In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. Each calculator comprises:
+.. _fig-fit-calc-bd:
+
+.. figure:: images/fitness_calc_bd.py
+    
+    Fitness Calculator block diagram
+
+In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. The maximum number of leaf nodes - |NlM|, is arbitrary value, but defined at design time by user. This value imposes a constraints on the maximum number of leaves in DT. Each calculator comprises:
 
 - **Memory** for keeping track of the class distribution of corresponding leaf node
 - **Incrementer**: Updates the memory based on the Classifier output
@@ -354,10 +368,7 @@ Fitness calculator then sums the hits for all leaf node calculators and outputs 
 Required Hardware Resources and Induction Throughput
 ----------------------------------------------------
 
-The number of Classifier pipeline stages equals the maximum supported DT size :math:`D_{M}`. Since each NTE is also pipelined internally, the total number of pipeline stages is:
-
-.. math:: N_{P} = D_{M}\cdot (\left\lceil log_{2}(\left | \mathbf{A^{M}} \right |) \right\rceil + 2)
-    :label: pip_stg_cnt
+The number of Classifier pipeline stages equals the maximum supported DT size |DM|. Since each NTE is also pipelined internally, the total number of pipeline stages is given by equation :eq:`np`. Let :math:`C^{M}` be maximum supported number of classes
 
 .. tabularcolumns:: l l l
 
@@ -369,29 +380,29 @@ The number of Classifier pipeline stages equals the maximum supported DT size :m
       - Quantity
     * - RAMs (total number of bits)
       - Training Set Memory
-      - :math:`N^{M}_{I}\cdot (R_{A}*\left | \mathbf{A} \right | + R_{C})`
+      - :math:`N^{M}_{I}\cdot (R_{A}*\NAM + R_{C})`
     * - 
       - DT Memory Array
-      - :math:`(2^{D^{M}} - 1) N^{M}_{nl}\cdot (R_{A}*\left | \mathbf{A} \right | + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C})`
+      - :math:`R_{A}*\NAM + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID}`
     * - 
       - Fitness Calculator
-      - :math:`(2^{D^{M} - 1})\cdot C^{M}\cdot \left \lceil log_{2}(N^{M}_{I})  \right \rceil`
+      - :math:`\NlM\cdot C^{M}\cdot \left \lceil log_{2}(N^{M}_{I})  \right \rceil`
     * - 
       - Classifier
-      - :math:`D\cdot N_{P}\cdot (2*R_{A}*\left | \mathbf{A} \right | + R_{C} + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C})`
+      - :math:`N_{P}\cdot (R_{A}*\NA + R_{C} + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID})`
     * - Multipliers
       - Classifier
-      - :math:`\left | \mathbf{A^{M}} \right |`
+      - :math:`\DM\cdot \NA`
     * - Adders
       - Classifier
-      - :math:`\left \lceil log_{2}(N_{A})  \right \rceil`
+      - :math:`\DM \left \lceil log_{2}(\NA)  \right \rceil`
     * - Incrementers
       - Fitness Calculator
-      - :math:`2^{D^{M} - 1}`
+      - :math:`\NlM`
 
-Second, the number of clock cycles required to determine the DT accuracy will be discussed. The Classifier has a throughput of one instance per clock cycle, however there is an initial latency equal to the length of the pipeline :math:`N_{P}`. The fitness calculator needs extra time after the classification has finished in order to determine the dominant class which is equal to the total number of classes in the training set *C*. This sums up to:
+Second, the number of clock cycles required to determine the DT accuracy will be discussed. The Classifier has a throughput of one instance per clock cycle, however there is an initial latency equal to the length of the pipeline :math:`N_{P}`. The fitness calculator needs extra time after the classification has finished in order to determine the dominant class which is equal to the total number of classes in the training set :math:`N_{C}`, plus the time to sum all dominant class hits, which is equal to the number of active leaves :math:`N_{l}`. This sums up to:
 
-.. math:: N_{C} = N_{I} + N_{P} + C,
+.. math:: N_{C} = N_{I} + N_{P} + N_{C} + N_{l},
 
 and is thus dependent on the training set.
 
@@ -423,7 +434,7 @@ Table 3 shows 21 datasets, selected from the UCI benchmark datasets database :ci
       - No. of classes
     * - Australian Credit Approval
       - ausc
-      - 14Error
+      - 14
       - 690
       - 2
     * - Credit Approval
@@ -540,16 +551,22 @@ The parameters of the |cop| architecture have been set to support all training s
     
     * - Parameter
       - Value
-    * - DT Max. Depth (:math:`D^{M}`)
+    * - DT Max. depth (|DM|)
       - 6
-    * - Max. Attributes Num. (:math:`\left | \mathbf{A^{M}} \right |`)
+    * - Max. attributes num. (|NAM|)
       - 32
-    * - Attribute Encoding Resolution (:math:`R_{A}`)
+    * - Attribute encoding resolution (:math:`R_{A}`)
       - 16
-    * - Class Encoding Resolution
+    * - Class encoding resolution (:math:`R_{C}`)
       - 8
-    * - Max. Training Set Classes
+    * - Max. training set classes (:math:`C^{M}`)
       - 16
+    * - Max. number of leaves (|NlM|)
+      - 16
+    * - Max. number of training set instances (|NIM|)
+      - 4096
+    * - Max. number of nodes per level (:math:`N^{M}_{nl}`)
+      - 16  
 
 The |cop| has been implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in Table 4. The maximum operating frequency of 133 MHz of system clock frequency for the implemented |cop| architecture was attained.
 
@@ -572,7 +589,7 @@ Estimation of Induction Speed-up
 
 The software was implemented in C language and run on two platforms:
 
-- AMD Phenom(tm) II X4 965, built by GCC 4.8.2 compiler
+- AMD Phenom(tm) II X4 965 (3.4 GHz), built by GCC 4.8.2 compiler
 - ARM Cortex-A9 667MHz (Xilinx XC7Z020-1CLG484C Zynq-7000), built by Sourcery CodeBench Lite ARM EABI 4.8.3 compiler (from within Xilinx SDK 2014.4)
 
 Care was taken in writing the software and many optimization techniques were employed as described in chapter `Profiling results`_.
@@ -592,12 +609,12 @@ Average classification speed-up gain of hardware implementation over the softwar
     :header-rows: 1
     :file: results.csv
 
-Table 5 suggests that hardware architecture offers a substantial speed-up in comparison to software for all
+Table 5 suggests that hardware architecture offers a substantial speed-up in comparison to software for both PC and ARM.
 
 Conclusion
 ==========
 
-In this paper a universal 
+In this paper a universal reconfigurable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (EFTI) has been implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
 
 .. bibliography:: hereboy.bib
 	:style: unsrt

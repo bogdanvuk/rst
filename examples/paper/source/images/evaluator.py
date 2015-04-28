@@ -16,7 +16,7 @@ evaluator = block(dotted=True)
 
 fifo_blk = block(size=p(4,4))
 inst_fifo = []
-inst_fifo.append(fifo_blk(t="$I_{i}$", size=p(5,4), p=evaluator.p + (14, 3))())
+inst_fifo.append(fifo_blk(t="$I_{i}$", size=p(6,4), p=evaluator.p + (14, 3))())
 inst_fifo.append(fifo_blk(t="$I_{i+1}$").right(prev(1), 0)())
 inst_fifo.append(fifo_blk(t="$I_{i+2}$").right(prev(1), 0)())
 inst_fifo.append(fifo_blk(t="$\cdot\cdot\cdot$").right(prev(1), 0)())
@@ -32,15 +32,15 @@ bus_text("Instance Input").align_y(prev(1)[1], prev().s()).align_x(evaluator.p)(
 inp_coef_tmpl = block(size=p(3,2), border=False, text_align="ce", node_sep=(1, 0.5))
 inp_coefs = []
 
-inp_coefs.append(inp_coef_tmpl("$A_{1}$").below(inst_fifo[0], 1).align_x(inst_fifo[0].s(1.0), prev().s(1.0))())
+inp_coefs.append(inp_coef_tmpl("$A_{1}$").below(inst_fifo[0], 1).align_x(inst_fifo[0].s(1.0) - (1,0), prev().s(1.0))())
 inp_coefs.append(inp_coef_tmpl("$a_{1}$").below(prev(1))())
 inp_coefs.append(inp_coef_tmpl("$A_{2}$").below(prev(1), 1)())
 inp_coefs.append(inp_coef_tmpl("$a_{2}$").below(prev(1))())
 
-inp_coefs.append(inp_coef_tmpl("$A_{n-1}$").below(prev(1), 2)())
-inp_coefs.append(inp_coef_tmpl("$a_{n-1}$").below(prev(1))())
-inp_coefs.append(inp_coef_tmpl("$A_{n}$").below(prev(1), 1)())
-inp_coefs.append(inp_coef_tmpl("$a_{n}$").below(prev(1))())
+inp_coefs.append(inp_coef_tmpl("$A_{N^{M}_{A}-1}$").below(prev(1), 2)())
+inp_coefs.append(inp_coef_tmpl("$a_{N^{M}_{A}-1}$").below(prev(1))())
+inp_coefs.append(inp_coef_tmpl("$A_{N^{M}_{A}}$").below(prev(1), 1)())
+inp_coefs.append(inp_coef_tmpl("$a_{N^{M}_{A}}$").below(prev(1))())
 
 for i in range(len(inp_coefs)//2):
     path([inst_fifo[0].s(1), inp_coefs[2*i].w(0.5)], def_routing='|-', style='->')()
@@ -48,8 +48,8 @@ for i in range(len(inp_coefs)//2):
  
 for i in range(len(inp_coefs)//2):
     mul.append(mul_block.align_y(mid(inp_coefs[2*i].p, inp_coefs[2*i+1].p)).align_x(inst_fifo[1].c(), mul_block.c())())
-    path([inp_coefs[2*i].c(), mul[i].c()], shorten=(1.5, 1.5), style='->', thick=True)()
-    path([inp_coefs[2*i+1].c(), mul[i].c()], shorten=(1.5, 1.5), style='->', thick=True)()
+    path([inp_coefs[2*i].c(), mul[i].c()], shorten=(2, 1.5), style='->', thick=True)()
+    path([inp_coefs[2*i+1].c(), mul[i].c()], shorten=(2, 1.5), style='->', thick=True)()
     
 text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="normalsize").align_x(mul[1].c(), prev().c()).align_y(mid(mul[1].c(), mul[2].c()), prev().c())()
   
@@ -65,7 +65,7 @@ for i in range(2):
     path([add[i].c(), add[2].c()], shorten=(1.5, 1.5), style='->', thick=True)()
 
 node_fifo = []
-node_fifo.append(fifo_blk(t="$N_{i}$", size=p(5,4)).below(inp_coefs[7], 4).align_x(inst_fifo[0].p)())
+node_fifo.append(fifo_blk(t="$N_{i}$", size=p(6,4)).below(inp_coefs[7], 4).align_x(inst_fifo[0].p)())
 node_fifo.append(fifo_blk(t="$N_{i+1}$").right(prev(1), 0)())
 node_fifo.append(fifo_blk(t="$N_{i+2}$").right(prev(1), 0)())
 node_fifo.append(fifo_blk(t="$\cdot\cdot\cdot$").right(prev(1), 0)())

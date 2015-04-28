@@ -445,9 +445,6 @@ class Element(Node):
 #             self.anchor = p(self.p[0], (own - other)[1])
 #         return self
     
-    def render_tikz_shape(self):
-        return self.shape
-    
     def c(self, x=0, y=0):
         return p(self.n(x)[0] + self.size[0]/2, self.w(y)[1] + self.size[1]/2)
     
@@ -480,10 +477,13 @@ class Shape(Element):
                     'border' : 'draw'
                     })
     
-    tikz_options = Element.tikz_options + ['dotted']
+    tikz_options = Element.tikz_options + ['dotted', 'fill']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+    
+    def render_tikz_shape(self):
+        return self.shape
     
     def a(self, angle=0):
 #         if self.shape == 'circle':
