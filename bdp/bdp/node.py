@@ -16,6 +16,7 @@ from memoize.core import Memoizer
 import threading
 from tempfile import NamedTemporaryFile
 import os
+from glob import glob
 from cgitb import text
 
 def to_units(num):
@@ -28,7 +29,8 @@ def from_units(str):
     return float(str) / bdp_config['grid']
 
 obj_list = []
-tmpl_list = []
+tmpl_list = [None]
+# tmpl_cur = None
 
 def prev(i=0):
     i = -(i+1)
@@ -189,22 +191,29 @@ class TemplatedObjects(object):
         
         kwargs['template'] = self
         
-        tmpl = self.__class__(*args, **kwargs)
-        tmpl_list.append(tmpl)
+        tmpl_cur = self.__class__(*args, **kwargs)
         
         if render:
-            obj_list.append(tmpl.render_tikz())
+            tmpl_list.append(tmpl_cur)
+            obj_list.append(tmpl_cur.render_tikz())
+        else:
+            tmpl_list[-1] = tmpl_cur
             
-        return tmpl    
+        return tmpl_cur    
 
     def copy(self):
         return self(template=self)
                 
     def __init__(self, template=None, **kwargs):
         if template is not None:
-            self.__dict__.update(copy.deepcopy(template.__dict__))
-            
-        self.__dict__.update(copy.deepcopy(kwargs))
+            for k,v in template.__dict__.items():
+                setattr(self, k, copy.deepcopy(v))
+#             self.__dict__.update(copy.deepcopy(template.__dict__))
+        
+        for k,v in kwargs.items():
+            setattr(self, k, copy.deepcopy(v))
+        
+#         self.__dict__.update(copy.deepcopy(kwargs))
 
 class TikzMeta(TemplatedObjects):
 
@@ -548,7 +557,7 @@ class Shape(Element):
 #     def r(self, pos):
 #         return self.p + (self.size[0] + pos*self.node_sep[0], 0)
     
-    def up(self, shape, pos=1):
+    def over(self, shape, pos=1):
 #         return self.p - shape.anchor + (0, self.size[1] + pos*self.node_sep[1])
         self.p = shape.p - (0, self.size[1] + pos*shape.node_sep[1])
         return self
@@ -726,6 +735,10 @@ $node
             f.close()
 
             try:
+                origWD = os.getcwd() # remember our original working directory
+
+                os.chdir(temp_dir)
+
 #                 ret = subprocess.check_output(tex, shell=True, universal_newlines=True, timeout=1)
                 ret_code,ret,ret_err = run(latex_cmd, shell=True, universal_newlines=True)
                 
@@ -755,6 +768,14 @@ $node
                 print ("Ping stdout output:\n", e.output)
             finally:
                 os.unlink(f.name)
+#                 for f in glob (os.path.join(temp_dir, '*.aux')):
+#                     os.unlink(f)
+#                 for f in glob (os.path.join(temp_dir, '*.dvi')):
+#                     os.unlink(f)
+#                 for f in glob (os.path.join(temp_dir, '*.log')):
+#                     os.unlink(f)
+                
+                os.chdir(origWD) # get back to our original working directory
                 
             return size
         else:
@@ -978,7 +999,7 @@ class Path(TikzMeta):
                          })
     
     tikz_non_options = TikzMeta.tikz_non_options + ['path']
-    tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 'shorten' 
+    tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 'shorten',
                                             'double', 'line_width', 'dotted']
     
     def render_tikz_path(self):

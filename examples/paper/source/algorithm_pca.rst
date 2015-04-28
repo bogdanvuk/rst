@@ -22,5 +22,5 @@
 .. raw:: latex
     
     \begin{figure}[htbp]
-    \caption{Algorithmic framework for full tree oblique DT induction EA.}\label{hereboy:fig-algorithm-pca}\end{figure}
+    \caption{Algorithmic framework for full tree oblique DT induction EA.}\label{index:fig-algorithm-pca}\end{figure}
      

@@ -24,5 +24,5 @@
 .. raw:: latex
     
     \begin{figure}[htbp]
-    \caption{The pseudo-code of the fitness evaluation task.}\label{hereboy:fig-fitness-eval-pca}\end{figure}
+    \caption{The pseudo-code of the fitness evaluation task.}\label{index:fig-fitness-eval-pca}\end{figure}
         

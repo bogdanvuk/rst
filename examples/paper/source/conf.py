@@ -220,6 +220,9 @@ latex_preamble = ur'''
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
+\newcommand{\NA}{\left | \mathbf{A} \right |}
+\newcommand{\Nl}{\bar{N_l}}
+
 \lhead{}
 \chead{}
 \rhead{\fontsize{8pt}{12pt}\selectfont A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction \thepage}
@@ -248,17 +251,9 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a universal reconfigurable computing architecture for hardware implementation of homogeneous and heterogeneous ensemble
-    classifiers composed from decision trees (DTs), artificial neural networks (ANNs), and support vector machines (SVMs) is proposed. The
-    following types of ensemble classifiers: homogeneous ensemble classifiers composed from two versions of DTs (Functional DT and Axis-Parallel
-    DT), two versions of SVMs (with polynomial and radial kernel) and two versions of ANNs (Multi Layer Perceptron ANN and Radial Basis ANN)
-    machine learning predictive models, as well as a number of types of heterogeneous ensemble classifiers composed of a mixtures of DTs, SVMs and
-    ANNs, have been implemented in FPGA using proposed architecture. Comparison of FPGA implementation of REC architecture with standard
-    WEKA software implementation suggests that proposed hardware architecture offers substantial speed-ups for all types of considered machine
-    learning ensemble classifiers, ranging from 10 2 to 10 5 times.
+    In this paper a universal reconfigurable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (EFTI) has been implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
     
-    {\it Keywords}: data mining, machine learning; homogeneous and heterogeneous ensemble classifiers; decision trees; support vector machines; artificial
-    neural networks; hardware acceleration; reconfigurable hardware; FPGA; WEKA.
+    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; reconfigurable hardware; FPGA; co-processor.
 \end{sciabstract}
 
     

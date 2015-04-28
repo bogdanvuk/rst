@@ -19,8 +19,8 @@ def make_nte(name, pos):
     return nte
 
 nte = []
-nte.append(make_nte('$L_{0}$', p(0, 0)))
-nte.append(make_nte('$L_{1}$', p(18, 0)))
+nte.append(make_nte('$L_{1}$', p(0, 0)))
+nte.append(make_nte('$L_{2}$', p(18, 0)))
 nte.append(make_nte('$L_{D^{M}}$', p(44, 0)))
 
 bus = path(double=True, thick=False)

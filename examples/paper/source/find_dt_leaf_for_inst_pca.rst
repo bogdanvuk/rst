@@ -23,5 +23,5 @@
 .. raw:: latex
     
     \begin{figure}[htbp]
-    \caption{The pseudo-code of the procedure for determining the end-leaf for an instance.}\label{hereboy:fig-find-dt-leaf-for-inst-pca}\end{figure}
+    \caption{The pseudo-code of the procedure for determining the end-leaf for an instance.}\label{index:fig-find-dt-leaf-for-inst-pca}\end{figure}
         

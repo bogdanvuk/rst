@@ -8,7 +8,7 @@ This package contains the bdpfigure Sphinx extension.
 .. add description here ..
 '''
 
-requires = ['Sphinx>=0.6']
+requires = ['Sphinx>=0.6', 'PyMemoize>=1.0']
 
 setup(
     name='bdp',

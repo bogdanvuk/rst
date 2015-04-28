@@ -67,6 +67,10 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     """ 
     
 #     os.chdir(bdp_gen_path)
+    print(bdp_gen_path)
+    if not os.path.exists(bdp_gen_path):
+        print("Does not exist!")
+        
     tex_file = os.path.join(bdp_gen_path, tex_name)
     with open(tex_file, 'w') as f:
         f.write(tikz_prolog)

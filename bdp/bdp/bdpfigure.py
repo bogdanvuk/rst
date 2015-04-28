@@ -57,14 +57,16 @@ def render_bdpfigure(app, filename, options):
     name = stem + '.pdf'
     outdir = os.path.join(app.builder.outdir, '_bdpfigure')
     
-    print(os.path.getmtime(filename))
-    print(os.path.getmtime(os.path.join(app.builder.outdir, name)))
-    if (os.path.getmtime(filename) > 
-        os.path.getmtime(os.path.join(app.builder.outdir, name))):
-        return name
+    try:
+        print(os.path.getmtime(filename))
+        print(os.path.getmtime(os.path.join(app.builder.outdir, name)))
+        if (os.path.getmtime(filename) < 
+            os.path.getmtime(os.path.join(app.builder.outdir, name))):
+            print("Skipping:", filename)
+            return name
+    except FileNotFoundError:
+        pass
 
-    print("Prosli smo!")
-    
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
