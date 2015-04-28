@@ -165,7 +165,7 @@ class RstProposalProvider extends AbstractRstProposalProvider {
 		super.completeImageDirective_Picture(model, assignment, context, acceptor) var String fileName=model.getPicture() 
 		var Resource resource=model.eResource() 
 		if (resource != null) {
-			acceptFileNameProposals(resource, context, acceptor, Arrays.asList("jpg", "png", "pdf", "gif"), fileName) 
+			acceptFileNameProposals(resource, context, acceptor, Arrays.asList("jpg", "png", "pdf", "gif", "py"), fileName) 
 		}
 		
 	}

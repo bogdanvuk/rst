@@ -133,6 +133,7 @@ class PosOffset(object):
 
 class TemplatedObjects(object):
     def_settings = {}
+    children = []
     template = None
     
 #     def __iter__(self):
@@ -149,26 +150,52 @@ class TemplatedObjects(object):
         try:
             return self.__dict__[attr]
         except (KeyError, TypeError):
-#             try:
-#                 return getattr(self.template, attr)
-#             except AttributeError:
             try:
                 self.__dict__[attr] = copy.deepcopy(self.def_settings[attr]) 
                 return self.__dict__[attr]
             except KeyError:
-                raise AttributeError
+                try:
+                    tokens = attr.split('_')
+                    obj = tokens[0]
+                    attr = '_'.join(tokens[1:])
+                    if attr:
+                        return getattr(getattr(self, obj), attr)
+                    else:
+                        raise AttributeError
+                except (KeyError, TypeError, AttributeError):
+                    raise AttributeError
+                
+    def __setattr__(self, attr, val):
+        if attr in self.__class__.__dict__:
+            super().__setattr__(attr, val)
+        else:
+            try:
+                tokens = attr.split('_')
+                obj = tokens[0]
+                obj_attr = '_'.join(tokens[1:])
+                if obj_attr:
+                    return setattr(getattr(self, obj), obj_attr, val)
+                else:
+                    raise AttributeError
+            except (KeyError, TypeError, AttributeError):
+                super().__setattr__(attr, val)
                 
     def __call__(self, *args, **kwargs):
-        if (not args) and (not kwargs):
-            obj_list.append(self.render_tikz())
-            
-            return self
-        else:
-            kwargs['template'] = self
         
-            tmpl = self.__class__(*args, **kwargs)
-            tmpl_list.append(tmpl)
-            return tmpl
+        if (not args) and (not kwargs):
+            render = True
+        else:
+            render = False
+        
+        kwargs['template'] = self
+        
+        tmpl = self.__class__(*args, **kwargs)
+        tmpl_list.append(tmpl)
+        
+        if render:
+            obj_list.append(tmpl.render_tikz())
+            
+        return tmpl    
 
     def copy(self):
         return self(template=self)
@@ -240,10 +267,10 @@ class Node(TikzMeta):
     tikz_options = TikzMeta.tikz_options + ['align', 'anchor', 'font']
     tikz_non_options = TikzMeta.tikz_non_options +  ['p', 't', 'font_size', 'anchor']
     
-    def_settings = TikzMeta.def_settings.copy()
-    def_settings.update({
-                         'rel_anchor' : 'north west'
-                         })
+#     def_settings = TikzMeta.def_settings.copy()
+#     def_settings.update({
+#                          'rel_anchor' : 'center'
+#                          })
     
     aliases = TikzMeta.aliases.copy()
     aliases.update({
@@ -254,7 +281,7 @@ class Node(TikzMeta):
         return "font=\\" + self.font
 
     def render_tikz_p(self):
-        pos = self.p + bdp_config['origin_offset']
+        pos = self.p + bdp_config['origin_offset'] + self.size/2
         return "{0}, {1}".format(to_units(pos[0]), to_units(pos[1]))
     
     def render_tikz_t(self):
@@ -268,7 +295,10 @@ class Node(TikzMeta):
             return ''
     
     def render_tikz(self):
-        pos = self.render_tikz_p()
+        try:
+            pos = self.render_tikz_p()
+        except AttributeError:
+            pos = ''
         
         if pos:
             pos = "at ({0})".format(pos)
@@ -406,6 +436,9 @@ class Element(Node):
 #             self.anchor = p(self.p[0], (own - other)[1])
 #         return self
     
+    def render_tikz_shape(self):
+        return self.shape
+    
     def c(self, x=0, y=0):
         return p(self.n(x)[0] + self.size[0]/2, self.w(y)[1] + self.size[1]/2)
     
@@ -429,7 +462,8 @@ class Shape(Element):
     def_settings.update({
             'border' :  True,
             'node_sep' : p(1,1),
-            'conn_sep' : 1
+            'conn_sep' : 1,
+            'shape' : 'rectangle'
             })
     
     aliases = Element.aliases.copy()
@@ -442,32 +476,74 @@ class Shape(Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+    def a(self, angle=0):
+#         if self.shape == 'circle':
+        x = self.size[0]/2*math.cos(angle/180 * math.pi)
+        y = self.size[0]/2*math.sin(angle/180 * math.pi)
+        pos = p(x,-y) + self.size/2 + self.p
+        
+        return pos
+#         else:
+#             return 
+    
     def r(self, x=0, y=0):
         return p(self.n(x)[0], self.w(y)[1])
     
     def n(self, pos=0):
         if isinstance( pos, int ):
-            return self.p + (pos * self.conn_sep, 0)
+            pos = self.p + (pos * self.conn_sep, 0)
         else:
-            return super().n(pos)
+            pos = super().n(pos)
+         
+        if self.shape == 'circle':
+            r = self.size[0]/2
+            x = pos[0] - self.p[0]
+            y = r - math.sqrt(2*r*x - x*x) + self.p[1]
+            pos[1] = y
+
+        return pos
     
     def e(self, pos=0):
         if isinstance( pos, int ):
-            return self.p + (self.size[0], pos * self.conn_sep)
+            pos = self.p + (self.size[0], pos * self.conn_sep)
         else:
-            return super().e(pos)
+            pos = super().e(pos)
+
+        if self.shape == 'circle':
+            r = self.size[0]/2
+            y = pos[1] - self.p[1]
+            x = self.size[0] - (r - math.sqrt(2*r*y - y*y)) + self.p[0]
+            pos[0] = x
+        
+        return pos
     
     def s(self, pos=0):
         if isinstance( pos, int ):
-            return self.p + (pos * self.conn_sep, self.size[1])
+            pos = self.p + (pos * self.conn_sep, self.size[1])
         else:
-            return super().s(pos)
+            pos = super().s(pos)
+            
+        if self.shape == 'circle':
+            r = self.size[0]/2
+            x = pos[0] - self.p[0]
+            y = self.size[1] - (r - math.sqrt(2*r*x - x*x)) + self.p[1]
+            pos[1] = y
+
+        return pos
     
     def w(self, pos=0):
         if isinstance( pos, int ):
-            return self.p + (0, pos * self.conn_sep)
+            pos = self.p + (0, pos * self.conn_sep)
         else:        
-            return super().w(pos)
+            pos = super().w(pos)
+    
+        if self.shape == 'circle':
+            r = self.size[0]/2
+            y = pos[1] - self.p[1]
+            x = r - math.sqrt(2*r*y - y*y) + self.p[0]
+            pos[0] = x
+            
+        return pos
     
 #     def r(self, pos):
 #         return self.p + (self.size[0] + pos*self.node_sep[0], 0)
@@ -487,7 +563,7 @@ class Shape(Element):
         self.p = shape.p - (self.size[0] + pos*shape.node_sep[0], 0)
         return self
     
-    def bellow(self, shape, pos=1):
+    def below(self, shape, pos=1):
 #         return self.p - shape.anchor + (0, self.size[1] + pos*self.node_sep[1])
         self.p = shape.p + (0, shape.size[1] + pos*shape.node_sep[1])
         return self
@@ -553,6 +629,7 @@ class Text(Element):
     tikz_non_options = Element.tikz_non_options.copy()
     
     memo = None
+    size_measure = False
     
     def __init__(self, t=None, size=None, **kwargs):
         super().__init__(size, **kwargs)
@@ -562,7 +639,16 @@ class Text(Element):
         if t is not None:
             self.t = t
     
+    def render_tikz_p(self):
+        if self.size_measure:
+            raise AttributeError
+        else:
+            return super().render_tikz_p()
+    
     def render_tikz_margin(self):
+        if self.size_measure:
+            raise AttributeError 
+        
         if self.margin[0] is not None:
             return "text width=" + to_units(self.size[0] - 2*self.margin[0])
             
@@ -580,9 +666,11 @@ class Text(Element):
 #                 text = self.t
 
             self.tikz_non_options.extend(['size', 'margin'])
+            self.size_measure = True
             text = self.render_tikz()
             self.tikz_non_options.remove('size')
             self.tikz_non_options.remove('margin')
+            self.size_measure = False
             
 #             latex = Template(r"""\documentclass{article}
 # \begin{document}
@@ -698,25 +786,25 @@ class Block(Shape):
                          'text_align': 'cc'
                          })
     
-    text_args = ['margin', 'font']
+#     text_args = ['margin', 'font']
     
-    _text = None
+    text = None
     
-    @property
-    def t(self):
-        return self._text.t
-    
-    @t.setter
-    def t(self, val):
-        self._text.t = val
-        
-    @property
-    def margin(self):
-        return self._text.margin
-    
-    @margin.setter
-    def margin(self, val):
-        self._text.margin = val
+#     @property
+#     def t(self):
+#         return self.text.t
+#     
+#     @t.setter
+#     def t(self, val):
+#         self.text.t = val
+#         
+#     @property
+#     def margin(self):
+#         return self.text.margin
+#     
+#     @margin.setter
+#     def margin(self, val):
+#         self.text.margin = val
     
     @property
     def text_align(self):
@@ -732,90 +820,95 @@ class Block(Shape):
             self.__dict__['text_align'] = val
     
     def render_tikz(self):
-        self._text.p = self.p
+        self.text.p = self.p
         
         try:
             if self.text_align:
                 if self.text_align == 'ne':
-                    self._text.p = self.e(0.0)
-                    self._text.anchor = self._text.e(0.0)
-                    self._text.text_align = 'right'
+                    self.text.p = self.e(0.0)
+                    self.text.anchor = self.text.e(0.0)
+                    self.text.text_align = 'right'
                 elif self.text_align == 'nw':
-                    self._text.p = self.w(0.0)
-                    self._text.anchor = self._text.w(0.0)
-                    self._text.text_align = 'left'
+                    self.text.p = self.w(0.0)
+                    self.text.anchor = self.text.w(0.0)
+                    self.text.text_align = 'left'
                 elif self.text_align == 'se':
-                    self._text.p = self.e(1.0)
-                    self._text.anchor = self._text.e(1.0)
-                    self._text.text_align = 'right'
+                    self.text.p = self.e(1.0)
+                    self.text.anchor = self.text.e(1.0)
+                    self.text.text_align = 'right'
                 elif self.text_align == 'sw':
-                    self._text.p = self.w(1.0)
-                    self._text.anchor = self._text.w(1.0)
-                    self._text.text_align = 'left'
+                    self.text.p = self.w(1.0)
+                    self.text.anchor = self.text.w(1.0)
+                    self.text.text_align = 'left'
                 elif self.text_align == 'nc':
-                    self._text.p = self.n(0.0)
-                    self._text.size[0] = self.size[0]
-                    self._text.anchor = self._text.n(0.0)
-                    self._text.text_align = 'center'
+                    self.text.p = self.n(0.0)
+                    self.text.size[0] = self.size[0]
+                    self.text.anchor = self.text.n(0.0)
+                    self.text.text_align = 'center'
                 elif self.text_align == 'bc':
-                    self._text.p = self.s(0.0)
-                    self._text.size[0] = self.size[0]
-                    self._text.anchor = self._text.s(0.0)
-                    self._text.text_align = 'center'
+                    self.text.p = self.s(0.0)
+                    self.text.size[0] = self.size[0]
+                    self.text.anchor = self.text.s(0.0)
+                    self.text.text_align = 'center'
                 else:
-                    self._text.p = self.n(0.0)
-                    self._text.size = self.size
+                    self.text.p = self.p
+                    self.text.size = self.size
                     if self.text_align[1] == 'w':
-                        self._text.text_align = 'left'
+                        self.text.text_align = 'left'
                     elif self.text_align[1] == 'e':
-                        self._text.text_align = 'right'
+                        self.text.text_align = 'right'
                     else:
-                        self._text.text_align = 'center'
+                        self.text.text_align = 'center'
                     
 #                 if self.align[0] == 'n':
-#                     self._text.size = p(None, self.size[1])
-#                     self._text.p = self.w(0.0)
+#                     self.text.size = p(None, self.size[1])
+#                     self.text.p = self.w(0.0)
 #                 elif self.align[0] == 'c':
-#                     self._text.size = self.size
+#                     self.text.size = self.size
 #                 elif self.align[0] == 's':
-#                     self._text.size = p(None, None)
-#                     self._text.p = self.s(1.0)
+#                     self.text.size = p(None, None)
+#                     self.text.p = self.s(1.0)
 #                
 #                 if len(self.align) > 1:
 #                     if self.align[1] == 'w':
-#                         self._text.anchor = self._text.s(0.0)
-#                         self._text.align = 'left'
+#                         self.text.anchor = self.text.s(0.0)
+#                         self.text.align = 'left'
 #                     elif self.align[1] == 'c':
-#                         self._text.align = 'center'
+#                         self.text.align = 'center'
 #                     elif self.align[1] == 'e':
-#                         self._text.anchor = self._text.s(1.0)
-#                         self._text.align = 'right'                    
+#                         self.text.anchor = self.text.s(1.0)
+#                         self.text.align = 'right'                    
         except AttributeError:
             pass
                 
-        text_node = self._text.render_tikz()
-        self.t = None #Remove text so it wouldn't be printed twice
+        text_node = self.text.render_tikz()
+#         text = self.t
+#         self.t = None #Remove text so it wouldn't be printed twice
         shape_node = super().render_tikz()
+#         self.t = text
         return shape_node + '\n' + text_node 
     
-    def __init__(self, t=None, size=None, **kwargs):
+    def __init__(self, text_t=None, size=None, **kwargs):
         
         text_args_dict = {}
         
-        for a in self.text_args:
-            if a in kwargs:
-                text_args_dict[a] = kwargs[a]
-                kwargs.pop(a)
-                
-        if t is not None:
-            text_args_dict['t'] = t
+#         for a in self.text_args:
+#             if a in kwargs:
+#                 text_args_dict[a] = kwargs[a]
+#                 kwargs.pop(a)
 
-        super().__init__(size, **kwargs)
+        self.text = Text()
         
-        self._text = Text()
+        super().__init__(size, **kwargs)
+                
+        if text_t is not None:
+#             text_args_dict['t'] = t
+            self.text_t = text_t
+
+        
         
         for k,v in text_args_dict.items():
-            setattr(self._text, k, v)
+            setattr(self.text, k, v)
 
 class Segment(object):
     
@@ -885,27 +978,24 @@ class Path(TikzMeta):
                          })
     
     tikz_non_options = TikzMeta.tikz_non_options + ['path']
-    tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 
+    tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 'shorten' 
                                             'double', 'line_width', 'dotted']
     
     def render_tikz_path(self):
-#         path_iter = itertools.zip_longest(self.path, self.routing, fillvalue=self.def_routing)
         path_tikz = []
         
-#         for p in path_iter:
         for p in self.path:
-#             try:
-#                 path_str = p[0].render_tikz_path()
-#             except AttributeError:
             
             pos = p + bdp_config['origin_offset']
             path_str = "(" + to_units(pos[0]) + "," + to_units(pos[1]) + ")"
                 
             path_tikz.append(path_str)
             path_tikz.append('--')
-#             path_tikz.append(p[1])
             
         return ' '.join(path_tikz[:-1])
+    
+    def render_tikz_shorten(self):
+        return 'shorten <=' + to_units(self.shorten[0]) + ',shorten >=' + to_units(self.shorten[1])
     
     def render_tikz_style(self):
         return self.style

@@ -39,7 +39,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BulletList/item"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//TwoLevelBulletLine">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletLine/text"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletLine/firstItem"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletLine/item"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//BulletLine">
@@ -87,6 +87,10 @@
     <genClasses ecoreClass="Rst.ecore#//ImageDirective">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//ImageDirective/picture"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//ImageDirective/block"/>
+    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//TableDirective">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TableDirective/caption"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TableDirective/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//LabelDirective"/>
     <genClasses ecoreClass="Rst.ecore#//Label">

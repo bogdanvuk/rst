@@ -72,14 +72,14 @@ BulletList:
 ;
 
 TwoLevelBulletLine:
-	STAR (=> MINUS) text=Text LINE_BREAK
+	STAR firstItem=BulletLine
 	BEGIN
 		item+=BulletLine+
 	END
 ;
 
 BulletLine:
-	MINUS text=Text (=> LINE_BREAK)
+	MINUS (text=Text)? (=> LINE_BREAK)
 ;
 
 Paragraph:
@@ -95,6 +95,7 @@ Directive:
 	|   CodeBlockDirective
 	|	RawDirective
 	|	LabelDirective
+	|	TableDirective
 	|	OtherDirective
 ;
 
@@ -168,6 +169,14 @@ ImageDirective:
 	LINE_BREAK
     '..' ('image::' | 'figure::')
     picture=FileName LINE_BREAK
+    block=Block?
+;
+
+TableDirective:
+//	label=LabelDirective
+	LINE_BREAK
+    '..' ('list-table::' | 'csv-table::')
+    caption=Text LINE_BREAK
     block=Block?
 ;
 

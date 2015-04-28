@@ -61,7 +61,7 @@ block("Classifier", nte[2].s(1.0) - nte[0].n() + (6,6), text_align="nw", font='L
 # block.node_sep = (4,2)
 #  
 # qu_l0 = block("Instance queue $L_{0}$")()
-# eval_l0 = block("Node test evaluation $L_{0}$").bellow(qu_l0)()
+# eval_l0 = block("Node test evaluation $L_{0}$").below(qu_l0)()
 #  
 # qu_l1 = block("Instance queue $L_{1}$").right(qu_l0)()
 # eval_l1 = block("Node test evaluation $L_{1}$").right(eval_l0)()

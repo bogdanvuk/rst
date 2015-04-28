@@ -9,21 +9,21 @@ bus_text = text(font="tiny", margin=p(0,0))
 # ps_comp = comp(ps.r(0, 3), "CPU").align_x(comp.c(), ps.c())  
   
 cpu = comp("CPU").align_x(ps.c(), prev().c()).align_y(ps.w(3))()
-mem = comp("Memory").bellow(cpu)()
+mem = comp("Memory").below(cpu)()
 mem_bus = bus([cpu.s(0.5), mem.n(0.5)], style='<->')()
 
 
 pl = block(size=p(32,16), t="Programmable Logic", margin=p(0.5, 0.5), text_align="nw").right(ps, 2)()
 
 cu = comp("Control Unit").align_x(pl.r(2, 0)).align_y(cpu.p)()
-inst_mem = comp("Training Set Memory").bellow(cu)()
+inst_mem = comp("Training Set Memory").below(cu)()
 
 dt_mem_array = comp("DT Memory Array").right(cu)()
 
 for i in range(dt_mem_array.size[0]):
     path([dt_mem_array.n(i+1), dt_mem_array.s(i+1)], dotted=True)()
     
-dt_class = comp("Classifier").bellow(dt_mem_array)()
+dt_class = comp("Classifier").below(dt_mem_array)()
 for i in range(dt_class.size[0]):
     path([dt_class.n(i+1), dt_class.s(i+1)], dotted=True)()
     

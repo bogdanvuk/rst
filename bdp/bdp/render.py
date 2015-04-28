@@ -3,11 +3,11 @@ import sys
 import os
 import argparse
 
-import bdp
+import bdp.node
 
 def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     found = False
-    importlib.reload(bdp)
+    importlib.reload(bdp.node)
     try:
         bdp_file_name = file_name
         print(bdp_file_name)
@@ -55,7 +55,7 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     
     \begin{document}
     \pagestyle{empty}
-    \begin{tikzpicture}[yscale=-1, every node/.style={inner sep=0,outer sep=0}]
+    \begin{tikzpicture}[yscale=-1, every node/.style={inner sep=0,outer sep=0, anchor=center}]
     
     """
     

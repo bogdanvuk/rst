@@ -1,5 +1,7 @@
 .. |algo| replace:: *FTEI*
 .. |cop| replace:: *FTEIP*
+.. |A| replace:: :math:`\mathbf{A}`
+.. |a| replace:: :math:`\mathbf{a}`
 .. |NA| replace:: :math:`\left | \mathbf{A} \right |`
 .. |na| replace:: :math:`\bar{n}`
 .. |NI| replace:: :math:`N_{I}`
@@ -238,31 +240,39 @@ The co-processor connects to the CPU via AXI4 AMBA bus. The major parts and thei
 
 - **Control Unit**: Acts as a bridge between the AXI4 and internal protocols and controls the fitness evaluation process.
 - **Training Set Memory**: The memory for storing all training set instances
-- **Classifier**: Performs the DT traversal for each instance, i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The instance traversal path is determined by the outcome of the node tests, of which there is only one per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The stages :math:`L_{0}` through :math:`L_{D-1}` are separated by dotted lines in Classifier block in figure. For each instance in training set, the Classifier outputs the ID assigned to the leaf into which the instance was classified after traversal (please refer to fitness_eval() function :num:`Figure #fig-fitness-eval-pca`).
+- **Classifier**: Performs the DT traversal for each instance, i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined with the stages :math:`L_{0}` through :math:`L_{D-1}` separated by dotted lines in Classifier block in figure. For each instance in training set, the Classifier outputs the ID assigned to the leaf into which the instance was classified after traversal (please refer to fitness_eval() function :num:`Figure #fig-fitness-eval-pca`).
 - **DT Memory Array**: The array of memories used to store the DT description. The Classifier calculates node test for each DT level in parallel. Each Classifier pipeline stage requires its own memory that holds description of all nodes on the DT level it is associated with.
-- **Fitness Calculator**: calculates the accuracy of the DT based on the classification data received from the Classifier. For each instance of the training set, the Classifier supplies the ID of the leaf into which the instance was classified. Based on this information, the Fitness Calculator forms the distribution matrix and calculates the DT accuracy which is sent to the Control Unit and stored in the memory-maped register, ready to be read by the user.
+- **Fitness Calculator**: Calculates the accuracy of the DT based on the classification data received from the Classifier. For each instance of the training set, the Classifier supplies the ID of the leaf into which the instance was classified. Based on this information, the Fitness Calculator forms the distribution matrix and calculates the DT accuracy which is sent to the Control Unit and stored in the memory-maped register, ready to be read by the user.
 
 Classifier
 ----------
 
-Classifier performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The Classifier was implemented after the design described in :cite:`RS09`. The architecture was adapted to support the DT induction as well, and is shown in :num:`Figure #fig-dt-classifier-bd`. Figure shows main pipeline stages, one for each level of the DT.
+Classifier performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The Classifier was implemented after the design described in :cite:`RS09`. The original architecture from :cite:`RS09` was designed to perform the classification using already induced DTs, so it was adapted to support the DT induction as well, and is shown in :num:`Figure #fig-dt-classifier-bd`:
 
 .. _fig-dt-classifier-bd:
 
-.. figure:: images/dt_classificator_bd.png
+.. figure:: images/classifier.py
     
-    DT Classifier architecture used in the induction mode.
+    Classifier architecture used in the induction mode.
 
-Every pipeline level performs DT node test calculation for one level in DT as it is shown in :num:`Figure #fig-dt-classifier-bd`. Thus, each pipeline level can perform test calculation for any DT node of the corresponding DT level. First pipeline level always processes the root DT node. However, which nodes are processed by other levels, depends on the path of traversal for each individual instance.
+The Classifier performs the DT traversal for each instance (:num:`Figure #fig-oblique-dt`), i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The instance traversal path is determined by the outcome of the node tests :eq:`oblique_test`, of which there is only one per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The number of stages in the pipeline determines the maximum depth of the DT that can be induced, and is specified by the user during the design phase.
 
-Each pipeline level has two main blocks:
+Each pipeline stage can perform node test calculation for any DT node of the corresponding DT level. First stage always processes the root DT node, however which nodes are processed by other stages, depends on the path of traversal for each individual instance. Every stage has one DT Memory associated that holds the descriptions of all the nodes on that DT level.
 
-- DT test evaluation
-- Instance set queue
+Each pipeline stage has two main blocks:
 
-The DT test evaluation block processes calculation given in :eq:`oblique_test` and decides how to proceed with DT traversal: via left or via right child of the current node. The calculated child can either be a leaf or a non-leaf node. If the child is a leaf node, the ID of the child is sent to the next pipeline level where the traversal is continued. On the other hand, it the child is a leaf, the classification is done and the class has been decided, which is signaled to the next pipeline level. The next levels will only pass the information about the class and perform no computation.
+- Node Test Evaluator - NTE
+- Instance Queue
 
-Block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the DT test evaluation block.
+For each instance received at the Classifier input, the first NTE block processes the calculation given by equation :eq:`oblique_test` for the attributes of received instance |A| and root node coefficients |a|. It then decides on how to proceed with DT traversal: via left or via right child, which can be either a leaf or a non-leaf node. If the child is a non-leaf node, its ID is output to the next pipeline stage where the traversal is continued. On the other hand, if the child is a leaf, the classification is done, the ID of a leaf node is output to next pipeline stage informing it that no further calculation need to be done for this instance. Each NTE operation corresponds to one iteration of the find_dt_elaf_for_inst() function loop (:num:`Figure #fig-find-dt-leaf-for-inst-pca`), and its output to the *cur_node_id* variable. The instance is also passed to the next stage along with the child node ID, since next stage will perform the calculation on it as well, i.e. the instance traverses to the next DT level.
+
+All subsequent stages operate in similar manner, except that in addition they also receive the calculation results from their predecessors. If NTE receives the ID of the leaf node, meaning that the instance is already classified, it simply passes this information onward and performs no computation. On the other hand, if ID of the non-leaf node is received, the following is performed:
+
+1. The node coefficients |a| are fetched from the DT Memory using ID as the index
+2. Node test calculation is performed
+3. The ID of the child is calculated and passed along with the instance to the next stage
+
+The NTE operation is again pipelined for maximal throughput, which makes the use of the Instance Queue necessary. The Instance Queue delays the passing of the instance to the next Classifier pipeline stage until its corresponding calculation is done, i.e. all the NTE internal pipeline stages are passed. Block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the NTE.
 
 .. _fig-dt-test-eval-bd:
 
@@ -270,28 +280,23 @@ Block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture o
     
     DT test evaluation block architecture
 
-The test evaluation block performs the sum of products given by :eq:`oblique_test`. The computation is parallelized as much as possible. The multiplications are performed in parallel for all |NA| coefficient and attribute pairs. Since there are only binary adders at disposal and the |NA|-rnary sum is needed, the tree of binary adders is formed. The tree needs to be :math:`\left \lceil log_{2}(N_{A})  \right \rceil` deep. 
+The test evaluation block performs the sum of products given by :eq:`oblique_test`. By using only binary multipliers and adders, the computation is parallelized and pipelined as much as possible. The multiplications are performed in parallel for all |NA| coefficient and attribute pairs. Since there are only binary adders at disposal and the |NA|-rnary sum is needed, the tree of binary adders is formed. The tree needs to be :math:`\left \lceil log_{2}(N_{A})  \right \rceil` deep. 
 
 Each calculation step is pipelined so that maximum speed of execution is achieved. Finally, the total number of pipeline stages needed equals the depth of the adder tree, plus a multiplication stage :math:`\left \lceil log_{2}(N_{A}) + 1 \right \rceil`.
 
-The result of the calculation is than compared with the instance threshold to determine if the traversal will continue to the left or right child. The signals *child_left* and *child_right* contain either:
+The result of the calculation is than compared with the node test threshold to determine if the traversal will continue to the left or right child. Along with node test coefficients |a| in the DT Memory, the IDs of the child nodes are stored in the fields: *child_left_id*, *child_right_id*, *leaf_left_id* and *leaf_right_id*. If the left child is a non-leaf node, the *child_left_id* contains the ID of the child node in the next DT level, i.e. index of the child node in the next node's DT Memory, and the *leaf_left_id* is empty, i.e. equals 0. On the other hand, if left child is a leaf node, *leaf_left_id* is non-zero value representing the leaf node ID, while *child_left_id* is disregarded. The right child IDs are interpreted analogously. Depending on the decision to continue with the traversal to the left or right, *child_left_id* or *child_right_id* is output to the *child_id_out* and *leaf_left_id* or *leaf_right_id* is output to the *class_id_in* for the next NTE. When NTE receives the non-zero value for the *class_id*, the calculation result is disregarded (it is performed nevertheless in order to simplify the design) and the *class_id_in* is simply passed to the *class_id_out*.
 
-- The ID of the next level child node, if the child node is not leaf, or
-- The class of the child, if the child is leaf
-
-If the previous pipeline level signaled that instance has already been classified via the *classified* signal, the result of the calculation is overridden and the *class* from the previous stage is passed on. 
-
-The value of the *classified* signal for the next pipeline stage is than calculated. If the instance has already been classified, or the calculated child is a leaf, the signal is set to True.
+The value of the threshold, child ID fields and the *class_id_in* are delayed by the queue for the same reasons the Instance Queue was introduced, i.e. in order for them to be ready once the corresponding calculation is finished and the traversal choice is made.
 
 Training Set Memory
 -------------------
 
-This is the memory that holds all training set instances. The memory organization is shown in :num:`Figure #fig-inst-mem-org`. The memory is comprised of stripes 32-bit wide in order to be accessed by the CPU via AXI. Each instance description comprises the following fields:
+This is the memory that holds all training set instances. The memory organization is shown in :num:`Figure #fig-inst-mem-org`. It is comprised of 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Each instance description comprises the following fields:
 
-- Array of instance attribute values: :math:`A_{1}` to :math:`A_{N_{A}}`.
+- Array of instance attribute values: :math:`\mathbf{A}_{1}` to :math:`\mathbf{A}_{\left | \mathbf{A} \right |}`.
 - Instance class: *C*
 
-Whole training set instance can span multiple stripes, depending on the number of attributes and attribute and class encoding resolution :math:`R_{A}*(N_{A} + 1) + R_{C}`.
+Whole training set instance can span multiple stripes, depending on the number of attributes, and attribute and class encoding resolution :math:`R_{A}*\left | \mathbf{A} \right | + R_{C}`.
 
 .. _fig-inst-mem-org:
 
@@ -299,7 +304,7 @@ Whole training set instance can span multiple stripes, depending on the number o
     
     Training set memory organization
 
-Instance attributes can be encoded using arbitrary fixed point format. However, the same format has to be used for all instances' attribute encoding.
+Instance attributes can be encoded using arbitrary fixed point format. However, the same format has to be used for all instances attribute encodings.
 
 Training set memory can be accessed via two ports:
 
@@ -319,15 +324,17 @@ This is the memory that holds the DT description. For each pipeline stage shown 
 
 Each DT memory array element contains a list of node descriptions as shown in :num:`Figure #fig-dt-mem-array-org`, comprising the following fields:
 
-- Array of node test coefficients: :math:`a_{1}` to :math:`a_{N_{A}}`.
-- The node test threshold: *t*
-- Class of the left child. When this field is non-zero, the left child is a leaf and the field value represents the class of the child.
-- Pointer to the left child, i.e. the row number in the next DT memory array element which contains the child description. This field is ignored if the class field contains a non-zero value, meaning that left child is a leaf.
-- Class of the right child
-- Pointer to the right child
+- Array of node test coefficients: :math:`\mathbf{a}_{1}` to :math:`\mathbf{a}_{\left | \mathbf{A} \right |}`.
+- The node test threshold: *threshold*
+- ID of the left child if it is leaf: *leaf_left_id*
+- ID of the left child if it is non-leaf: *child_left_id* 
+- ID of the right child if it is leaf: *leaf_right_id*
+- ID of the right child if it is non-leaf: *child_right_id* 
 - Instance class: *C*
 
-The memory elements are implemented as 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Node descriptions can span multiple stripes, depending on the number of attributes, attribute and class encoding resolution and the maximum selected :math:`R_{A}*(N_{A} + 1) + R_{C}`.
+As it was already described in the Chapter `Classifier`_, for both left and right child IDs, if the leaf ID field has non-zero value, the child is interpreted as a leaf and the field value represents the leaf node ID and the child ID field value is ignored. On the other hand, if the leaf ID field value is zero, the child ID field value represents the index in the next DT Memory Array element at which the child description located.
+
+The memory elements are implemented as 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Node descriptions can span multiple stripes, depending on the number of attributes, and the attribute, child IDs and class encoding resolutions :math:`R_{A}*\left | \mathbf{A} \right | + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C}`.
 
 DT memory array element can be accessed via two ports:
 
@@ -337,20 +344,68 @@ DT memory array element can be accessed via two ports:
 Fitness calculator
 ------------------
 
-This module performs the *distribution* matrix and the number of hits calculation as described in `Fitness Evaluation`_ chapter. It monitors the output of the DT Classifier which outputs classification for a new instance every clock cycle. Based on the leaf node in which the instance ended up, and the class of the instance, appropriate cell of the *distribution* matrix is incremented.
+This module calculates the accuracy of the DT via *distribution* matrix as described in `Fitness Evaluation`_ chapter. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based its class (*C*) and the node into which it was classified (*leaf_id*), appropriate cell of the *distribution* matrix is incremented.
 
-The fitness calculator was implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. The number of calculators is thus equal to the maximum number of leaf nodes supported. Each calculator comprises:
+In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. Each calculator comprises:
 
-- Memory for keeping track of the class distribution in the node
-- Memory incrementer that updates the memory based on the DT Classifier output
-- The *dominant_class* calculator which operates once all the instances have been classified
+- **Memory** for keeping track of the class distribution of corresponding leaf node
+- **Incrementer**: Updates the memory based on the Classifier output
+- **The dominant class calculator**: For each training set class, calculates how many instances of that class were classified in the corresponding leaf node. It then finds which class had the highest number of classifications in the corresponding leaf node (dominant class), and outputs that number (*dominant_class_cnt*). If the instance's class equals the dominant class of the leaf node it was classified into, it is considered a hit, otherwise it is considered a miss. Hence, *dominant_class_cnt* represents the number of hits for the corresponding leaf node.
 
-Each calculator outputs the number of instances of the dominant class for its leaf node. Fitness calculator then sums outputs from all calculators and outputs the sum as the number of hits. The number is then stored in the register of the control unit from where it can be read-out by the CPU.
+Fitness calculator then sums the hits for all leaf node calculators and outputs the sum as number of hits for whole DT. The number is then stored in the register of the Control Unit from where it can be read-out by the CPU.
 
-Required Hardware Resources and Induction Throughputs
------------------------------------------------------
+Required Hardware Resources and Induction Throughput
+----------------------------------------------------
 
+The number of Classifier pipeline stages equals the maximum supported DT size :math:`D_{M}`. Since each NTE is also pipelined internally, the total number of pipeline stages is:
 
+.. math:: N_{P} = D_{M}\cdot (\left\lceil log_{2}(\left | \mathbf{A^{M}} \right |) \right\rceil + 2)
+    :label: pip_stg_cnt
+
+.. tabularcolumns:: l l l
+
+.. list-table:: Required hardware resources for the |cop| architecture implementation
+    :header-rows: 1 
+    
+    * - Resource Type
+      - Module
+      - Quantity
+    * - RAMs (total number of bits)
+      - Training Set Memory
+      - :math:`N^{M}_{I}\cdot (R_{A}*\left | \mathbf{A} \right | + R_{C})`
+    * - 
+      - DT Memory Array
+      - :math:`(2^{D^{M}} - 1) N^{M}_{nl}\cdot (R_{A}*\left | \mathbf{A} \right | + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C})`
+    * - 
+      - Fitness Calculator
+      - :math:`(2^{D^{M} - 1})\cdot C^{M}\cdot \left \lceil log_{2}(N^{M}_{I})  \right \rceil`
+    * - 
+      - Classifier
+      - :math:`D\cdot N_{P}\cdot (2*R_{A}*\left | \mathbf{A} \right | + R_{C} + R_{threshold} + 2*R_{leaf ID} + 2*R{child ID} + R_{C})`
+    * - Multipliers
+      - Classifier
+      - :math:`\left | \mathbf{A^{M}} \right |`
+    * - Adders
+      - Classifier
+      - :math:`\left \lceil log_{2}(N_{A})  \right \rceil`
+    * - Incrementers
+      - Fitness Calculator
+      - :math:`2^{D^{M} - 1}`
+
+Second, the number of clock cycles required to determine the DT accuracy will be discussed. The Classifier has a throughput of one instance per clock cycle, however there is an initial latency equal to the length of the pipeline :math:`N_{P}`. The fitness calculator needs extra time after the classification has finished in order to determine the dominant class which is equal to the total number of classes in the training set *C*. This sums up to:
+
+.. math:: N_{C} = N_{I} + N_{P} + C,
+
+and is thus dependent on the training set.
+
+Software for |cop| assisted DT induction
+========================================
+
+With |cop| performing fitness evaluation task, remaining functionality of the |algo| (:num:`Figure #fig-algorithm-pca`) can be implemented in software. Furthermore, software needs to implement procedures for interfacing the co-processor as well. The pseudo-code for software used in the co-design is given
+
+.. include:: co_design_sw_pca.rst
+
+All functions whose name starts with "hw" are the interface functions for the co-processor.
 
 Experiments
 ===========
@@ -371,7 +426,7 @@ Table 3 shows 21 datasets, selected from the UCI benchmark datasets database :ci
       - No. of classes
     * - Australian Credit Approval
       - ausc
-      - 14
+      - 14Error
       - 690
       - 2
     * - Credit Approval
@@ -479,7 +534,41 @@ Table 3 shows 21 datasets, selected from the UCI benchmark datasets database :ci
 Required Hardware Resources and Scalability
 -------------------------------------------
 
-Next, this particular parameterized instance of the REC architecture has been implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options.From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in Table 4. As regarding to the maximum operating frequency, all implemented REC architectures were able to run at 133 MHz of system clock frequency.
+The parameters of the |cop| architecture have been set to support all training sets from Table 3. 
+
+.. tabularcolumns:: c c 
+
+.. list-table:: Characteristics of the UCI datasets used in the experiments
+    :header-rows: 1 
+    
+    * - Parameter
+      - Value
+    * - DT Max. Depth (:math:`D^{M}`)
+      - 6
+    * - Max. Attributes Num. (:math:`\left | \mathbf{A^{M}} \right |`)
+      - 32
+    * - Attribute Encoding Resolution (:math:`R_{A}`)
+      - 16
+    * - Class Encoding Resolution
+      - 8
+    * - Max. Training Set Classes
+      - 16
+
+The |cop| has been implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in Table 4. The maximum operating frequency of 133 MHz of system clock frequency for the implemented |cop| architecture was attained.
+
+.. tabularcolumns:: c c c c
+
+.. list-table:: FPGA resources required to implement |cop| architecture for DT induction with selected UCI datasets
+    :header-rows: 1 
+    
+    * - FPGA Device
+      - Slices
+      - BRAMs
+      - DSPs
+    * - XC7Z020
+      - 6587
+      - 65
+      - 192
 
 Estimation of Induction Speed-up
 --------------------------------
@@ -506,7 +595,12 @@ Average classification speed-up gain of hardware implementation over the softwar
     :header-rows: 1
     :file: results.csv
 
-Table 5 suggests that hardware architecture offers a substantial speed-up in comparison to software for all 
+Table 5 suggests that hardware architecture offers a substantial speed-up in comparison to software for all
+
+Conclusion
+==========
+
+In this paper a universal 
 
 .. bibliography:: hereboy.bib
 	:style: unsrt
