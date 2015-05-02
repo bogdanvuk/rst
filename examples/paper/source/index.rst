@@ -4,6 +4,7 @@
 .. |a| replace:: :math:`\mathbf{a}`
 .. |NA| replace:: :math:`N_{A}`
 .. |NAM| replace:: :math:`N^{M}_{A}`
+.. |NIM| replace:: :math:`N^{M}_{I}`
 .. |na| replace:: :math:`\bar{n}`
 .. |NI| replace:: :math:`N_{I}`
 .. |Da| replace:: :math:`\bar{D}`
