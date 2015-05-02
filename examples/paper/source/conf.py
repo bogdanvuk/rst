@@ -254,9 +254,9 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a universal reconfigurable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (EFTI) has been implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. The algorithm for full decision tree induction using evolutionary approach (EFTI) has been implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
     
-    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; reconfigurable hardware; FPGA; co-processor.
+    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
 
     
