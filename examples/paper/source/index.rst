@@ -93,7 +93,7 @@ Being that the EAs are iterative by nature and extensively perform simple comput
 
 This section describes the |algo| iterative algorithm for full DT induction based on EA. It requires only one individual for the induction, which presents the best DT evolved up to the current iteration. The DT is induced from the training set. Since the algorithm is performing supervised learning, the training set consists of the problem instances which have the known class. |algo| starts from the randomized one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed, i.e. mutated, and let to perform classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed this way, it will be used to classify new instances of the problem.
 
-The :num:`Figure #fig-algorithm-pca` shows the algorithmic framework for the |algo|, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity.
+The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo|, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity.
 
 .. _fig-algorithm-pca:
 
@@ -113,39 +113,47 @@ EFTI performs two types of mutations on DT individual:
 - Node test coefficients mutation
 - DT topology mutation
 
-During each iteration of |algo|, a small portion (|alpha|) of DT nodes' test coefficients is mutated at random. Every change in node test influences the classification, as the instances take different paths through the DT, hence ending up classified differently. Usually one coefficient per several nodes is mutated each iteration, in order for classification result to change in small steps. **Dalje, kako se menja koeficijent? Da li se menja jedan bit u njegovoj reprezentaciji ili se na njegovu trenutnu vrednost dodaje neki mali slucajni broj?. vrednost parametra alfa se menja adaptivno u toku rada algoritma.**
+During each iteration of |algo|, a small portion (|alpha|) of DT nodes' test coefficients is mutated at random. Coefficient is mutated by flipping one of its bits at random position. Every change in node test influences the classification, as the instances take different paths through the DT, hence ending up classified differently. Usually one coefficient per several nodes (dictated by |alpha|) is mutated each iteration, in order for classification result to change in small steps. Parameter |alpha| is adapted from one iteration to other depending on the speed at which the DT fitness is improving in a manner that |alpha| is increased each iteration there is no improvement, and reset to default minimal value when new individual is selected as current best.
 
-On the other hand, topology mutations represent very large moves in the search space, so they are performed even less often. In every iteration, there is a small chance (|rho|) that the node will either be added to the DT or removed from it. This change either adds an additional test for the classification, or removes one or whole subtree of tests. **Added node always replaces an existing leaf, never an internal node. On the other hand, when node is removed it must be a non-leaf node (any).** By adding a test, a new point is created where during classification, instances from different classes might separate and take different paths through the DT and eventually be classified as different. This increases the accuracy of the DT. On the other hand, by removing the unnecessary test the DT is made smaller. Size of the DT is also an important factor in its fitness.
+On the other hand, topology mutations represent very large moves in the search space, so they are performed even less often. In every iteration, there is a small chance (|rho|) that a node will either be added to the DT or removed from it. This change either adds an additional test for the classification, or removes one or whole subtree of tests. The node is always added in place of an existing leaf, i.e. never in place of an internal non-leaf node. On the other hand, if node is to be removed, it has to be one of the non-leaf nodes. By adding a test, a new point is created where during classification, instances from different classes might separate and take different paths through the DT and eventually be classified as different. This increases the accuracy of the DT. On the other hand, by removing the unnecessary test the DT is made smaller. Size of the DT is also an important factor in its fitness.
 
-The fitness of a mutated individual (DT) is evaluated using the training set. The DT is let to classify all the problem instances and the classification results are then compared to the desired classifications specified in the training set. The pseudo-code for this task is given in :num:`Figure #fig-fitness-eval-pca`. The input parameter *dt* is the current decision tree individual.
+The fitness of a mutated individual (DT) is evaluated using the training set. The DT is let to classify all the problem instances and the classification results are then compared to the desired classifications specified in the training set. The pseudo-code for this task is given in :num:`Algorithm #fig-fitness-eval-pca`. The input parameter *dt* is the current decision tree individual and *train_set* is the training set.
 
-**Dodati faktor velicine stabla u racunanju fitnessa**
+.. _fig-fitness-eval-pca:
 
-.. include:: fitness_eval_pca.rst
+.. literalinclude:: code/fitness_eval.py
+    :caption: The pseudo-code of the fitness evaluation task.
 
 The fitness evaluation task performs the following:
 
-- It finds the distribution of the classes over the leaves of the DT - **implemented in the first loop**
-- It finds the dominant class for each leaf - **implemented in the first loop**
-- It calculates the fitness as the percentage of classification hits **Dodati faktor velicine stabla u racunanju fitnessa** - **implemented by the last statement befor return**
+- It finds the distribution of the classes over the leaves of the DT - implemented by the first **for** loop
+- It finds the dominant class for each leaf - implemented by the second **for** loop
+- It calculates the fitness as a weighted sum of two values: DT accuracy and DT oversize. - implemented by the last four statements.
 
-First, the classes distribution is determined by letting all the instances from the training set traverse the DT, i.e. by calling the find_dt_leaf_for_inst() function whose pseudo-code is given in :num:`Figure #fig-find-dt-leaf-for-inst-pca`. This function returns the ID of a leaf node into which the instance was classified. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt`. **Na primer jedan moguci traversal je prikazan linijom na slici**
+First, the classes distribution is determined by letting all the instances from the training set traverse the DT, i.e. by calling the find_dt_leaf_for_inst() function whose pseudo-code is given in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function returns the ID of a leaf node into which the instance was classified. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt`, where one possible path is given by the red line.
 
-.. include:: find_dt_leaf_for_inst_pca.rst
+.. _fig-find-dt-leaf-for-inst-pca:
 
-The evaluate_node_test() function performs the node test evaluation given by equation :eq:`oblique_test`. The pseudo-code of this function is given in :num:`Figure #fig-evaluate-node-test-pca`.
+.. literalinclude:: code/find_dt_leaf_for_inst.py
+    :caption: The pseudo-code of the procedure for determining the end-leaf for an instance.
 
-.. include:: evaluate_node_test_pca.rst
+The evaluate_node_test() function performs the node test evaluation given by equation :eq:`oblique_test`. The pseudo-code of this function is given in :num:`Algorithm #fig-evaluate-node-test-pca`.
+
+.. _fig-evaluate-node-test-pca:
+
+.. literalinclude:: code/evaluate_node_test.py
+    :caption: The pseudo-code of the fitness evaluation task.
 
 The classes of all the instances from the training set are known and read for each instance into the *instance_class* variable (from the fitness_eval() function). Based on the leaf nodes' IDs returned by find_dt_leaf_for_inst() and the *instance_class* variable value, the *distribution* matrix is updated. The :math:`distribution_{i,j}` element of the *distribution* matrix contains the number of instances of class *j* than were classified into the leaf node with ID *i* after traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
 
-Second, the next loop of the fitness_eval() finds the dominant class for each leaf node, i.e. the class that has the largest number of its instances classified into that leaf node. If we were to do a classification run with current DT over the training set, the maximum accuracy would be attained if all the leaf nodes were assigned their corresponding dominant classes calculated in this way. Thus, we could qualify as a hit each instance that ended up in a certain leaf node if it is of the node's dominant class, otherwise we could qualify it as a miss.
+Second, the next loop of the *fitness_eval()* finds the dominant class for each leaf node, i.e. the class that has the largest number of its instances classified into that leaf node. If we were to do a classification run with current DT over the training set, the maximum accuracy would be attained if all the leaf nodes were assigned their corresponding dominant classes calculated in this way. Thus, we could qualify as a hit each instance that ended up in a certain leaf node if it is of the node's dominant class, otherwise we could qualify it as a miss.
 
-Therefore, the fitness assigned to the current DT individual (returned via the *fitness* variable of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`) equals the accuracy of the DT over the training set if it's leaf nodes were assigned their corresponding dominant classes.
+Fitness is calculated as a weighted sum of two values: DT accuracy and DT oversize. The accuracy is calculated as the percentage of classification hits, i.e. the number of instances whose calculated class corresponds to instance's known class from the training set. DT oversize is calculated as the relative difference between the number of leaves in DT (obtained via *leaves_cnt()* function) and total number of classes in training set (obtained via *class_cnt()* function). In order to be able to classify correctly all training set instances, DT needs to have at least one leaf for each class which occurs in the training set. Therefore, by calculating fitness this way, DTs start to suffer penalties to the fitness progressively only when their number of leaves exceeds the total number of classes in the training set.
+
+Therefore, the fitness assigned to the current DT individual (returned via the *fitness* variable of the *fitness_eval()* function in :num:`Figure #fig-fitness-eval-pca`) equals the accuracy of the DT over the training set if it's leaf nodes were assigned their corresponding dominant classes.
 
 Algorithm complexity
 --------------------
-
 
 The complexity of the |algo| can be observed from the algorithm pseudo-code. Since individual selection is performed in constant time, the complexity can be computed as:
 
@@ -154,25 +162,31 @@ The complexity of the |algo| can be observed from the algorithm pseudo-code. Sin
 
 **sve jednacine treba da imaju broj**
 
-**Lets calculate (next we will calculate)**  the complexity of the DT Mutation task. Let |Da| be the average DT depth. **Zasto average, moze i ukupna (makcimalna) dubina stabla, onda ostaje big O. Dubinu predstaviti kao logaritam broja cvorova, a ne obrnuto i sve iskazati (sto moze) u funkciji broja cvorova.** The average number of nodes in DT, denoted by |na| is then:
+**Zasto average, moze i ukupna (makcimalna) dubina stabla, onda ostaje big O. Dubinu predstaviti kao logaritam broja cvorova, a ne obrnuto i sve iskazati (sto moze) u funkciji broja cvorova.**
 
-.. math:: \bar{n}=2^{\bar{D}}
+Let *n* be the number of non-leaf nodes in DT. The depth of the DT can be calculated as:
 
-Each node in DT has |NA| + 1 coefficients, and the portion |alpha| is mutated each iteration, so the complexity of mutating coefficients is:
+.. math:: D=log_{2}(n)
+	:label: depth
 
-.. math:: O(\alpha \cdot \bar{n} \cdot \NA)
+Let |NA| equal the size of attribute (|A|) and coefficient (|a|) vectors. Each non-leaf node in DT has |NA| + 1 (*threshold*) coefficients, and the portion |alpha| is mutated each iteration, so the complexity of mutating coefficients is:
+
+.. math:: O(\alpha \cdot n \cdot \NA)
+	:label: cplx_mut_coef
 
 The topology can be mutated by either adding or removing the node from the DT. When the node is removed, only a pointer to the removed child is altered so the complexity is:
 
 .. math:: O(1)
+	:label: cplx_rem_node
 
 When the node is added, the new set of node test coefficients are calculated at random, hence the complexity of:
 
 .. math:: O(\NA)
+	:label: cplx_add_node
 
-Since :math:`\rho\ll\alpha\cdot\bar{n}` The complexity of the whole DT Mutation task sums to:
+Since :math:`\rho\ll\alpha\cdot n` The complexity of the whole DT Mutation task sums to:
 
-.. math:: O(\alpha \cdot \bar{n} \cdot \NA + \rho (O(1)+O(\NA))) = O(\alpha \cdot \bar{n} \cdot \NA)
+.. math:: O(\alpha \cdot n \cdot \NA + \rho (O(1)+O(\NA))) = O(\alpha \cdot n \cdot \NA)
     :label: cplx_mutation
 
 Let |NI| be the number of instances in the training set, |Nl| the average number of leaves and |Nc| the total number of classes in the classification problem. The number of leaves in DT can be approximated by:
