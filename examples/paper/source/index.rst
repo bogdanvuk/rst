@@ -31,15 +31,15 @@ In the open literature, a range of machine learning predictive models have been 
 
 Machine learning systems can be constructed using supervised learning, unsupervised learning or any combination of the two techniques. Supervised learning implies using the desired responses to various input data to construct the system, while unsupervised learning implies constructing the system based on input data only. When the supervised learning is used, **the lifetime of a machine learning system** usually comprises two phases: training (induction or learning) and deployment. During the training phase a training set is used to build the system. Training set comprises input data and the desired system responses to that data. Once constructed, the system is ready for deployment, where new, previously unseen data will arrive and the system must provide the responses using the knowledge extracted from the training set.
 
-**Ovde je mozda pravi trenutak naglasiti da je trening faza daleko racunski zahtevnija i da lako moze da rezultuje u trening vemenima koja se mere satima ili danima, pa je od interesa izvrsiti akceleraciju...**
+The training phase is more demanding of the two and can last for hours or even days for practical problems. By accelerating this task, machine learning systems could be trained faster, allowing for shorter design cycles. This might also allow machine learning systems to be rebuilt in real-time for applications that require such rapid adapting.
 
 Machine learning systems can perform various tasks, such as classification, regression, clustering, etc. Classification implies categorizing objects given the list of their attributes. Widely used to represent classification models is a decision tree (DT) classifier, which can be depicted in a flowchart-like tree structure. Due to its comprehensible nature that resembles the human reasoning, DTs have been widely used to represent classification models. Amongst other learning algorithms DTs have several advantages, such as robustness to noise, ability to deal with redundant or missing attributes, ability to handle both numerical and categorical data and **facility of understanding the computation process.**
 
-**Postoje dva generalna pristupa: inkrementalno cvor po cvor, a drugi celo stablo. FUrthermore, problem nalazenja optimzalnog stabla je algoritamski tezak [referenca], tako da vecina DT induction algoritama koristi neku heuristiku u procesu optimizacije, a najcesce je to neka vrsta evolutivnog algoritma The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EA for decision tree induction given in :cite:`RCB12`.** The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EA for decision tree induction given in :cite:`RCB12`. Computationally least demanding approach for DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results are obtained by the inducers that work on full DT, with cost of higher computational complexity.
+There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal DT is a hard algorithmic problem **[ref]**, therefore most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EA for decision tree induction given in :cite:`RCB12`. Computationally least demanding approach for DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results are obtained by the inducers that work on full DT, with cost of higher computational complexity.
+
+**da li staviti odakle je uzeta slika. Da li ukloniti? Da li je bitno za dalji rad?**
 
 .. _fig-evolutionary-dt-algorithm-tree:
-
-**da li staviti odakle je uzeto. Da li ukloniti? Da li je bitno za dalji rad?**
 
 .. graphviz::
     :caption: Taxonomy of evolutionary algorithms for DT induction.
@@ -50,10 +50,10 @@ Machine learning systems can perform various tasks, such as classification, regr
         margin = 0.3
         ranksep = "0.3 equally"
         fontsize = 10
-        "Evolutionary\n Decision Trees" -> "Full DT"
-        "Evolutionary\n Decision Trees" -> "Components"
-        "Full Tree" -> "Classification"
-        "Full Tree" -> "Regression"
+        "Evolutionary\n DT" -> "Full DT"
+        "Evolutionary\n DT" -> "Components"
+        "Full DT" -> "Classification"
+        "Full DT" -> "Regression"
         "Classification" -> "Axis-\n Parallel"
         "Classification" -> "Oblique"
         "Regression" -> "Regression\n DT"
@@ -65,59 +65,48 @@ Machine learning systems can perform various tasks, such as classification, regr
 
 **Odakle algoritam? Koju referncu na njega? Da li slati na konferenciju**
 
-The proposed co-processor is used for acceleration of a new DT induction algorithm, called |algo|. |algo| (Full Tree Evolutionary Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Full Tree Evolutionary Induction co-Processor).
+The proposed co-processor is used for acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
 
-The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT produced by the |algo| algorithm.
-
-.. _fig-oblique-dt:
-
-**Precrtaj sliku da ne lici. Nacrtati jednu putanju (traversal). Koristiti formu iz jednacine oblique_test** 
-
-.. figure:: images/oblique_dt.png
-    
-    An example of the oblique binary DT **i jedna moguca putanja za klasifikaciju**. 
-
-The leaves of the DT represent the classes of the problem. The non-leaves contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - **A**. The tests performed by the oblique DT in each node are of the following form:
+The leaves of the DT represent the classes of the problem. The non-leaves (also called nodes in the paper) contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - **A**. The tests performed by the oblique DT in each node are of the following form:
 
 .. math:: \mathbf{a}\cdot \mathbf{A} = \sum_{i=1}^{n}a_{i}\cdot A_{i} < threshold, 
     :label: oblique_test
 
-where **a** represents the coefficient vector and *threshold* models the afine part of the test.
+where **a** represents the coefficient vector and *threshold* models the afine part of the test. The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT produced by the |algo| algorithm.
 
-Each instance starts from the DT root and traverses the DT in order to be assigned a class. If the test condition :eq:`oblique_test` is **true** in certain node, the DT traversal is continued on the left child, otherwise it is continued on the right child. Depending on the leaf in which the instance ended up after traversal, it is classified into class assigned to that leaf.
+.. _fig-oblique-dt:
 
-**Hardverska akceleracija machine learninga je aktuelna/popularna. Predlozeno je veliki broj resenja razlicitih prediktivnih modela. Ako se posmatra akceleracija DT-jeva, vecina radova koji se bave hardverskom akceleracijom DT-ova se fokusira na akceleraciju vec formiranih DT-jeva [reference]. Furthermore, authors are aware of the work that has been done on accelerating SVMs (**where?**) and ANNs (**where?**).**
+.. figure:: images/dt_traversal.py
+    
+    An example of the oblique binary DT with one possible traversal path shown in red. 
 
-The only work on the topic of hardware acceleration of DT induction using EAs that the authors are currently aware of is :cite:`struharik2009evolving`. However, this work focuses on greedy top-down approach where EA is used to calculate optimal coefficient vector one node at a time. 
+Each instance starts from the DT root and traverses the DT in order to be assigned a class. If the test condition :eq:`oblique_test` is **true** in certain node, the DT traversal is continued via left child, otherwise it is continued via right child. Depending on the leaf in which the instance ended up after traversal, it is classified into class assigned to that leaf. One possible traversal path is shown in :num:`Figure #fig-oblique-dt` in red. After the traversal the instance was classified into the class :math:`C_{4}`.
 
-**mi ne znamo za resenja koja se baziraju na HW/SW codesignu, takodje da se uglavnom akceleriraju vec formirani modeli a ne algoritmi za njihovo formiranje.**
+Hardware acceleration of machine learning systems is currently a popular field. Wide range of solutions have been suggested in open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs (**where?**) and ANNs (**where?**). However in the field of hardware acceleration of DTs majority of papers focus on acceleration of already formed DTs, i.e. the hardware acceleration of DT induction is **scarcely covered**. The only work on the topic of hardware acceleration of DT induction using EAs that the authors are currently aware of is :cite:`struharik2009evolving`. However, this work focuses on greedy top-down approach where EA is used to calculate optimal coefficient vector one node at a time. Moreover, to our knowledge there are no suggested solutions based on HW/SW co-design.
 
-The |algo| algorithm was chosen to be accelerated by hardware, 1. ovaj algoritam za razliku od vecine EA-based algoritama ne zahteva koriscenje populacije i optimizuje samo jedno stablo, sto smanjuje resurse za skladistenje vise instanci i skracuje vreme indukcije stabla (ili stedi resurse ako radis u paraleli) [kao na primer neka referenca iz surveya], 2. uprkos ovome, pokazalo se da rezutuje u manjim stablima a preciznijim stablima since in our experiments it proved to provide smaller DTs without affecting the classification accuracy (**referenca ka internal reportu**). **sa kojim algoritmima je poredjeno**
+The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based algorithms do. As a result, less memory is needed for individual storage and induction time is shorter **[kao na primer neka referenca iz surveya]**. Nevertheless, in our experiments it proved to provide smaller DTs with similar or better the classification accuracy than other well-known algorithms.
 
-**Prednost je sto se co-processor moze koristite za razne varijante DT induction algoritama baziranih na koriscenju EA [referenca ka nekom survey-u, ili ovog sto imam ili iz njegovih referenci]**
-
-Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| should benefit from hardware acceleration.
+Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| should benefit from hardware acceleration. It was decided create |cop| co-processor to accelerate the most computationally intensive part of the algorithm. Advantage of the HW/SW co-design approach is that the proposed co-processor can be used with wide variety of EA-based DT induction algorithms, besides the one described here. **[referenca ka nekom survey-u, ili ovog sto imam ili iz njegovih referenci]**
 
 |algo| algorithm
 ================
 
-**EFTI algoritam formira celo stablo od jedno (full DT induction), baziran na koriscenju EA. Zahteva samo jednu jedinku koja predstavlja trenutno najbolje stablo**
+This section describes the |algo| iterative algorithm for full DT induction based on EA. It requires only one individual for the induction, which presents the best DT evolved up to the current iteration. The DT is induced from the training set. Since the algorithm is performing supervised learning, the training set consists of the problem instances which have the known class. |algo| starts from the randomized one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed, i.e. mutated, and let to perform classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed this way, it will be used to classify new instances of the problem.
 
-This section describes the |algo| algorithm. The DT is induced from the training set. Since the algorithm is performing supervised learning, the training set consists of the problem instances which have the known class. The algorithm iteratively improves on the DT, so that the classification results for the training set calculated by the DT fit as good as possible to the known classification of the training set. **Jos malo detaljnije opisati  kako funcionise algoritam, big-picture.** Once the DT is formed, it will be used to classify new instances of the problem.
+The :num:`Figure #fig-algorithm-pca` shows the algorithmic framework for the |algo|, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity.
 
-The :num:`Figure #fig-algorithm-pca` shows the algorithmic framework for the |algo|, which is similar for all EAs. The algorithm operates only on one DT individual, that is called *dt* in the pseudo-code. Many details have been omitted for the sake of clarity.
+.. _fig-algorithm-pca:
 
-**Mislim da se algoritmi ne oznacavaju kao fig. vec kao Algorithm 1, 2, 3 "JRN - 2012 - An embedded co-processor for accelerating window joins over uncertain data streams". Please note, all algoritmi su opisani u Python stilu.**
-
-.. include:: algorithm_pca.rst
+.. literalinclude:: code/algorithm.py
+    :caption: The top level of the |algo| algorithm
 
 There are three main tasks performed by the |algo|:
 
 - DT Mutation - implemented by mutate() function
 - Fitness Evaluation - implemented by fitness_eval() function
-- Individual Selection - **trivijalan je korak, svodi se na to i to**
+- Individual Selection - trivial step implemented by the last **if** statement. Performs comparison of the fitness of the currently best individual (*dt*) with the fitness of the newly mutated individual (*dt_mut*) and takes *dt_mut* as new current best if it has better fitness.
 
-Subsequent chapters provide details on DT mutation and fitness evaluation tasks, as well as on their complexities.
+Subsequent chapters provide details on DT mutation and fitness evaluation tasks, as well as on their complexities. 
 
 EFTI performs two types of mutations on DT individual:
 

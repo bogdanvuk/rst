@@ -148,7 +148,7 @@ class TemplatedObjects(object):
 #             self.current += 1
 #             return self.current - 1
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr, *args, **kwargs):
         try:
             return self.__dict__[attr]
         except (KeyError, TypeError):
@@ -156,16 +156,22 @@ class TemplatedObjects(object):
                 self.__dict__[attr] = copy.deepcopy(self.def_settings[attr])
                 return self.__dict__[attr]
             except KeyError:
-                try:
-                    tokens = attr.split('_')
-                    obj = tokens[0]
-                    attr = '_'.join(tokens[1:])
-                    if attr:
-                        return getattr(getattr(self, obj), attr)
-                    else:
-                        raise AttributeError
-                except (KeyError, TypeError, AttributeError):
-                    raise AttributeError
+                #if it is not special methods that are required
+                if attr[0] != '_':
+                    try:
+                        tokens = attr.split('_')
+                        obj = tokens[0]
+                        child_attr = '_'.join(tokens[1:])
+                        if child_attr:
+                            return getattr(getattr(self, obj), child_attr)
+                        else:
+                            raise AttributeError
+                    except (KeyError, TypeError, AttributeError):
+                        raise AttributeError("%r object has no attribute %r" %
+                                            (self.__class__, attr))
+                else:
+                    raise AttributeError("%r object has no attribute %r" %
+                                        (self.__class__, attr))
 
     def __setattr__(self, attr, val):
         if attr in self.__class__.__dict__:
@@ -714,7 +720,7 @@ class Text(Element):
 }%
 
 \begin{document}
-\begin{tikzpicture}
+\begin{tikzpicture}[every node/.style={inner sep=0,outer sep=0, anchor=center}]
 \pgfpositionnodelater{\PgfPosition}%
 $node
 \setlength{\mywidth}{\mymaxx}%
@@ -735,7 +741,7 @@ $node
 
             latex_cmd = 'latex ' + f.name + \
                         ' -draftmode -interaction=errorstopmode' + \
-                        '-output-directory=' + temp_dir
+                        ' -output-directory=' + temp_dir
 
             f.close()
 
@@ -1006,25 +1012,32 @@ class Path(TikzMeta):
                          'def_routing'    : '--',
                          'path'         : [(0.0, 0.0)],
                          'routing'      : [],
-                         'margin'       : [0, 0]
+                         'margin'       : [0, 0],
+                         'smooth'       : False,
+                         'draw'         : True
                          })
 
-    tikz_non_options = TikzMeta.tikz_non_options + ['path']
+    tikz_non_options = TikzMeta.tikz_non_options + ['path',  'smooth']
     tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 'shorten',
-                                            'double', 'line_width', 'dotted']
+                                            'double', 'line_width', 'dotted', 
+                                            'looseness', 'rounded_corners', 'draw']
 
     def render_tikz_path(self):
         path_tikz = []
-
-        for p in self.path:
+        
+        for p,r in zip(self.path, self.routing):
 
             pos = p + bdp_config['origin_offset']
             path_str = "(" + to_units(pos[0]) + "," + to_units(pos[1]) + ")"
 
             path_tikz.append(path_str)
-            path_tikz.append('--')
+            if not self.smooth:
+                path_tikz.append(r)
 
-        return ' '.join(path_tikz[:-1])
+        if not self.smooth:
+            return ' '.join(path_tikz[:-1])
+        else:
+            return ' '.join(path_tikz)
 
     def render_tikz_shorten(self):
         return 'shorten <=' + to_units(self.shorten[0]) + ',shorten >=' + to_units(self.shorten[1])
@@ -1041,7 +1054,10 @@ class Path(TikzMeta):
 
         path = self.render_tikz_path()
 
-        return ' '.join(["\\draw ", options, path, ";\n"])
+        if not self.smooth:
+            return ' '.join(["\\path ", options, path, ";\n"])
+        else:
+            return ' '.join(["\\draw ", options, 'plot [smooth]', 'coordinates {', path, "};\n"])
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -1051,6 +1067,9 @@ class Path(TikzMeta):
 
     def pos(self, pos=0):
         return Segment(slice(0, len(self.path)), self).pos(pos)
+
+    def c(self):
+        return self.pos(0.5)
 
     def __init__(self, path=None, routing=None, **kwargs):
         super().__init__(**kwargs)
@@ -1074,11 +1093,13 @@ class Path(TikzMeta):
                 if route == '|-':
                     if (pos[1] != pos_next[1]) and (pos[0] != pos_next[0]):
                         self.path.insert(i+1, p(pos[0], pos_next[1]))
+                        self.routing[i] = '--'
                         self.routing.insert(i+1, '--')
                         i+=1
                 elif route == '-|':
                     if (pos[1] != pos_next[1]) and (pos[0] != pos_next[0]):
                         self.path.insert(i+1, p(pos_next[0], pos[1]))
+                        self.routing[i] = '--'
                         self.routing.insert(i+1, '--')
                         i+=1
                 i+=1

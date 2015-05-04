@@ -201,7 +201,7 @@ OtherDirective:
     ;
 
 DirectiveOption:
-	name=ROLE_WORD (value=SimpleText)? LINE_BREAK
+	name=ROLE_WORD (value=Text)? LINE_BREAK
 ;
 
 TextLine:
