@@ -58,13 +58,13 @@ add = []
 for i in range(len(mul)//2):
     add.append(add_block.align_y(mid(mul[2*i].p, mul[2*i+1].p)).align_x(inst_fifo[2].c(), add_block.c())())
     block(size=p(0.3, 1.5)).align(mid(add[i].c(), mul[2*i].c()), prev().c())()
-    path([mul[2*i].c(), add[i].c()], shorten=(1.2, 2.6), style='->', thick=True)()
-    path([mul[2*i].c(), add[i].c()], shorten=(2.6, 1.2), style='->', thick=True)()
+    path([mul[2*i].c(), add[i].c()], shorten=(1.2, 2.8), style='->', thick=True)()
+    path([mul[2*i].c(), add[i].c()], shorten=(2.8, 1.2), style='->', thick=True)()
 
 #     path([mul[2*i+1].c(), add[i].c()], shorten=(1.5, 1.5), style='->', thick=True)()
     block(size=p(0.3, 1.5)).align(mid(add[i].c(), mul[2*i+1].c()), prev().c())()
-    path([mul[2*i+1].c(), add[i].c()], shorten=(1.2, 2.6), style='->', thick=True)()
-    path([mul[2*i+1].c(), add[i].c()], shorten=(2.6, 1.2), style='->', thick=True)()
+    path([mul[2*i+1].c(), add[i].c()], shorten=(1.2, 2.8), style='->', thick=True)()
+    path([mul[2*i+1].c(), add[i].c()], shorten=(2.8, 1.2), style='->', thick=True)()
     
 
 add.append(add_block.align_y(mid(add[0].p, add[1].p)).align_x(inst_fifo[4].c(), add_block.c())())
@@ -74,10 +74,15 @@ for i in range(2):
     block(size=p(0.3, 1.5)).align(mid(add[i].c(), mul[2*i].c()), prev().c())()
     path([add[i].c(), add[2].c()], shorten=(1.2, 7.6), style='->', thick=True)()
     path([add[i].c(), add[2].c()], shorten=(7.6, 1.2), style='->', thick=True)()
-    block(size=p(0.3, 1.5)).align(mid(add[i].c(), add[2].c()), prev().c())()
 
     text(t="$\cdot\cdot\cdot$").align(mid(add[i].c(), add[2].c()), prev().c())()
-    path([add[i].c(), add[2].c()], shorten=(6.5, 1.5), style='->', thick=True)()
+#     path([add[i].c(), add[2].c()], shorten=(6.5, 1.5), style='->', thick=True)()
+    
+block(size=p(0.3, 1.5)).align(add[0].c() + (2.0, 1.2), prev().c())()
+block(size=p(0.3, 1.5)).align(add[1].c() + (2.0, -1.2), prev().c())()
+
+block(size=p(0.3, 1.5)).align(add[2].c() - (2.0, 1.2), prev().c())()
+block(size=p(0.3, 1.5)).align(add[2].c() - (2.0, -1.2), prev().c())()
 
 fifo_blk = block(size=p(4,8), conn_sep=2)
 

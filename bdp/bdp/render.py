@@ -55,7 +55,7 @@ def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     \documentclass{standalone}
 
     \usepackage{tikz}
-    \usetikzlibrary{shapes,arrows}
+    \usetikzlibrary{shapes,arrows,decorations.pathreplacing}
 
     \begin{document}
     \pagestyle{empty}

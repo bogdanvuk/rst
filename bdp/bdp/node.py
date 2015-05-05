@@ -36,7 +36,7 @@ def prev(i=0):
     i = -(i+1)
     return tmpl_list[i]
 
-def pallign(x, y):
+def palign(x, y):
     return Point(x[0], y[1])
 
 class Point(object):
@@ -1029,7 +1029,8 @@ class Path(TikzMeta):
     tikz_non_options = TikzMeta.tikz_non_options + ['path',  'smooth']
     tikz_options = TikzMeta.tikz_options + ['thick', 'ultra_thick', 'shorten',
                                             'double', 'line_width', 'dotted', 
-                                            'looseness', 'rounded_corners', 'draw']
+                                            'looseness', 'rounded_corners', 
+                                            'draw', 'decorate', 'decoration']
 
     def render_tikz_path(self):
         path_tikz = []

@@ -318,11 +318,9 @@ The NTE operation is again pipelined internally for maximal throughput. Block di
 
 The NTE block's main task is the calculation of sum of products given by :eq:`oblique_test`. The maximum supported number of attributes per instance - |NAM|, is the value which can be specified by the user during the design phase of |cop|. If the instances have less than |NAM| number of attributes, the surplus inputs should be supplied with zeros in order not to affect the sum. 
 
-**Navesti obavezno u tekstu da stoje registri ali nisu nacrtani.**
-
 By using only two input multipliers and adders, the computation is parallelized and pipelined as much as possible. The multiplications are performed in parallel for all |NAM| coefficient and attribute pairs. Since there are only two input adders at disposal and the |NAM|-rnary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil log_{2}(\NAM)  \right \rceil` deep.
 
-Each calculation step is pipelined so that maximum speed of execution is achieved. Finally, the total number of pipeline stages |NP| needed equals the depth of the adder tree, plus a DT Memory fetch and the multiplication stage:
+Each calculation step is pipelined, by registering output of every multiplication and addition, so that maximum speed of execution is achieved. Finally, the total number of pipeline stages |NP| needed equals the depth of the adder tree, plus a DT Memory fetch and the multiplication stage:
 
 .. math:: N_{P}=\left \lceil log_{2}(\NAM) + 2 \right \rceil
 	:label: np
@@ -336,21 +334,17 @@ However, when NTE receives the non-zero value for the *Leaf ID Input*, the calcu
 Training Set Memory
 -------------------
 
-This is the memory that holds all training set instances. **Ova memorija ima dva pristupa, razlicite sirine i prikazana je na slici 11** The memory organization is shown in :num:`Figure #fig-inst-mem-org`. It is comprised of 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Each instance description comprises the following fields:
+This is the memory that holds all training set instances. It is a two-port memory with ports of different widths and is shown in :num:`Figure #fig-inst-mem-org`. It is comprised of 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Each instance description, spanning multiple stripes, comprises the following fields:
 
-- Array of instance attribute values: :math:`\mathbf{A}_{1}` to :math:`\mathbf{A}_{\NAM}`.
-- Instance class: *C*
+- Array of instance attribute values: :math:`\mathbf{A}_{1}` to :math:`\mathbf{A}_{\NAM}`, each :math:`R_A` (parameter specified by the user at design time) bits wide, 
+- Instance class: *C*, which is :math:`R_C` (parameter specified by the user at design time) bits wide
 
 Training set memory can be accessed via two ports:
 
 - Port A: Read/Write port accessed by the CPU via AXI interface, 32-bit wide
 - Port B: Read port for parallel read-out of the whole instance, :math:`R_{A}\cdot\NAM + R_{C}` bit wide
 
-** Sirina drugog izlaznog porta je fiksirana dizajnom i odgovara maksimalnom problemu koji moze da se resi. U slucaju da se co-processor koristi za resavanje problema sa manjim brojem atributa, mora se padovati nulama da bi se prosirilo na maksimalnu sirinu...**
-
-**Training set instance spans multiple stripes, depending on the number of attributes, and attribute and class encoding resolution :math:`R_{A}\cdot\NAM + R_{C}`. **
-
-**Mozda dodati adresni dekoder za strajpove, i ispod da se ceo red cita drugim portom.**
+Width of the Port B is determined at design phase of |cop| and corresponds to the instance of the maximal size supported, i.e. the instance with the |NAM| number of attributes. When co-processor is used for solving a problem with less attributes, the Training Set Memory fields of unused attributes need to be filled with zeros in order to obtain correct calculation.
 
 .. _fig-inst-mem-org:
 
@@ -358,18 +352,15 @@ Training set memory can be accessed via two ports:
     
     Training set memory organization
 
-Instance attributes are encoded using arbitrary fixed point number format, specified by user. However, the same number format has to be used for all instances attribute encodings. The total maximum number of instances - :math:`N^{M}_{I}`, **is an arbitrary value selected by the user at the design time**.
+Instance attributes are encoded using arbitrary fixed point number format, specified by user. However, the same number format has to be used for all instances' attribute encodings. The total maximum number of instances (|NIM|), i.e. the depth of the Training Set Memory is selected by the user at design phase of |cop| and determines the maximum possible training set size.
 
 DT Memory Array
 ---------------
 
-**Da li neki epitet dodatni uz DT Memory Array(structural memory?). DT description - da li dodatni epitet DT structural description, information**
+.. todo::
+	**Da li neki epitet dodatni uz DT Memory Array(structural memory?). DT description - da li dodatni epitet DT structural description, information**
 
-**Ista prica kako i u slucaju Training Set memorije, mozda treba napisati da li je ovo dvopristupna memorija, ili jednopristupna ali sa razlicitom sirinom ulaznih i izlaznih portova podataka...**
-
-**Reorganizovati tekst na sablon Instance memorije**
-
-This is the memory that holds the DT description. For each pipeline stage shown in :num:`Figure #fig-dt-classifier-bd`, there is one DT Memory array element that holds the description of all nodes on the corresponding DT level as shown in :num:`Figure #fig-dt-classifier-bd`. 
+This is the memory that holds the DT description. For each NTE of the Classifier module there is one DT Memory Array element that holds the description of all nodes on the corresponding DT level as shown in :num:`Figure #fig-system-bd`. Each element of the DT Memory Array is a two-port memory with ports of different widths and is shown in :num:`Figure #fig-dt-mem-array-org`. Each element is comprised of 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. 
 
 .. _fig-dt-mem-array-org:
 
@@ -377,27 +368,27 @@ This is the memory that holds the DT description. For each pipeline stage shown 
     
     DT memory organization
 
-** Iza svakog polja u listi, navesti sirinu**
+Each DT Memory Array element contains a list of node descriptions as shown in :num:`Figure #fig-dt-mem-array-org`, comprising the following fields:
 
-Each DT memory array element contains a list of node descriptions as shown in :num:`Figure #fig-dt-mem-array-org`, comprising the following fields:
+- Array of node test coefficients: :math:`\mathbf{a}_{1}` to :math:`\mathbf{a}_{\NAM}`, each :math:`R_A` bits wide
+- The node test threshold: *threshold*, which is :math:`R_A` bits wide
+- ID of the left child if it is leaf: *Leaf Left ID*, which is :math:`R_{Leaf\ ID}` (parameter specified by the user at design time) bits wide
+- ID of the left child if it is non-leaf: *Child Left ID*, which is :math:`R_{Child\ ID}` (parameter specified by the user at design time) bits wide
+- ID of the right child if it is leaf: *Leaf Right ID*, which is :math:`R_{Leaf\ ID}` bits wide
+- ID of the right child if it is non-leaf: *Child Right ID*, which is :math:`R_{Child\ ID}` bits wide 
 
-- Array of node test coefficients: :math:`\mathbf{a}_{1}` to :math:`\mathbf{a}_{\NAM}`.
-- The node test threshold: *threshold*
-- ID of the left child if it is leaf: *Leaf Left ID*
-- ID of the left child if it is non-leaf: *Child Left ID* 
-- ID of the right child if it is leaf: *Leaf Right ID*
-- ID of the right child if it is non-leaf: *Child Right ID* 
+The total maximum number of nodes storable in the DT Memory Array element - :math:`N^{M}_{nl}`, is a parameter specified by the user at design phase of |cop|. This value imposes a constraint on the maximum number of nodes induced DT can have per level.
 
-The total maximum number of nodes storable in the DT Memory element - :math:`N^{M}_{nl}`, is an arbitrary value selected by the user at the design time. This value imposes a constraint on the maximum number of nodes induced DT can have per level.
+The parameter :math:`R_{Leaf\ ID}` imposes a constraint on the maximal number of leaves induced DT can have, since the field of that width can encode :math:`2^{R_{Leaf\ ID}} - 1` number of different IDs. Similarly, the parameter :math:`R_{Child\ ID}` has to be selected large enough so that child ID fields can encode all :math:`N^{M}_{nl}` possible nodes on single DT level.
 
 As it was already described in the Chapter `Classifier`_, for both left and right child IDs, if the leaf ID field has non-zero value, the child is interpreted as a leaf and the child ID field value is ignored. On the other hand, if the leaf ID field value is zero, the child ID field value represents the index in the next DT Memory Array element at which the child description is located.
 
-The memory elements are implemented as 32-bit wide stripes in order to be accessed by the CPU via 32-bit AXI. Node descriptions can span multiple stripes, depending on the number of attributes, and the attribute, child IDs and class encoding resolutions :math:`R_{A}*\NAM + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID} + R_{C}`.
-
 DT memory array element can be accessed via two ports:
 
-- Port A: 32-bit R/W port accessed by the CPU via AXI interface
-- Port B: Port for parallel read-out of the whole node description
+- Port A: Read/Write port accessed by the CPU via AXI interface, 32-bit wide
+- Port B: Read port for parallel read-out of the whole node description, :math:`R_{A}\cdot\NAM + R_{threshold} + 2\cdot R_{Leaf\ ID} + 2\cdot R_{Child\ ID}` bit wide.
+
+Width of the Port B is determined at design phase of |cop| and corresponds to the instance of the maximal size supported, i.e. the instance with the |NAM| number of attributes. When co-processor is used for solving a problem with less attributes, the DT Memory Array element fields of unused coefficients do not affect the calculation and can be disregarded. The reason for this is that they are multiplied by the instance attributes inside the NTE module, and the unused instance attributes are set to zero in the Training Set Memory.
 
 Fitness calculator
 ------------------

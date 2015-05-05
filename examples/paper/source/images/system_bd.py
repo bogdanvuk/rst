@@ -19,7 +19,7 @@ intercon = block(r"AXI4 \\ Interconnect", mem_con.s(1.0)-cpu.n()).right(cpu)()
 bus([cpu.e(2), intercon.w(2)], style='<->')()
 t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
 
-bus([mem_con.e(0.5), pallign(intercon.w(), mem_con.e(0.5))], style='<->')()
+bus([mem_con.e(0.5), palign(intercon.w(), mem_con.e(0.5))], style='<->')()
 t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
 
 pl = block("EFTIP hardware co-processor", size=p(25,22), margin=p(0.5, 0.5), text_align="nw", dotted=True).right(ps, 2)()
