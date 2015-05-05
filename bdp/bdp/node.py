@@ -36,6 +36,9 @@ def prev(i=0):
     i = -(i+1)
     return tmpl_list[i]
 
+def pallign(x, y):
+    return Point(x[0], y[1])
+
 class Point(object):
     def __init__(self, x, y=None):
         try:
@@ -883,10 +886,16 @@ class Block(Shape):
                     self.text.size[0] = self.size[0]
                     self.text.anchor = self.text.n(0.0)
                     self.text.text_align = 'center'
-                elif self.text_align == 'bc':
+                elif self.text_align == 'sc':
                     self.text.p = self.s(0.0)
                     self.text.size[0] = self.size[0]
                     self.text.anchor = self.text.s(0.0)
+                    self.text.text_align = 'center'
+                elif self.text_align == 'oc':
+                    self.text.align(self.n(0.5), self.text.s(0.5))
+                    self.text.text_align = 'center'
+                elif self.text_align == 'bc':
+                    self.text.align(self.s(0.5), self.text.n(0.5))
                     self.text.text_align = 'center'
                 else:
                     self.text.p = self.p
@@ -983,7 +992,7 @@ class Segment(object):
     def len(self):
         tot_len = 0
         last = self.path[self.slice.start]
-        for cur in self.path.path[self.slice.start+1: self.slice.stop]:
+        for cur in self.path.path[self.slice.start+1: self.slice.stop+1]:
             tot_len += self._seglen(cur, last)
         return tot_len
 
@@ -992,7 +1001,7 @@ class Segment(object):
 
         cur_len = 0
         last = self.path[self.slice.start]
-        for cur in self.path.path[self.slice.start+1: self.slice.stop]:
+        for cur in self.path.path[self.slice.start+1: self.slice.stop+1]:
             last_len = cur_len
             cur_len += self._seglen(cur, last)
 
@@ -1061,7 +1070,7 @@ class Path(TikzMeta):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return Segment(slice, self)
+            return Segment(key, self)
         else:
             return self.path[key]
 

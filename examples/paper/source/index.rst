@@ -8,7 +8,7 @@
 .. |na| replace:: :math:`\bar{n}`
 .. |NI| replace:: :math:`N_{I}`
 .. |Da| replace:: :math:`\bar{D}`
-.. |Nl| replace:: :math:`\bar{N_l}`
+.. |Nl| replace:: :math:`N_l`
 .. |NlM| replace:: :math:`N^{M}_{l}`
 .. |NM| replace:: :math:`N_{M}`
 .. |DM| replace:: :math:`D^{M}`
@@ -100,6 +100,8 @@ The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the 
 .. literalinclude:: code/algorithm.py
     :caption: The top level of the |algo| algorithm
 
+The initial DT contains only one non-leaf node (root) and two leaves. The  root test coefficients are obtained by selecting two instances with different class from the training set at random, and adjusting the coefficients in such a way that these two instances take different paths after the root test. This is performed by the *initialize()* function.
+
 There are three main tasks performed by the |algo|:
 
 - DT Mutation - implemented by mutate() function
@@ -115,7 +117,7 @@ EFTI performs two types of mutations on DT individual:
 
 During each iteration of |algo|, a small portion (|alpha|) of DT nodes' test coefficients is mutated at random. Coefficient is mutated by flipping one of its bits at random position. Every change in node test influences the classification, as the instances take different paths through the DT, hence ending up classified differently. Usually one coefficient per several nodes (dictated by |alpha|) is mutated each iteration, in order for classification result to change in small steps. Parameter |alpha| is adapted from one iteration to other depending on the speed at which the DT fitness is improving in a manner that |alpha| is increased each iteration there is no improvement, and reset to default minimal value when new individual is selected as current best.
 
-On the other hand, topology mutations represent very large moves in the search space, so they are performed even less often. In every iteration, there is a small chance (|rho|) that a node will either be added to the DT or removed from it. This change either adds an additional test for the classification, or removes one or whole subtree of tests. The node is always added in place of an existing leaf, i.e. never in place of an internal non-leaf node. On the other hand, if node is to be removed, it has to be one of the non-leaf nodes. By adding a test, a new point is created where during classification, instances from different classes might separate and take different paths through the DT and eventually be classified as different. This increases the accuracy of the DT. On the other hand, by removing the unnecessary test the DT is made smaller. Size of the DT is also an important factor in its fitness.
+On the other hand, topology mutations represent very large moves in the search space, so they are performed even less often. In every iteration, there is a small chance (|rho|) that a node will either be added to the DT or removed from it. This change either adds an additional test for the classification, or removes one or whole subtree of tests. The node is always added in place of an existing leaf, i.e. never in place of an internal non-leaf node.  The test coefficients of the newly added non-leaf node are calculated in the same way as are the root test coefficients during initialization. On the other hand, if node is to be removed, it has to be one of the non-leaf nodes. By adding a test, a new point is created where during classification, instances from different classes might separate and take different paths through the DT and eventually be classified as different. This increases the accuracy of the DT. On the other hand, by removing the unnecessary test the DT is made smaller. Size of the DT is also an important factor in its fitness.
 
 The fitness of a mutated individual (DT) is evaluated using the training set. The DT is let to classify all the problem instances and the classification results are then compared to the desired classifications specified in the training set. The pseudo-code for this task is given in :num:`Algorithm #fig-fitness-eval-pca`. The input parameter *dt* is the current decision tree individual and *train_set* is the training set.
 
@@ -160,13 +162,9 @@ The complexity of the |algo| can be observed from the algorithm pseudo-code. Sin
 .. math:: max\_iter\cdot(O(mutate) + O(fitness\_eval))
     :label: cplx_algo_tot_components
 
-**sve jednacine treba da imaju broj**
+Let *n* be the number of non-leaf nodes in DT. In the worst case, the depth of the DT equals the number of non-leaf nodes:
 
-**Zasto average, moze i ukupna (makcimalna) dubina stabla, onda ostaje big O. Dubinu predstaviti kao logaritam broja cvorova, a ne obrnuto i sve iskazati (sto moze) u funkciji broja cvorova.**
-
-Let *n* be the number of non-leaf nodes in DT. The depth of the DT can be calculated as:
-
-.. math:: D=log_{2}(n)
+.. math:: D=n
 	:label: depth
 
 Let |NA| equal the size of attribute (|A|) and coefficient (|a|) vectors. Each non-leaf node in DT has |NA| + 1 (*threshold*) coefficients, and the portion |alpha| is mutated each iteration, so the complexity of mutating coefficients is:
@@ -179,7 +177,7 @@ The topology can be mutated by either adding or removing the node from the DT. W
 .. math:: O(1)
 	:label: cplx_rem_node
 
-When the node is added, the new set of node test coefficients are calculated at random, hence the complexity of:
+When the node is added, the new set of node test coefficients need to be calculated, hence the complexity of:
 
 .. math:: O(\NA)
 	:label: cplx_add_node
@@ -189,44 +187,47 @@ Since :math:`\rho\ll\alpha\cdot n` The complexity of the whole DT Mutation task 
 .. math:: O(\alpha \cdot n \cdot \NA + \rho (O(1)+O(\NA))) = O(\alpha \cdot n \cdot \NA)
     :label: cplx_mutation
 
-Let |NI| be the number of instances in the training set, |Nl| the average number of leaves and |Nc| the total number of classes in the classification problem. The number of leaves in DT can be approximated by:
+Let |NI| be the number of instances in the training set, |Nl| the number of leaves and |Nc| the total number of classes in the classification problem. The number of leaves in DT is:
 
-.. math:: \Nl = 2^{\bar{D} - 1}
+.. math:: N_l = n + 1
+    :label: leaves_cnt
 
-The complexity of the fitness_eval() function can be calculated as follows:
+Once the number of hits is obtained in the *fitness_eval()* function, fitness can be calculated in constant time :math:`O(1)`, hence the complexity of whole function is:
 
-.. math:: O(N_{I})\cdot (O(find\_dt\_leaf\_for\_inst) + O(1)) + O(\Nl\cdot (N_{c} + 1))
+.. math:: N_I\cdot O(find\_dt\_leaf\_for\_inst) + O(N_l\cdot N_c) + O(1)
     :label: fitness_eval
 
-The complexity of the find_dt_leaf_for_inst() function is then:
+As for the *find_dt_leaf_for_inst()* function, the complexity can be calculated as:
 
-.. math:: O(\bar{D})\cdot O(evaluate\_node\_test)
+.. math:: D\cdot O(evaluate\_node\_test),
     :label: find_dt_leaf
 
-The complexity of the node test evaluation is:
+and the complexity of the node test evaluation is:
 
 .. math:: O(\NA)
     :label: node_test_eval
 
-By inserting equation :eq:`node_test_eval` into the equation :eq:`find_dt_leaf`, and then both of them into the equation :eq:`fitness_eval`, we obtain the complexity for the fitness_eval() function:
+By inserting equation :eq:`node_test_eval` into the equation :eq:`find_dt_leaf`, and then both of them into the equation :eq:`fitness_eval`, we obtain the complexity for the *fitness_eval()* function:
 
-.. math:: O(N_{I}\cdot (\bar{D}\cdot\NA + 1) + \Nl\cdot (N_{c} + 1)) = O(N_{I}\cdot\bar{D}\cdot\NA + \Nl\cdot N_{c})
+.. math:: N_{I}\cdot D\cdot\NA + \Nl\cdot N_c
     :label: fitness_eval_tot
 
-By inserting equations :eq:`fitness_eval_tot` and :eq:`cplx_mutation` into the equation :eq:`cplx_algo_tot_components`, we obtain:
+By inserting equations :eq:`fitness_eval_tot`, :eq:`cplx_mutation`, :eq:`leaves_cnt` and :eq:`depth` into the equation :eq:`cplx_algo_tot_components`, we obtain:
 
-.. math:: max\_iter\cdot(N_{I}\cdot\bar{D}\cdot\NA + \Nl\cdot N_{c} + \alpha \cdot \bar{n} \cdot \NA)
+.. math:: max\_iter\cdot(N_I\cdot n\cdot\NA + n\cdot N_c + \alpha \cdot n \cdot \NA)
+    :label: cplx_all_together    
 
-Since :math:`\alpha\cdot\bar{n} \ll N_{I}\cdot\bar{D}` **zbog ovoga mutation part postaje irelevantan**. We finally obtain that algorithm complexity is dominated by the fitness evaluation complexity, and sums up to:
+Since :math:`\alpha\cdot n \ll N_I\cdot n` the mutation insignificantly influences the complexity and can be disregarded. We finally obtain that algorithm complexity is dominated by the fitness evaluation complexity, and sums up to:
 
-.. math:: O(max\_iter\cdot(N_{I}\cdot\bar{D}\cdot\NA + \Nl\cdot N_{c}))
+.. math:: O(max\_iter\cdot(N_I\cdot n\cdot\NA + n\cdot N_c))
+    :label: cplx_final
 
-**Zbog svega ovoga najbolji kandidat za hardversku akceleraciju je deo posvecen racunanju fitnesa (najveci gain ce se dobiti)**
+It is clear from equation :eq:`cplx_final` that *fitness_eval()* function is a good candidate for hardware acceleration, while the mutation tasks can be left in software since they insignificantly influence the complexity of the |algo| algorithm.
 
 Profiling results
 -----------------
 
-**In order to perform profiling**, the |algo| algorithm was implemented in C using many optimization techniques:
+In order to perform profiling, and test the results obtained by the complexity analysis, the |algo| algorithm was implemented in C using many optimization techniques:
 
 - Arithmetic operation on 64-bit operands only (optimized for 64-bit CPU)
 - Loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`
@@ -235,7 +236,8 @@ Profiling results
 Software implementation was compiled using GCC 4.8.2 compiler and run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer.
 After profiling with GProf tool, the results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
 
-**sliku ponovo uzeti iz profilinga, nakon sto se promene imena funkcija da coresponduju opisu algoritma**
+.. todo::
+    **sliku ponovo uzeti iz profilinga, nakon sto se promene imena funkcija da coresponduju opisu algoritma**
 
 .. _fig-profiling:
 
@@ -243,40 +245,42 @@ After profiling with GProf tool, the results on :num:`Figure #fig-profiling` wer
     
     Profiling results.
 
-**objasniti sta se vidi na slici. Reci da je ovo neki prosecan rezultat. Uraditi profiling za sve UCI datasetove, naci minimalnu i maksimalnu i objasniti to. Mozda nacrtati grafik koji daje udeo fitness evaluacije za sve UCI testove.**
+.. todo::
+    **objasniti sta se vidi na slici. Reci da je ovo neki prosecan rezultat. Uraditi profiling za sve UCI datasetove, naci minimalnu i maksimalnu i objasniti to. Mozda nacrtati grafik koji daje udeo fitness evaluacije za sve UCI testove.**
 
-The |algo| has obvious computational bottleneck in the fitness evaluation task, which takes **almost 100% - bolje da je tacan broj** of computational time in the example run shown in :num:`Figure #fig-profiling`. So the fitness evaluation is an undoubtful candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task. **Ne samo ovo. Ako implementiramo samo evaluaciju fitnesa u HW onda preostali deo EA mozemo lako menjati (pa mozemo koristiti GA, GP, ES, SA, ..., sta god). Ovo je takodje vazna prednost predlozenog pristupa.**
+The |algo| has obvious computational bottleneck in the fitness evaluation task, which takes **almost 100% - bolje da je tacan broj** of computational time in the example run shown in :num:`Figure #fig-profiling`. So the fitness evaluation is an undoubtful candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
 
 Co-processor for DT induction - |cop|
 =====================================
 
-**detaljnija uvodna recenica sta je EFTIP i kako se povezuje (The co-processor connects to the CPU via AXI4 AMBA bus)**
+The proposed |cop| is a co-processor that performs the task of fitness evaluation for DT induction (:num:`Algorithm #fig-fitness-eval-pca`). The co-processor is connected to the CPU via AXI4 AMBA bus, which can be used by software to completely control the |cop| operation:
 
-The **proposed** |cop| performs the task of fitness evaluation (:num:`Figure #fig-fitness-eval-pca`) within the |algo| algorithm. The block diagram of the |cop| co-processor is given in :num:`Figure #fig-system-bd`
+- Download the training set
+- Download the DT description
+- Start the fitness evaluation
+- Read the results
 
-**A gde se nalazi EFTIP (pise programmable Logic)? Treba napisati da je to HW koprocesor koji se povezuje sa procesorom. Neke blokove malo detaljnije, pogledati Rastijeve prezentacije. Uvuci delove kasnijih slika u ovu (npr. Classifier i DT Memory Array razbiti na stage-eve)**
+The block diagram of the |cop| co-processor is given in :num:`Figure #fig-system-bd`
 
 .. _fig-system-bd:
 
 .. figure:: images/system_bd.py
     :width: 100%
     
-    **struktura EFTIP co-processor-a i njegovo poveziavanje sa hostom**
+    The |cop| co-processor structure and integration with host CPU
 
-The co-processor connects to the CPU via AXI4 AMBA bus. The major components of the |cop| co-processor and their connections are depicted in the :num:`Figure #fig-system-bd`:
+The major components of the |cop| co-processor and their connections are depicted in the :num:`Figure #fig-system-bd`:
 
 - **Control Unit**: Acts as a bridge between the AXI4 and internal protocols and controls the fitness evaluation process.
-- **Training Set Memory**: The memory for storing all training set instances
-- **Classifier**: Performs the DT traversal for each instance, i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined with the stages :math:`L_{1}` through :math:`L_{D^{M}}`, separated by dotted lines in Classifier block in figure, with each stage performing node test calculations for one DT level. |DM| is the number of pipeline stages and thus the maximum supported DT depth. For each instance in training set, the Classifier outputs the ID assigned to the leaf into which the instance was classified after traversal (please refer to fitness_eval() function :num:`Figure #fig-fitness-eval-pca`).
-- **DT Memory Array**: The array of memories used to store the DT description. The Classifier calculates node tests for each DT level in parallel. Each Classifier pipeline stage requires its own memory that holds description of all nodes on the DT level it is associated with.
+- **Training Set Memory**: The memory for storing all training set instances.
+- **Classifier**: Performs the DT traversal for each instance, i.e. implements the *find_dt_leaf_for_inst()* function in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined with the stages :math:`NTE_{1}` through :math:`NTE_{D^{M}}`, with each stage performing node test calculations for one DT level. |DM| is the number of pipeline stages and thus the maximum supported DT depth. For each instance in training set, the Classifier outputs the ID assigned to the leaf into which the instance was classified after traversal (please refer to *fitness_eval()* function :num:`Algorithm #fig-fitness-eval-pca`).
+- **DT Memory Array**: The array of memories used to store the DT description with elements :math:`L_{1}` through :math:`L_{D^{M}}`. The Classifier calculates node tests for each DT level in parallel. Each Classifier pipeline stage requires its own memory that holds description of all nodes on the DT level it is associated with.
 - **Fitness Calculator**: Calculates the accuracy of the DT based on the classification data received from the Classifier. For each instance of the training set, the Classifier supplies the ID of the leaf into which the instance was classified. Based on this information, the Fitness Calculator updates the distribution matrix and calculates the DT accuracy which is sent to the Control Unit and stored in the memory-maped register, ready to be read by the user.
 
 Classifier
 ----------
 
-Classifier module performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The Classifier was implemented using modified design described in :cite:`struharik2009intellectual`. The original architecture from :cite:`struharik2009intellectual` was designed to perform the classification using already induced DTs, so it was adapted **so that it could be used in EFTI algorithm for DT induction as well**, and is shown in :num:`Figure #fig-dt-classifier-bd`:
-
-**Probati veci font, nazivi signala u dva reda**
+Classifier module performs the classification of an arbitrary set of instances on an arbitrary oblique DT. The Classifier was implemented using modified design described in :cite:`struharik2009intellectual`. The original architecture from :cite:`struharik2009intellectual` was designed to perform the classification using already induced DTs, so it was adapted so that it could be used in EFTI algorithm for DT induction as well, and is shown in :num:`Figure #fig-dt-classifier-bd`:
 
 .. _fig-dt-classifier-bd:
 
@@ -284,27 +288,33 @@ Classifier module performs the classification of an arbitrary set of instances o
     
     Classifier architecture used in the induction mode.
 
-The Classifier performs the DT traversal for each instance (**shown by line...** :num:`Figure #fig-oblique-dt`), i.e. implements the find_dt_leaf_for_inst() function on :num:`Figure #fig-find-dt-leaf-for-inst-pca`. **rogobatno, razbiti malo i objasniti jednostavnije** The instance traversal path is determined by the outcome of the node tests :eq:`oblique_test`, of which there is only one per DT level. **reci da je pipeline stage ustvari NTE modul (odnosno da se Classifier sastoji od lanca NTE modula), uvesti NTE skracenicu. Kasnije mozda umesto pipeline stage uvek govoriti NTE modul.** Hence, this process is suitable for pipelining with one stage per DT level. The number of stages in the pipeline, |DM|, determines the maximum depth of the DT that can be induced **supported by the current hardware isntance of EFTIP co-processor.**. |DM| value can be specified by the user during the design phase of |cop|.
+The Classifier performs the DT traversal for each instance (example traversal is shown by red line in :num:`Figure #fig-oblique-dt`), i.e. implements the *find_dt_leaf_for_inst()* function in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The traversal of an instance starts at the root of the DT and continues until a leaf is reached and the path it takes is determined by the outcome of node tests (given by equation :eq:`oblique_test`). For each traversal, only one node per DT level is visited, so there is only one node test performed per DT level. Hence, this process is suitable for pipelining with one stage per DT level. The Classifier module therefore consists of a chain of NTE (Node Test Evaluators) whose number |DM|, determines the maximum depth of the DT that can be induced by the current hardware instance of |cop| co-processor. |DM| value can be specified by the user during the design phase of |cop|.
 
-Each pipeline stage can perform node test calculation for any DT node of the corresponding DT level. First stage always processes the root DT node, however, which nodes are processed by other stages, depends on the path of traversal for each individual instance. Every stage has one DT Memory associated to it that holds the descriptions of all the nodes on that DT level.
+Each NTE can perform node test calculation for any DT node of the corresponding DT level. :math:`NTE_1` always processes the root DT node, however, which nodes are processed by other stages, depends on the path of traversal for each individual instance. Every stage has one element of DT Memory Array associated to it that holds the descriptions of all the nodes on that DT level.
 
 For each instance received at the Classifier input, the first NTE block processes the calculation given by equation :eq:`oblique_test` for the attributes of received instance |A| and root node coefficients |a|. It then decides on how to proceed with DT traversal: via left or via right child. The selected child can be either a leaf or non-leaf node. If the child is a non-leaf node, its ID is output to the next pipeline stage where the traversal is continued. On the other hand, if the child is a leaf, the classification is done and the ID of a leaf node is output to next pipeline stage informing it that no further calculation needs to be done for this instance. Each NTE calculation described above corresponds to one iteration of the find_dt_elaf_for_inst() function loop (:num:`Figure #fig-find-dt-leaf-for-inst-pca`), and NTE outputs correspond to the *cur_node_id* variable. The instance is also passed to the next stage along with the child node ID, since next stage will perform the calculation on it as well, i.e. the instance traverses to the next DT level.
 
-All subsequent stages operate in similar manner, except that in addition they also receive the calculation results from their **its?** predecessor. **Opisati interfejs izmedju NTE modula, sta koji signal znaci, big-picture. Ovde i navesti cemu sluzi Leaf ID Output - za racunanje fitnesa (distribution matrix)** If NTE receives the ID of the leaf node, meaning that the instance is already classified, it simply passes this information onward and disregards internal computations. On the other hand, if ID of the non-leaf node is received, the following is performed:
+All subsequent stages operate in similar manner, except that in addition they also receive the calculation results from their predecessor. Inter-NTE interface comprises the following buses: 
 
-1. The node coefficients |a| are fetched from the DT Memory using ID as the index
-2. Node test calculation is performed according to equation :eq:`oblique_test`
-3. The ID of the child is calculated and passed along with the instance to the next stage
+- Instance bus - passes the instance description to the next NTE as the instance traverses the DT.
+- Leaf ID bus - if the instance has already been classified into a DT leaf, passes the ID of that leaf to the next NTE. Otherwise, it passes a zero. Based on this information, next NTE will know whether the instance has already been classified, meaning that and no further tests need to be performed.
+- Child ID - passes to the next NTE the ID of the non-leaf node through which the traversal is to be continued. Based on this information, the next NTE will know which node's test (out of all non-leaf nodes on NTE's corresponding DT level) should be performed on the instance. 
+
+Somewhere along the NTE chain all the instances will be classified into some leaf. This information is output from the Classifier module to the Fitness Calculator in order to update the distribution matrix and calculate the final number of hits.
+
+If NTE receives the non-zero value for the *Leaf ID Input*, meaning that the instance is already classified, it simply passes this information onward and disregards internal computations. On the other hand, if zero is received for the *Leaf ID Input*, then the *Child ID Input* contains a valid non-leaf node ID of the corresponding DT level, and the following is performed:
+
+1. The node coefficients |a| are fetched from the DT Memory Array element using *Child ID Input* value as the index,
+2. node test calculation is performed according to equation :eq:`oblique_test`, and
+3. the leaf ID and the child ID values are calculated based on the outcome of the node test and output to the next NTE via *Leaf ID Output* and *Child ID Output*, along with the training set instance.
 
 The NTE operation is again pipelined internally for maximal throughput. Block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the NTE.
-
-**Povecati font, nazivi mogu u dva reda. Nije Evaluator nego NTE. Dotted linijama odvojiti stageve u stablu sabiraca i multiplierima. Navesti obavezno u tekstu da stoje registri ali nisu nacrtani.**
 
 .. _fig-dt-test-eval-bd:
 
 .. figure:: images/evaluator.py
     
-    **Nije Evaluator nego NTE** DT test evaluation block architecture
+    NTE (Node Test Evaluator) block architecture
 
 The NTE block's main task is the calculation of sum of products given by :eq:`oblique_test`. The maximum supported number of attributes per instance - |NAM|, is the value which can be specified by the user during the design phase of |cop|. If the instances have less than |NAM| number of attributes, the surplus inputs should be supplied with zeros in order not to affect the sum. 
 
@@ -681,4 +691,3 @@ In this paper a universal reconfigurable co-processor for hardware aided decisio
 
 .. bibliography:: hereboy.bib
 	:style: unsrt
-

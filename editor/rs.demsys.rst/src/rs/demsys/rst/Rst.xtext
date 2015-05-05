@@ -362,6 +362,7 @@ RawLiteral:
 	| 	SPECIAL_CHAR
 	|	UNDERSCORE
 	|	STAR
+	|	'**'
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
 	|	PIPE

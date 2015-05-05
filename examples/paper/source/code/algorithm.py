@@ -1,5 +1,4 @@
 def efti(train_set):
-    # Create initial 3-node DT and randomize root condition
     initialize(dt)
     best_fit = fitness_eval(dt, train_set)
     

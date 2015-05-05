@@ -37,7 +37,7 @@ from bdp import latex_mods
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.bdpfigure', 'sphinx.ext.graphviz']
+extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo']
 
 numfig_format = {'figure': 'Figure %s',
                  'table': 'Table %s',
@@ -113,7 +113,7 @@ pygments_style = 'sphinx'
 #keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -227,7 +227,7 @@ latex_preamble = ur'''
 \newcommand{\NA}{N_{A}}
 \newcommand{\DM}{D^{M}}
 \newcommand{\NAM}{N^{M}_{A}}
-\newcommand{\Nl}{\bar{N_l}}
+\newcommand{\Nl}{N_{l}}
 \newcommand{\NlM}{N^{M}_{l}}
 
 \lhead{}
