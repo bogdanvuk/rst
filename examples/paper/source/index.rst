@@ -233,13 +233,11 @@ In order to perform profiling, and test the results obtained by the complexity a
 - Loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`
 - Maximum compiler optimization settings
 
-Software implementation was compiled using GCC 4.8.2 compiler and run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf. Profiling has been ru
-
-The :num:`Table #tbl-uci-datasets` shows 21 datasets, selected from the UCI benchmark datasets database :cite:`newman1998uci`, that were used in the speed-up estimation experiments.
-
-.. _tbl-uci-datasets:
+21 datasets listed in :num:`Table #tbl-uci-datasets`, selected from the UCI benchmark datasets database :cite:`newman1998uci`, were used in all experiments whose results are shown in this paper.
 
 .. tabularcolumns:: l p{30pt} p{40pt} p{40pt} p{40pt}
+
+.. _tbl-uci-datasets:
 
 .. list-table:: Characteristics of the UCI datasets used in the experiments
     :header-rows: 1 
@@ -355,15 +353,11 @@ The :num:`Table #tbl-uci-datasets` shows 21 datasets, selected from the UCI benc
       - 5456
       - 4
 
-After profiling with GProf tool, the results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
+Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compiler, run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf for each of the tests listed in :num:`Table #tbl-uci-datasets`. One example profiling result on the *veh* dataset is given in :num:`Figure #fig-profiling`. The results are given in tabular fashion with each row providing the following profiling data for one function:
 
-.. plot:: images/profiling_plot.py
-    :width: 100%
-    
-    This is the caption for the plot
-
-.. todo::
-    **sliku ponovo uzeti iz profilinga, nakon sto se promene imena funkcija da coresponduju opisu algoritma**
+- Time - Total amount of time spent in the function  
+- Calls - Total number of calls to the function
+- % Time - Percentage of time spent in the function relative to the total execution time.
 
 .. _fig-profiling:
 
@@ -371,8 +365,12 @@ After profiling with GProf tool, the results on :num:`Figure #fig-profiling` wer
     
     Profiling results.
 
-.. todo::
-    **objasniti sta se vidi na slici. Reci da je ovo neki prosecan rezultat. Uraditi profiling za sve UCI datasetove, naci minimalnu i maksimalnu i objasniti to. Mozda nacrtati grafik koji daje udeo fitness evaluacije za sve UCI testove.**
+The results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
+
+.. plot:: images/profiling_plot.py
+    :width: 100%
+    
+    This is the caption for the plot
 
 The |algo| has obvious computational bottleneck in the fitness evaluation task, which takes **almost 100% - bolje da je tacan broj** of computational time in the example run shown in :num:`Figure #fig-profiling`. So the fitness evaluation is an undoubtful candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
 
