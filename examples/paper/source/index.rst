@@ -233,8 +233,134 @@ In order to perform profiling, and test the results obtained by the complexity a
 - Loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`
 - Maximum compiler optimization settings
 
-Software implementation was compiled using GCC 4.8.2 compiler and run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer.
+Software implementation was compiled using GCC 4.8.2 compiler and run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf. Profiling has been ru
+
+The :num:`Table #tbl-uci-datasets` shows 21 datasets, selected from the UCI benchmark datasets database :cite:`newman1998uci`, that were used in the speed-up estimation experiments.
+
+.. _tbl-uci-datasets:
+
+.. tabularcolumns:: l p{30pt} p{40pt} p{40pt} p{40pt}
+
+.. list-table:: Characteristics of the UCI datasets used in the experiments
+    :header-rows: 1 
+    
+    * - Dataset Name
+      - Short Name
+      - No. of attributes
+      - No. of instances
+      - No. of classes
+    * - Australian Credit Approval
+      - ausc
+      - 14
+      - 690
+      - 2
+    * - Credit Approval
+      - ca
+      - 15
+      - 699
+      - 2
+    * - Car Evaluation
+      - car
+      - 6
+      - 1728
+      - 4
+    * - Contraceptive Method Choice
+      - cmc
+      - 9
+      - 1473
+      - 3
+    * - Cardiotocography
+      - ctg
+      - 21
+      - 2126
+      - 10
+    * - German Credit Data
+      - ger
+      - 24
+      - 1000
+      - 2
+    * - Japanese Vowels
+      - jvow
+      - 14
+      - 4274
+      - 9
+    * - Page Block Classification
+      - page
+      - 10
+      - 5473
+      - 5
+    * - Pima Indians Diabetes
+      - pid
+      - 8
+      - 768
+      - 2
+    * - Parkinson Speech
+      - psd
+      - 27
+      - 1040
+      - 2
+    * - Seismic Bumps
+      - sb
+      - 18
+      - 2584
+      - 2
+    * - Image Segmentation
+      - seg
+      - 18
+      - 2310
+      - 7
+    * - Sick
+      - sick
+      - 29
+      - 3722
+      - 2
+    * - SPECT Heart
+      - spect
+      - 22
+      - 267
+      - 2
+    * - Stell Plates Faults
+      - spf
+      - 21
+      - 1941
+      - 7
+    * - Thyroid Disease
+      - thy
+      - 29
+      - 3722
+      - 4
+    * - Vehicle Silhouettes
+      - veh
+      - 18
+      - 846
+      - 4
+    * - Congressional Voting Records
+      - vote
+      - 16
+      - 435
+      - 2
+    * - Vowel Recognition
+      - vow
+      - 10
+      - 990
+      - 11
+    * - Waveform Database Generator
+      - w21
+      - 21
+      - 5000
+      - 3
+    * - Wall Following Robot Navigation
+      - wfr
+      - 24
+      - 5456
+      - 4
+
 After profiling with GProf tool, the results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
+
+.. plot:: images/profiling_plot.py
+    :width: 100%
+    
+    This is the caption for the plot
 
 .. todo::
     **sliku ponovo uzeti iz profilinga, nakon sto se promene imena funkcija da coresponduju opisu algoritma**
@@ -471,125 +597,6 @@ Experiments
 In this section the results of the experiments designed to estimate DT induction speedup of the |algo| hardware implementation over its software implementation are given.
 
 **Mozda je ovo mesto da se prica o mogucim stvarima koje korisnik moze podesavati... Mozda ovde treba reci da je EFTIP projektovan kao IP core koji se lako moze kastomizovati, navesti sta se moze preko generica podesiti...**
-
-Table 3 shows 21 datasets, selected from the UCI benchmark datasets database :cite:`newman1998uci`, that were used in the speed-up estimation experiments.
-
-.. tabularcolumns:: l p{30pt} p{40pt} p{40pt} p{40pt}
-
-.. list-table:: Characteristics of the UCI datasets used in the experiments
-    :header-rows: 1 
-    
-    * - Dataset Name
-      - Short Name
-      - No. of attributes
-      - No. of instances
-      - No. of classes
-    * - Australian Credit Approval
-      - ausc
-      - 14
-      - 690
-      - 2
-    * - Credit Approval
-      - ca
-      - 15
-      - 699
-      - 2
-    * - Car Evaluation
-      - car
-      - 6
-      - 1728
-      - 4
-    * - Contraceptive Method Choice
-      - cmc
-      - 9
-      - 1473
-      - 3
-    * - Cardiotocography
-      - ctg
-      - 21
-      - 2126
-      - 10
-    * - German Credit Data
-      - ger
-      - 24
-      - 1000
-      - 2
-    * - Japanese Vowels
-      - jvow
-      - 14
-      - 4274
-      - 9
-    * - Page Block Classification
-      - page
-      - 10
-      - 5473
-      - 5
-    * - Pima Indians Diabetes
-      - pid
-      - 8
-      - 768
-      - 2
-    * - Parkinson Speech
-      - psd
-      - 27
-      - 1040
-      - 2
-    * - Seismic Bumps
-      - sb
-      - 18
-      - 2584
-      - 2
-    * - Image Segmentation
-      - seg
-      - 18
-      - 2310
-      - 7
-    * - Sick
-      - sick
-      - 29
-      - 3722
-      - 2
-    * - SPECT Heart
-      - spect
-      - 22
-      - 267
-      - 2
-    * - Stell Plates Faults
-      - spf
-      - 21
-      - 1941
-      - 7
-    * - Thyroid Disease
-      - thy
-      - 29
-      - 3722
-      - 4
-    * - Vehicle Silhouettes
-      - veh
-      - 18
-      - 846
-      - 4
-    * - Congressional Voting Records
-      - vote
-      - 16
-      - 435
-      - 2
-    * - Vowel Recognition
-      - vow
-      - 10
-      - 990
-      - 11
-    * - Waveform Database Generator
-      - w21
-      - 21
-      - 5000
-      - 3
-    * - Wall Following Robot Navigation
-      - wfr
-      - 24
-      - 5456
-      - 4
-
 
 Required Hardware Resources and Scalability
 -------------------------------------------
