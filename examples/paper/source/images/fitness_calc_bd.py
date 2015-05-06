@@ -1,16 +1,16 @@
 from bdp.node import *
 
 bus = path(double=True, thick=False)
-bus_text = text(font="scriptsize", margin=p(0,0))
+bus_text = text(font="scriptsize", margin=p(0,0.2))
 
 def create_fitness_border(pos, name):
     if name:
-        bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0), text_font='scriptsize', text_align='nw', fill='white')()
+        bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0), text_font='small', text_align='nw', fill='white')()
     else:
         bd = block(name, size=p(18,11), p=pos, fill='white', dotted=True)()
 
 def create_fitness_block(pos, name):
-    bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0), text_font='scriptsize', text_align='nw', fill='white')()
+    bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0.5), text_font='small', text_align='nw', fill='white')()
     incr = block("Incrementer", size=p(7,3)).align(bd.n() + (1,2))()
     dc_calc = block("Dominant Class Calc.", size=p(7,3)).right(incr, 2)()
     mem = block("Memory", size=p(10, 3)).align_y(incr.s() + (0, 2)).align_x(mid(incr.c(), dc_calc.c()), prev().c())()
@@ -25,12 +25,15 @@ def create_fitness_block(pos, name):
             }
     
 
-create_fitness_border(origin, "Fitness Calculator for Leaf Node ID 1")
-create_fitness_border(origin + (1,1), "Fitness Calculator for Leaf Node ID 2")
-create_fitness_border(origin + (2,2), "")
-fb = create_fitness_block(origin + (3,3), "Fitness Calculator for Leaf Node ID $N^{M}_{l}$")
+# create_fitness_border(origin, "Fitness Calculator for Leaf Node ID 1")
+# create_fitness_border(origin + (1,1), "Fitness Calculator for Leaf Node ID 2")
+# create_fitness_border(origin + (2,2), "")
+fb = create_fitness_block(origin + (3,3), "Fitness Calculator for Leaf Node ID 1")
+fbm = create_fitness_block(origin + (3,18), "Fitness Calculator for Leaf Node ID $N^{M}_{l}$")
+text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="normalsize").align(mid(fb['bd'].c(), fbm['bd'].c()), prev().c())()
 # for i in range(3):
 #     text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", text_font='large').align_y(mid(fb1['bd'].c(), fb2['bd'].c()), prev().c()).align_x(fb1['bd'].n() + (2,0) + i*p(7,0))()
+
 
 
 leaf_id_in = fb['incr'].w(1) - (8,0)
@@ -41,19 +44,29 @@ class_in = fb['incr'].w(2) - (8,0)
 path([class_in, fb['incr'].w(2)], style='->')()
 bus_text("$C$").align(class_in, prev().s())()
 
+path([fb['incr'].w(1) - (2,0), fbm['incr'].w(1)], def_routing='|-', style='->')()
+path([fb['incr'].w(2) - (3,0), fbm['incr'].w(2)], def_routing='|-', style='->')()
+
+mux_block = block("MUX", (4,8)).align(mid(fb['bd'].s(1.0), fbm['bd'].n(1.0)) + (3,0), prev().w(0.5))()
+
+path([fb['dc_calc'].e(0.5), fb['dc_calc'].e(0.5) + (2,0), mux_block.w(1)], style='->', def_routing='|-')()
+path([fbm['dc_calc'].e(0.5), fbm['dc_calc'].e(0.5) + (2,0), mux_block.w(7)], style='->', def_routing='|-')()
+text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="normalsize").align(mux_block.w(0.5) - (1,0), prev().c())()
+
+sum_block = block("Sum Block", size=(7,8), text_align='nw').right(mux_block, 2).align_y(mux_block.c(), prev().c())()
+
 add_block = block("+", size=p(2,2), shape='circle')
+add = add_block.align(sum_block.w(0.5) + (2,0), prev().c())()
+reg = block(size=(2, 4)).right(add).align_y(add.c(), prev().c())()
 
-add = add_block.right(fb['dc_calc'], 3).align_y(fb['dc_calc'].c(), prev().c())()
+path([mux_block.e(0.5), add.w(0.5)], style='->')()
+path([add.e(0.5), reg.w(0.5)], style='->')()
+path([reg.s(0.5), reg.s(0.5) + (0,1), add.s(0.5)], def_routing = '-|', style='->')()
 
-bus([fb['dc_calc'].e(0.5), add.w(0.5)], style='->', shorten=(0,0.3))()
+# bus([fb['dc_calc'].e(0.5), add.w(0.5)], style='->', shorten=(0,0.3))()
+# 
+path([reg.e(0.5), reg.e(0.5) + (4,0)], style='->')()
+bus_text("hits").align(reg.e(0.5) + (2,0), prev().s())()
+    
 
-path([add.e(0.5), add.e(0.5) + (2,0)], shorten=(0.3, 0), style='->')()
-bus_text("hits").align(add.e(0.5), prev().s())()
-# 
-# path([class_in, fb1['incr'].w(2)], style='->')()
-# path([class_node, fb2['incr'].w(2)], def_routing='|-', style='->')()
-# path([class_node, mid(fb1['bd'].s(), fb2['bd'].n()) + (1, 1)], def_routing='|-', style='->', dotted=True)()
-# 
-# 
-#     
-# path([fb1['incr'].w(2) - (5,0), fb1['incr'].w(2)], style='->')()
+

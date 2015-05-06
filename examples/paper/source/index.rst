@@ -395,15 +395,13 @@ Fitness calculator
 
 This module calculates the accuracy of the DT via *distribution* matrix as described **described by fitness_eval() algorithm?**. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based on its class (*C*) and the leaf into which it was classified (*Leaf ID*), appropriate element of the *distribution* matrix is incremented. Fitness Calculator block is shown in :num:`Figure #fig-fit-calc-bd`.
 
-**malo je nejasno da se sumiraju izlazi svih modula kako bi se izracunala hits vrednost. Poredjati calculatore vodoravno, ispod mux, ispod akumulator (sabirac sa registrom)**
-
 .. _fig-fit-calc-bd:
 
 .. figure:: images/fitness_calc_bd.py
     
     Fitness Calculator block diagram
 
-In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. The maximum number of leaf nodes - |NlM|, **is arbitrary value, but defined at design time by user**. This value imposes a constraints on the maximum number of leaves in DT. Each calculator comprises:
+In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. The maximum number of leaf nodes - |NlM| which can be specified by the user during the design phase of |cop|. This value imposes a constraints on the maximum number of leaves in DT. Each calculator comprises:
 
 - **Memory - mozda ga treba imenovati drugacije, na primer class distribution memory ili nesto slicno** for keeping track of the class distribution of corresponding leaf node
 - **Incrementer**: Updates the memory based on the Classifier output
