@@ -54,28 +54,31 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Directive" eSuperTypes="#//Section"/>
   <eClassifiers xsi:type="ecore:EClass" name="RawIndentBlock">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="line" unique="false" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" upperBound="-1" eType="#//RawLine"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//RawIndentBlock" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RawBlock">
     <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
         eType="#//DirectiveOption" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="line" unique="false" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" upperBound="-1" eType="#//RawLine"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" upperBound="-1"
         eType="#//RawIndentBlock" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawLine"/>
   <eClassifiers xsi:type="ecore:EClass" name="CodeBlockDirective" eSuperTypes="#//Directive">
     <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//Label"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//RawText"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RawDirective" eSuperTypes="#//Directive">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="firstLine" eType="#//RawText"
+        containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="block" eType="#//RawBlock"
         containment="true"/>
   </eClassifiers>
@@ -139,7 +142,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="Literal"/>
   <eClassifiers xsi:type="ecore:EClass" name="FirstTextLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="StyledTextLiteral"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Role" eSuperTypes="#//Literal #//StyledTextLiteral"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Role" eSuperTypes="#//Literal #//StyledTextLiteral #//RawLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="MathRole" eSuperTypes="#//Role">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -181,6 +184,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="LatexLine">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawText" eSuperTypes="#//RawLine">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="item" upperBound="-1" eType="#//RawLiteral"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RawLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="StyledText" eSuperTypes="#//Literal #//FirstTextLiteral">
     <eStructuralFeatures xsi:type="ecore:EReference" name="text" upperBound="-1" eType="#//StyledTextLiteral"
         containment="true"/>

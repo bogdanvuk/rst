@@ -233,7 +233,7 @@ In order to perform profiling, and test the results obtained by the complexity a
 - Loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`
 - Maximum compiler optimization settings
 
-21 datasets listed in :num:`Table #tbl-uci-datasets`, selected from the UCI benchmark datasets database :cite:`newman1998uci`, were used in all experiments whose results are shown in this paper.
+In all experiments whose results are shown in this paper 21 datasets were used. They are listed in :num:`Table #tbl-uci-datasets` and were selected from the UCI benchmark datasets database :cite:`newman1998uci`.
 
 .. tabularcolumns:: l p{30pt} p{40pt} p{40pt} p{40pt}
 
@@ -353,7 +353,14 @@ In order to perform profiling, and test the results obtained by the complexity a
       - 5456
       - 4
 
-Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compiler, run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf for each of the tests listed in :num:`Table #tbl-uci-datasets`. One example profiling result on the *veh* dataset is given in :num:`Figure #fig-profiling`. The results are given in tabular fashion with each row providing the following profiling data for one function:
+Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compiler, run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf for each of the tests listed in :num:`Table #tbl-uci-datasets`. The results obtained by profiling were consistent with the algorithm complexity analysis performed in the previous chapter and are shown in :num:`Figure #fig-profiling`. The figure shows percentage of time spent in the *fitness_eval()* function and its subfuctions for each dataset. In average, |algo| spent 99.4% of time calculating the fitness of the individual. 
+
+.. plot:: images/profiling_plot.py
+    :width: 100%
+    
+    Percentage of time spent in the *fitness_eval()* function and its subfuctions for each dataset listed in :num:`Table #tbl-uci-datasets`
+
+The results of one example profiling experiment on the *veh* dataset are shown in :num:`Figure #fig-profiling`. The results are given in tabular fashion with each row providing the profiling data for one function. Following data are given for each function:
 
 - Time - Total amount of time spent in the function  
 - Calls - Total number of calls to the function
@@ -365,14 +372,7 @@ Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compile
     
     Profiling results.
 
-The results on :num:`Figure #fig-profiling` were obtained. The results were consistent with the algorithm complexity analysis performed in the previous chapter.
-
-.. plot:: images/profiling_plot.py
-    :width: 100%
-    
-    This is the caption for the plot
-
-The |algo| has obvious computational bottleneck in the fitness evaluation task, which takes **almost 100% - bolje da je tacan broj** of computational time in the example run shown in :num:`Figure #fig-profiling`. So the fitness evaluation is an undoubtful candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
+The |algo| has obvious computational bottleneck in the fitness evaluation task, which takes 99.4% of computational time on average. So the fitness evaluation is an undoubtful candidate for hardware optimization. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Major advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
 
 Co-processor for DT induction - |cop|
 =====================================

@@ -353,12 +353,12 @@ LatexLiteral:
 ;
 
 RawText:
-	RawLiteral+
+	item+=RawLiteral+
 ;
 
 RawLiteral:
 		SIMPLE_WORD
-//	|	KEYWORDS
+	|	Role
 	| 	SPECIAL_CHAR
 	|	UNDERSCORE
 	|	STAR
