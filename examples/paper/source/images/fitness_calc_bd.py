@@ -13,7 +13,7 @@ def create_fitness_block(pos, name):
     bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0.5), text_font='small', text_align='nw', fill='white')()
     incr = block("Incrementer", size=p(7,3)).align(bd.n() + (1,2))()
     dc_calc = block("Dominant Class Calc.", size=p(7,3)).right(incr, 2)()
-    mem = block("Memory", size=p(10, 3)).align_y(incr.s() + (0, 2)).align_x(mid(incr.c(), dc_calc.c()), prev().c())()
+    mem = block(r"Class Distribution \\ Memory", size=p(10, 3)).align_y(incr.s() + (0, 2)).align_x(mid(incr.c(), dc_calc.c()), prev().c())()
     
     bus([incr.s(5), mem.n(2)], style='<->')()
     bus([dc_calc.s(2), mem.n(8)], style='<->')()

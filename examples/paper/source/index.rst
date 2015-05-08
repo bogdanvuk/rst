@@ -517,7 +517,7 @@ Width of the Port B is determined at design phase of |cop| and corresponds to th
 Fitness calculator
 ------------------
 
-This module calculates the accuracy of the DT via *distribution* matrix as described **described by fitness_eval() algorithm?**. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based on its class (*C*) and the leaf into which it was classified (*Leaf ID*), appropriate element of the *distribution* matrix is incremented. Fitness Calculator block is shown in :num:`Figure #fig-fit-calc-bd`.
+This module calculates the accuracy of the DT via *distribution* matrix as described by :num:`Algorithm #fig-fitness-eval-pca`. It monitors the output of the Classifier module, i.e the training set classification, and for each instance in the training set, based on its class (*C*) and the leaf into which it was classified (*Leaf ID*), appropriate element of the *distribution* matrix is incremented. Fitness Calculator block is shown in :num:`Figure #fig-fit-calc-bd`.
 
 .. _fig-fit-calc-bd:
 
@@ -525,18 +525,63 @@ This module calculates the accuracy of the DT via *distribution* matrix as descr
     
     Fitness Calculator block diagram
 
-In order to speed up the dominant class calculation (second loop of the fitness_eval() function in :num:`Figure #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. The maximum number of leaf nodes - |NlM| which can be specified by the user during the design phase of |cop|. This value imposes a constraints on the maximum number of leaves in DT. Each calculator comprises:
+In order to speed up the dominant class calculation (second loop of the *fitness_eval()* function in :num:`Algorithm #fig-fitness-eval-pca`), the fitness calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation (*dominant_class_cnt*) can be done in parallel for each leaf node. The number of elements in the array equals maximum number of leaf nodes parameter - |NlM| which can be specified by the user during the design phase of |cop|. This value imposes a constraints on the maximum number of leaves in DT. Each calculator comprises:
 
-- **Memory - mozda ga treba imenovati drugacije, na primer class distribution memory ili nesto slicno** for keeping track of the class distribution of corresponding leaf node
+- **Class Distribution Memory**: for keeping track of the class distribution of corresponding leaf node
 - **Incrementer**: Updates the memory based on the Classifier output
 - **The dominant class calculator**: For each training set class, calculates how many instances of that class were classified in the corresponding leaf node. It then finds which class had the highest number of classifications in the corresponding leaf node (dominant class), and outputs that number (*dominant_class_cnt*). If the instance's class equals the dominant class of the leaf node it was classified into, it is considered a hit, otherwise it is considered a miss. Hence, *dominant_class_cnt* represents the number of hits for the corresponding leaf node.
 
 Fitness calculator then sums the hits for all leaf node calculators and outputs the sum as number of hits for whole DT. The number is then stored in the register of the Control Unit from where it can be read-out by the CPU.
 
-**Opisati kontrolnu jedinicu, konfiguracione i statusne registre**
+Control Unit
+------------
+
+The module provides via AXI4 interface access to configuration and status registers as well as DT Memory Array and Training Set Memory. The following control registers are provided:
+
+- **Operation Control** - allows user to start, stop and reset the |cop| co-processor.
+- **Instance Number** - allows user to tell |cop| the number of instances in the training set.
+
+There is a single status register that is used to inform the user when the fitness evaluation task is done and to communicate the calculated number of hits. 
 
 Required Hardware Resources and Throughput
 ------------------------------------------
+
+Parameters that can be configured at design phase of the |cop| co-processor are given in :num:`Table #tbl-cop-params`. These parameters mainly impose constraints on the maximum size of the DT that can be induced and the maximum size of the training set that can be used. 
+
+.. tabularcolumns:: c l l 
+
+.. _tbl-cop-params:
+
+.. list-table:: Characteristics of the UCI datasets used in the experiments
+    :header-rows: 1 
+    
+    * - Parameter
+      - Description
+      - Constraint
+    * - |DM|
+      - The number of NTEs in the Classifier
+      - The maximum depth of the induced DT 
+    * - |NAM|
+      - Influences many components: DT Memory Array Element and NTE adder tree size, etc.
+      - The maximum number of attributes training set can have
+    * - :math:`R_A`
+      - Attribute encoding resolution
+      - The maximum depth of the induced DT 
+    * - :math:`R_C`
+      - Class encoding resolution
+      - The maximum depth of the induced DT 
+    * - :math:`C^M`
+      - Max. training set classes
+      - The maximum depth of the induced DT 
+    * - |NlM|
+      - Max. number of leaves (
+      - The maximum depth of the induced DT 
+    * - |NIM|
+      - Max. number of training set instances
+      - The maximum depth of the induced DT 
+    * - :math:`N^{M}_{nl}`
+      - Max. number of nodes per level
+      - The maximum depth of the induced DT 
 
 The number of Classifier pipeline stages equals the maximum supported DT size |DM|. Since each NTE is also pipelined internally, the total number of pipeline stages is given by equation :eq:`np` (i puta |DM|). Let :math:`C^{M}` be maximum supported number of classes **dovrsi recenicu**
 
