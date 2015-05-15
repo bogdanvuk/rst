@@ -52,12 +52,12 @@ class RstFormatter extends AbstractFormatter2 {
 
 	}
 
-	def dispatch void format(Paragraph paragraph, extension IFormattableDocument document) {
-		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
-		for (TextLine line : paragraph.getLine()) {
-			format(line, document);
-		}
-	}
+//	def dispatch void format(Paragraph paragraph, extension IFormattableDocument document) {
+//		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
+//		for (TextLine line : paragraph.getLine()) {
+//			format(line, document);
+//		}
+//	}
 
 	def dispatch void format(Block block, extension IFormattableDocument document) {
 		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 

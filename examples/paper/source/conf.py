@@ -231,6 +231,8 @@ latex_preamble = ur'''
 \newcommand{\NA}{N_{A}}
 \newcommand{\DM}{D^{M}}
 \newcommand{\NAM}{N^{M}_{A}}
+\newcommand{\NIM}{N^{M}_{I}}
+\newcommand{\WDTM}{W_{DTM}}
 \newcommand{\Nl}{N_{l}}
 \newcommand{\NlM}{N^{M}_{l}}
 

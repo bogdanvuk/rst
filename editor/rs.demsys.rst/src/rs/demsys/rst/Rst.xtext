@@ -9,8 +9,9 @@ Document:
 	;
 
 Section:
-	   TwoLevelBulletList
-	|  BulletList
+	BulletLine
+//	   TwoLevelBulletList
+//	|  BulletList
     |  ReplacementDirective
     |  Directive
 	|  Paragraph
@@ -61,30 +62,34 @@ Replacement hidden():
 	PIPE name=SIMPLE_WORD PIPE
 ;
 
-TwoLevelBulletList:
-	LINE_BREAK
-	item+=TwoLevelBulletLine+
-;
-
-BulletList:
-	LINE_BREAK
-	item+=BulletLine+
-;
-
-TwoLevelBulletLine:
-	STAR firstItem=BulletLine
-	BEGIN
-		item+=BulletLine+
-	END
-;
+//TwoLevelBulletList:
+////	LINE_BREAK
+//	item+=TwoLevelBulletLine+
+//;
+//
+//BulletList:
+////	LINE_BREAK
+//	item+=BulletLine+
+//;
+//
+//TwoLevelBulletLine:
+//	STAR (text=Text)? LINE_BREAK
+//	block=Block?
+////	BEGIN
+////		item+=TwoLevelBulletLine+
+////	END
+//;
 
 BulletLine:
-	MINUS (text=Text)? (=> LINE_BREAK)
+	(MINUS | STAR) (text=Text)? (=> LINE_BREAK)
+	block=Block?
 ;
 
 Paragraph:
-	LINE_BREAK
-    (line+=TextLine)*
+//	LINE_BREAK
+	TextLine
+	| LINE_BREAK
+//    (line+=TextLine)*
 ;
 
 Directive:
@@ -107,7 +112,7 @@ RawIndentBlock:
 
 RawBlock:
     BEGIN
-    	options+=DirectiveOption*
+//    	options+=DirectiveOption*
        	(line+=RawLine | block+=RawIndentBlock)*
     END
 ;
@@ -227,6 +232,11 @@ Literal:
 FirstTextLiteral:
       SIMPLE_WORD
     | StyledText
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
 //    | UnderscoreWord
 //    | ReplacementRef
 ;
@@ -358,11 +368,12 @@ RawText:
 
 RawLiteral:
 		SIMPLE_WORD
-	|	Role
+	|	ROLE_WORD
 	| 	SPECIAL_CHAR
 	|	UNDERSCORE
 	|	STAR
 	|	'**'
+	|	Role
 	|	L_ANGLE_BRACKET
 	|	R_ANGLE_BRACKET
 	|	PIPE
@@ -429,6 +440,7 @@ COLON_WORD:
 SPECIAL_CHAR:  (
      '!'
     |MINUS
+    |DASH
     |'"'
     |'$'
     |'%'
@@ -483,6 +495,7 @@ terminal BACKTICK :  '`';
 terminal PIPE:  '|';
 terminal COLON: ':';
 terminal MINUS: '-';
+terminal DASH: '--';
 terminal L_ANGLE_BRACKET: '<';
 terminal R_ANGLE_BRACKET: '>';
 terminal HASH : '#';

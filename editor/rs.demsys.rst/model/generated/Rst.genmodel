@@ -32,29 +32,17 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Replacement/text"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//Replacement/name"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//TwoLevelBulletList">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletList/item"/>
-    </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//BulletList">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BulletList/item"/>
-    </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//TwoLevelBulletLine">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletLine/firstItem"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//TwoLevelBulletLine/item"/>
-    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//BulletLine">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BulletLine/text"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//BulletLine/block"/>
     </genClasses>
-    <genClasses ecoreClass="Rst.ecore#//Paragraph">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//Paragraph/line"/>
-    </genClasses>
+    <genClasses ecoreClass="Rst.ecore#//Paragraph"/>
     <genClasses ecoreClass="Rst.ecore#//Directive"/>
     <genClasses ecoreClass="Rst.ecore#//RawIndentBlock">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawIndentBlock/line"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawIndentBlock/block"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//RawBlock">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/options"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/line"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawBlock/block"/>
     </genClasses>

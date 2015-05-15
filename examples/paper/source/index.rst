@@ -17,6 +17,7 @@
 .. |RA| replace:: :math:`R_{A}`
 .. |alpha| replace:: :math:`{\alpha}`
 .. |rho| replace:: :math:`{\rho}`
+.. |WDTM| replace:: :math:`W_{DTM}`
 
 =========================================================================
 A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction
@@ -507,10 +508,13 @@ The parameter :math:`R_{Leaf\ ID}` imposes a constraint on the maximal number of
 
 As it was already described in the Chapter `Classifier`_, for both left and right child IDs, if the leaf ID field has non-zero value, the child is interpreted as a leaf and the child ID field value is ignored. On the other hand, if the leaf ID field value is zero, the child ID field value represents the index in the next DT Memory Array element at which the child description is located.
 
-DT memory array element can be accessed via two ports:
+DT Memory Array element can be accessed via two ports:
 
 - Port A: Read/Write port accessed by the CPU via AXI interface, 32-bit wide
-- Port B: Read port for parallel read-out of the whole node description, :math:`R_{A}\cdot\NAM + R_{threshold} + 2\cdot R_{Leaf\ ID} + 2\cdot R_{Child\ ID}` bit wide.
+- Port B: Read port for parallel read-out of the whole node description, |WDTM| (given by :eq:`w-dt`) bit wide.
+
+.. math:: \WDTM = R_{A}\cdot\NAM + R_{threshold} + 2\cdot R_{Leaf\ ID} + 2\cdot R_{Child\ ID}
+    :label: w-dt
 
 Width of the Port B is determined at design phase of |cop| and corresponds to the instance of the maximal size supported, i.e. the instance with the |NAM| number of attributes. When co-processor is used for solving a problem with less attributes, the DT Memory Array element fields of unused coefficients do not affect the calculation and can be disregarded. The reason for this is that they are multiplied by the instance attributes inside the NTE module, and the unused instance attributes are set to zero in the Training Set Memory.
 
@@ -546,48 +550,56 @@ There is a single status register that is used to inform the user when the fitne
 Required Hardware Resources and Throughput
 ------------------------------------------
 
-Parameters that can be configured at design phase of the |cop| co-processor are given in :num:`Table #tbl-cop-params`. These parameters mainly impose constraints on the maximum size of the DT that can be induced and the maximum size of the training set that can be used. 
+The |cop| co-processor is implemented as an IP core with many customization parameters that can be configured at design phase and are given in :num:`Table #tbl-cop-params`. These parameters mainly impose constraints on the maximum size of the DT that can be induced and the maximum size of the training set that can be used. 
 
-.. tabularcolumns:: c l l 
+.. role:: raw(raw)
+   :format: latex
+
+.. tabularcolumns:: c p{0.4\linewidth} p{0.4\linewidth}
 
 .. _tbl-cop-params:
 
-.. list-table:: Characteristics of the UCI datasets used in the experiments
+.. list-table:: Parameters that can be configured at design phase of the |cop| co-processor
     :header-rows: 1 
+    :widths: 15 30 30
     
     * - Parameter
-      - Description
+      - Influence
       - Constraint
     * - |DM|
       - The number of NTEs in the Classifier
       - The maximum depth of the induced DT 
     * - |NAM|
-      - Influences many components: DT Memory Array Element and NTE adder tree size, etc.
+      - Training Set Memory width, :raw:`\newline` 
+        DT Memory Array Element width, :raw:`\newline` 
+        NTE adder tree size, etc.
       - The maximum number of attributes training set can have
     * - :math:`R_A`
-      - Attribute encoding resolution
-      - The maximum depth of the induced DT 
-    * - :math:`R_C`
-      - Class encoding resolution
-      - The maximum depth of the induced DT 
+      - Training Set Memory width, :raw:`\newline` 
+        DT Memory Array Element width, :raw:`\newline` 
+        NTE adder tree size, etc.
+      - Resolution of induced DT coefficients
     * - :math:`C^M`
-      - Max. training set classes
-      - The maximum depth of the induced DT 
+      - Fitness Calculator memory depth
+      - The maximum number of training set and induced DT classes
+    * - :math:`R_C`
+      - Parameter must be at least :math:`log_{2}(C^M)`
+      - --
     * - |NlM|
-      - Max. number of leaves (
-      - The maximum depth of the induced DT 
+      - Number of Fitness Calculator Elements
+      - The maximum number of leaves of the induced DT 
     * - |NIM|
-      - Max. number of training set instances
-      - The maximum depth of the induced DT 
+      - Training Set Memory depth
+      - The number of training set instances
     * - :math:`N^{M}_{nl}`
-      - Max. number of nodes per level
-      - The maximum depth of the induced DT 
+      - DT Memory Array Element depth
+      - The maximum number of nodes per level of the induced DT 
 
-The number of Classifier pipeline stages equals the maximum supported DT size |DM|. Since each NTE is also pipelined internally, the total number of pipeline stages is given by equation :eq:`np` (i puta |DM|). Let :math:`C^{M}` be maximum supported number of classes **dovrsi recenicu**
+The amount of resources required to implement |cop| co-processor is a function of the parameters given in the :num:`Table #tbl-cop-params` and is given in the :num:`Table #tbl-req-res` for various resource types.
 
-**Ako jos nesto nije ranije korisceno, navedi. Uvedi lepo tabelu, objasni sta pokazuje.**
+.. tabularcolumns:: p{0.2\linewidth} p{0.2\linewidth} p{0.6\linewidth}
 
-.. tabularcolumns:: l l l
+.. _tbl-req-res:
 
 .. list-table:: Required hardware resources for the |cop| architecture implementation
     :header-rows: 1 
@@ -595,60 +607,71 @@ The number of Classifier pipeline stages equals the maximum supported DT size |D
     * - Resource Type
       - Module
       - Quantity
-    * - RAMs (total number of bits)
+    * - RAMs
       - Training Set Memory
-      - :math:`N^{M}_{I}\cdot (R_{A}*\NAM + R_{C})`
-    * - 
+      - :math:`\NIM\cdot (R_A*\NAM + R_C)`
+    * - (total number of bits)
       - DT Memory Array
-      - :math:`R_{A}*\NAM + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID}`
+      - |WDTM|
     * - 
       - Fitness Calculator
       - :math:`\NlM\cdot C^{M}\cdot \left \lceil log_{2}(N^{M}_{I})  \right \rceil`
     * - 
-      - Classifier
-      - :math:`N_{P}\cdot (R_{A}*\NA + R_{C} + R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID})`
+      - NTE
+      - :math:`N_P\cdot (R_{A}\cdot\NA + R_{C}) +` :raw:`\newline`
+        :math:`N_P\cdot (R_{threshold} + 2*R_{Leaf\ ID} + 2*R_{Child\ ID})`
     * - Multipliers
-      - Classifier
+      - NTE
       - :math:`\DM\cdot \NA`
     * - Adders
-      - Classifier
+      - NTE
       - :math:`\DM \left \lceil log_{2}(\NA)  \right \rceil`
     * - Incrementers
       - Fitness Calculator
       - :math:`\NlM`
 
-Second, the number of clock cycles required to determine the DT accuracy will be discussed. The Classifier has a throughput of one instance per clock cycle, however there is an initial latency equal to the length of the pipeline :math:`N_{P}`. The fitness calculator needs extra time after the classification has finished in order to determine the dominant class which is equal to the total number of classes in the training set :math:`N_{C}`, plus the time to sum all dominant class hits, which is equal to the number of active leaves :math:`N_{l}`. This sums up to **objasni da time required to calculate fitness value is given by**:
+Second, the number of clock cycles required to determine the DT accuracy will be discussed. The Classifier has a throughput of one instance per clock cycle, hence all instances are classified in :math:`N_I` cycles. However, there is an initial latency equal to the length of the pipeline :math:`N_{P}`. The fitness calculator needs extra time after the classification has finished in order to determine the dominant class which is equal to the total number of classes in the training set :math:`N_{C}`, plus the time to sum all dominant class hits, which is equal to the number of active leaves :math:`N_{l}`. Finally, the time required to calculate fitness value is given by:
 
 .. math:: fitness\_evaluation\_time = N_{I} + N_{P} + N_{C} + N_{l},
 
-and is thus dependent on the training set.
+and is thus dependent on the training set size.
 
 **Fali prica o skalabilnosti predlozenog resenja... Kako resavamo problem ako nam je trening set veci od kapaciteta Training Set memorije? Takodje, fali prica o konfigurabilnosti. Sta se sve moze konfigurisati, sta "at compile time" a sta "at run time".**
 
 Software for |cop| assisted DT induction
 ========================================
 
-With |cop| performing fitness evaluation task, remaining functionality of the |algo| algorithm (:num:`Figure #fig-algorithm-pca`) is implemented in software. Furthermore, software needs to implement procedures for interfacing the co-processor as well. The pseudo-code for software used in the co-design is given **Nedovrsena recenica. Algoritam treba da bude oznacen (Figure xxx...)**
+With |cop| performing fitness evaluation task, remaining functionality of the |algo| algorithm (:num:`Algorithm #fig-algorithm-pca`) is implemented in software. Furthermore, software needs to implement procedures for interfacing the co-processor as well. The pseudo-code for software used in the co-design is given by :num:`Algorithm #fig-co-design-sw-pca`.
 
-.. include:: co_design_sw_pca.rst
+.. _fig-co-design-sw-pca:
 
-All functions whose name starts with "hw" are the interface functions for the co-processor. **Ipak detaljnije opisati korake u algoritmu**
+.. literalinclude:: code/co_design_sw.py
+    :caption: The pseudo-code of the |algo| algorithm using |cop| co-processor 
+
+The only difference to the pure software solution of the main *efti()* function, is that the training set needs to be transfered to the |cop| co-processor, which is performed by the *hw_load_training_set()* function. Since |cop|'s memory space is mapped to the main CPU's memory space via AXI bus, this function simply copies the instances to the memory region corresponding to the Training Set Memory of the |cop|.
+
+The *fitness_eval()* function performs the following:
+
+- uploads the new (mutated) DT description to the |cop|, by changing only the mutated parts in the memory that is mapped to the DT Memory Array of the |cop| via *hw_load_dt_diff()* function,
+- initiates the fitness evaluation by writing to the Operation Control register of the |cop| via *hw_start_fitness_eval()* function,
+- waits for the fitness evaluation results to become available, by polling the |cop| status register via *hw_finished_fitness_eval()* function,
+- fetches the number of hits from the |cop| status register via *hw_get_hits()* and calculates the fitness in the same manner as in :num:`Algorithm #fig-fitness-eval-pca`. 
+
+The hardware interface function pseudo-codes were omitted for brevity.
 
 Experiments
 ===========
 
 In this section the results of the experiments designed to estimate DT induction speedup of the |algo| hardware implementation over its software implementation are given.
 
-**Mozda je ovo mesto da se prica o mogucim stvarima koje korisnik moze podesavati... Mozda ovde treba reci da je EFTIP projektovan kao IP core koji se lako moze kastomizovati, navesti sta se moze preko generica podesiti...**
-
 Required Hardware Resources and Scalability
 -------------------------------------------
 
-The parameters of the |cop| architecture have been set to support all training sets from Table 3. 
+The parameters of the |cop| architecture, whose description is given in :num:`Table #tbl-cop-params`, have been set for the experiments to support all training sets from :num:`Table #tbl-uci-datasets`. The values of the parameters are given in :num:`Table #tbl-exp-params`.
 
-**Tabela ispod su konkretna podesavanja za nase instance koje cemo koristiti**
+.. tabularcolumns:: p{0.5\linewidth} p{0.07\linewidth} 
 
-.. tabularcolumns:: c c 
+.. _tbl-exp-params:
 
 .. list-table:: Characteristics of the UCI datasets used in the experiments
     :header-rows: 1 
@@ -674,9 +697,9 @@ The parameters of the |cop| architecture have been set to support all training s
 
 The |cop| has been implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in Table 4. The maximum operating frequency of 133 MHz of system clock frequency for the implemented |cop| architecture was attained.
 
-**Mozda udariti procente utilization-a**
+.. tabularcolumns:: l l l l
 
-.. tabularcolumns:: c c c c
+.. _tbl-utilization:
 
 .. list-table:: FPGA resources required to implement |cop| architecture for DT induction with selected UCI datasets
     :header-rows: 1 
@@ -686,9 +709,21 @@ The |cop| has been implemented using the Xilinx Vivado Design Suite 2014.4 softw
       - BRAMs
       - DSPs
     * - XC7Z020
-      - 6587
-      - 65
-      - 192
+      - 6587 (55%)
+      - 65 (47%)
+      - 192 (87%)
+    * - XC7Z100
+      - 6556 (9%)
+      - 65 (9%)
+      - 192 (10%)
+    * - XC7K325
+      - 6750 (13%)
+      - 65 (15%)
+      - 192 (23%)
+    * - XC7VX690
+      - 6708 (6%)
+      - 65 (4%)
+      - 192 (5%)
 
 Estimation of Induction Speed-up
 --------------------------------
@@ -700,14 +735,12 @@ The software was implemented in C language and run on two platforms:
 
 Care was taken in writing the software and many optimization techniques were employed as described in chapter `Profiling results`_.
 
-For each of datasets from Table 3, an experiment consisting of **five 10-fold - ovo nije tacno, pustiti jos jedno sve 5x5** cross-validations has been performed. Using test set, average instance classification time has been measured for both software and hardware implementations. Software timing was extracted differently for two implementations
+For each of datasets from :num:`Table #tbl-uci-datasets`, an experiment consisting of five 5-fold cross-validations has been performed. Using test set, average instance classification time has been measured for both software and hardware implementations. Software timing was obtained by different means for two implementations:
 
 - For PC implementation, the <time.h> C library was used and timing was output to the console
 - For ARM implementation, TTC hardware timer was used and timing was output via UART
 
-All test sets from Table 3 were compiled together with the source code and were readily available in the memory, thus there was no loading overhead on the DT induction timings **Ovo vazi i za cisto SW verziju i za SW/HW verziju? Da pokazemo da je bilo fer.** As for the hardware implementation test sets needed to be loaded from the CPU memory via AXI bus, so this operation was excluded from timing analysis.
-
-Average classification speed-up gain of hardware implementation over the software implementation has been estimated based on the measured instance classification times for every dataset from Table 3. This procedure has been repeated for all ten types of ensemble classifiers and the results are presented in Table 5.
+All test sets from :num:`Table #tbl-uci-datasets` were compiled together with the source code and were readily available in the memory, thus there was no loading overhead on the DT induction timings for both pure software experiments. On the other hand, in the HW-SW co-design experiment, test sets needed to be loaded from the CPU memory via AXI bus (via *hw_load_training_set()*), so this operation was excluded from timing analysis in order to make a fair comparison.
 
 **Treba dodati interval poverenja (u kom intervalu se krecu vrednosti unutar skupa svih testova)**
 
