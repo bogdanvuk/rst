@@ -32,7 +32,7 @@ t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
 inst_mem = comp("Training Set Memory").right(cu, 1.5)()
 bus([cu.e(0.5), inst_mem.w(0.5)], style='<->')()
 
-fit_calc = comp("Fitness Calculator").right(inst_mem)()
+fit_calc = comp("Accuracy Calculator").right(inst_mem)()
 bus([fit_calc.n(0.5), fit_calc.n(0.5) - (0,1), cu.n(0.5)], style='->', def_routing='-|')()
 
 t_nte = block(size=(4, 2), node_sep=(3,1), text_font='footnotesize')

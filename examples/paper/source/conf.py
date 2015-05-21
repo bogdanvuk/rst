@@ -236,6 +236,8 @@ latex_preamble = ur'''
 \newcommand{\Nl}{N_{l}}
 \newcommand{\NlM}{N^{M}_{l}}
 
+\renewcommand{\arraystretch}{1.2}
+
 \lhead{}
 \chead{}
 \rhead{\fontsize{8pt}{12pt}\selectfont A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction \thepage}
@@ -264,7 +266,7 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. The algorithm for full decision tree induction using evolutionary approach (EFTI) has been implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. A novel algorithm for full decision tree induction using evolutionary approach (EFTI) has been \underline{objasniti da je ovaj algoritam akceleriran - HW/SW uz pomoc EFTIP-a. Uvezati sa prethodnom i narednom recenicom.} implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
     
     {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}

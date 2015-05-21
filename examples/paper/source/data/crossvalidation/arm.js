@@ -3432,6 +3432,22 @@
                 }
             }
         },
+	"wfr": {
+            "0": {
+                "0": {
+                    "seed": 28.0,
+                    "leaves": 7.0,
+                    "test_cnt": 1000.0,
+                    "fitness": 0.841627,
+                    "timing": 1406.7,
+                    "train_cnt": 4000.0,
+                    "run": 0.0,
+                    "fitness_calc_cycle_timing": 0.000141426,
+                    "accuracy": 0.84,
+                    "nonleaves": 6.0
+                }
+            }
+        },
         "w21": {
             "0": {
                 "3": {
