@@ -45,7 +45,7 @@ for f in files:
 formatter = FuncFormatter(to_percent)
 
 fig = plt.figure(figsize=(16,4), tight_layout=True)
-plt.plot(range(len(datasets)), percents)
+plt.scatter(range(len(datasets)), percents, s=50)
 plt.xticks(range(len(datasets)), datasets)
 plt.margins(0.03)
 plt.gca().yaxis.set_major_formatter(formatter)

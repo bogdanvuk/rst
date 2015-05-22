@@ -226,6 +226,11 @@ latex_preamble = ur'''
 \usepackage{booktabs}
 
 \usepackage{fancyhdr}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
 \pagestyle{fancy}
 
 \newcommand{\NA}{N_{A}}
@@ -266,7 +271,7 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. A novel algorithm for full decision tree induction using evolutionary approach (EFTI) has been \underline{objasniti da je ovaj algoritam akceleriran - HW/SW uz pomoc EFTIP-a. Uvezati sa prethodnom i narednom recenicom.} implemented in software to use EFTIP implemented in FPGA as a co-processor. Comparison of hardware-software EFTI implementation with plain software implementation suggests that proposed hardware-software architecture offers substantial speed-ups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. It is shown how EFTIP co-processor can significantly improve execution timing of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of HW/SW EFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
     
     {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
