@@ -53,26 +53,30 @@ for d,res in iter(sorted(table.items())):
 
 fs = 20
 opacity = 0.4
-bar_width = 0.5
+bar_width = 0.2
 index = np.arange(len(datasets))
 
-fig, (ax0, ax1) = plt.subplots(figsize=(16,6), nrows=2, sharex=True, tight_layout=True)
+fig, ax = plt.subplots(figsize=(16,6), tight_layout=True)
 
-ax0.bar(index - 0.5*bar_width, spdup_arm, bar_width,
+rect_hw = plt.bar(index - 1.5*bar_width, exec_hw, bar_width,
                  alpha=opacity,
                  color='b',
                  label='HW/SW')
-ax0.yaxis.set_major_locator(MultipleLocator(20))
-ax0.yaxis.grid(True)
-ax0.set_title('a) HW/SW speedup over SW-ARM implementation', fontsize=fs, loc='left')
-ax1.bar(index - 0.5*bar_width, spdup_pc, bar_width,
+
+rect_hw = plt.bar(index-0.5*bar_width, exec_arm, bar_width,
                  alpha=opacity,
                  color='r',
                  label='HW/SW')
-ax1.yaxis.grid(True)
-ax1.set_title('b) HW/SW speedup over SW-PC implementation', fontsize=fs, loc='left')
+
+rect_hw = plt.bar(index+0.5*bar_width, exec_pc, bar_width,
+                 alpha=opacity,
+                 color='g',
+                 label='HW/SW')
+
+
+ax.yaxis.set_major_locator(MultipleLocator(250))
 plt.xticks(range(len(datasets)), datasets)
 plt.margins(0.03)
 plt.tick_params(axis='both', which='major', labelsize=18)
-
+savefig("test.png")
 plt.show()

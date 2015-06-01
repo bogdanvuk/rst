@@ -38,7 +38,6 @@ from sphinxpp import latex_mods
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
-          'matplotlib.sphinxext.only_directives',
           'sphinxpp.plot_directive',
           'sphinx.ext.autodoc',
           'sphinx.ext.doctest']

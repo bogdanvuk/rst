@@ -30,11 +30,11 @@ As a branch of artificial intelligence, machine learning :cite:`flach2012machine
 
 In the open literature, a range of machine learning systems have been introduced, including decision trees (DTs) :cite:`rokach2007data,rokach2005top`, support vector machines (SVMs) :cite:`abe2005support` and artificial neural networks (ANNs) :cite:`haykin2009neural`. Data mining is a field where machine learning systems have been widely used (see e,g. :cite:`witten2005data`), among which DTs, ANNs and SVMs are most popular (e.g. :cite:`rokach2007data,wu2009top,wang2006data`).
 
-Machine learning systems can be constructed using supervised learning, unsupervised learning or any combination of the two techniques **[ref]**. Supervised learning implies using the desired responses to various input data to construct the system, while unsupervised learning implies constructing the system based on input data only. When the supervised learning is used, **the lifetime of a machine learning system** usually comprises two phases: training (induction or learning) and deployment. During the training phase a training set is used to build the system. Training set comprises input data and the desired system responses to that data. Once constructed, the system is ready for deployment, where new, previously unseen data will arrive and the system must provide the responses using the knowledge extracted from the training set.
+Machine learning systems can be constructed using supervised learning, unsupervised learning or any combination of the two techniques **[ref]**.  Supervised learning implies using the desired responses to various input data to construct the system, while unsupervised learning implies constructing the system based on input data only. When the supervised learning is used, the lifetime of a machine learning system usually comprises two phases: training (induction or learning) and deployment. During the training phase a training set is used to build the system. Training set comprises input data and the desired system responses to that data. Once constructed, the system is ready for deployment, where new, previously unseen data will arrive and the system must provide the responses using the knowledge extracted from the training set.
 
-Machine learning systems can perform various tasks, such as classification, regression, clustering, etc. Classification implies categorizing objects given the list of their attributes. Widely used to represent classification models is a DT classifier, which can be depicted in a flowchart-like tree structure. Due to their comprehensible nature that resembles the human reasoning, DTs have been widely used to represent classification models. Amongst other learning algorithms DTs have several advantages, such as robustness to noise, ability to deal with redundant or missing attributes, ability to handle both numerical and categorical data and **facility of understanding the computation process.**
+Machine learning systems can perform various tasks, such as classification, regression, clustering, etc. Classification implies categorizing objects given the list of their attributes. Widely used to represent classification models is a DT classifier, which can be depicted in a flowchart-like tree structure. Due to their comprehensible nature that resembles the human reasoning, DTs have been widely used to represent classification models. Amongst other machine learning algorithms DTs have several advantages, such as robustness to noise, ability to deal with redundant or missing attributes, ability to handle both numerical and categorical data and facility of understanding the computation process.
 
-This paper focuses on oblique binary DTs. The leaves of the DT represent the classes of the problem. The non-leaves (also called nodes in the paper) contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - **A**. The tests performed by the oblique DT in each node are of the following form:
+This paper focuses on oblique binary classification DTs. The leaves of the DT represent the classes of the problem. The non-leaves (also called nodes in the paper) contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - **A**. The tests performed by the oblique DT in each node are of the following form:
 
 .. math:: \mathbf{a}\cdot \mathbf{A} = \sum_{i=1}^{n}a_{i}\cdot A_{i} < threshold, 
     :label: oblique_test
@@ -49,11 +49,10 @@ where **a** represents the coefficient vector and *threshold* models the afine p
 
 Each instance starts from the DT root and traverses the DT in order to be assigned a class. If the test condition given by equation :eq:`oblique_test` is **true** in certain node, the DT traversal is continued via left child, otherwise it is continued via right child. Depending on the leaf in which the instance finishes after traversal, it is classified into class assigned to that leaf. One possible traversal path is shown in :num:`Figure #fig-oblique-dt` in red. After the traversal, the instance will be classified into the class :math:`C_{4}`.
 
-There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem **[ref]**, therefore most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA). :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EA for DT induction given in :cite:`RCB12`. Computationally least demanding approach for DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results **[ref]** are obtained by the inducers that work on full DT, with cost of higher computational complexity.
+There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem :cite:`struharik2014inducing`, therefore most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA). :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EA for DT induction given in :cite:`RCB12`. Computationally least demanding approach for DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results, especially if DT size is considered, are obtained by the inducers that work in full DT, with cost of higher computational complexity :cite:`struharik2014inducing`.
 
-The training phase is more demanding of the two and can last for hours or even days **[ref]** for practical problems. By accelerating this task, machine learning systems could be trained faster, allowing for shorter design cycles. This might also allow machine learning systems to be rebuilt in real-time for applications that require such rapid adapting **[ref]**.
-
-**da li staviti odakle je uzeta slika. Da li ukloniti? Da li je bitno za dalji rad?**
+DT induction phase can be very computationally demanding and can last for hours or even days **[ref]** for practical problems.This is certainly true for full DT inference algorithms. By accelerating this task, machine learning systems could be trained faster allowing for shorter design cycles, or could process large amount of data, which is of particular interest if DTs are used in the data mining applications :cite:`witten2005data`. This might also allow DT learning systems to be rebuilt
+in real-time for applications that require such rapid adapting, such as machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
 
 .. _fig-evolutionary-dt-algorithm-tree:
 
@@ -79,20 +78,21 @@ The training phase is more demanding of the two and can last for hours or even d
         "Components" -> "Other"
     }
 
-**Odakle algoritam? Koju referncu na njega? Da li slati na konferenciju**
+In order to accelerate DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating selected machine learning systems.
 
 The proposed co-processor is used for acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
 
-Hardware acceleration of machine learning algorithms receives significant attention in scientific community. Wide range of solutions have been suggested in the open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs (**where?**) and ANNs (**where?**). However in the field of hardware acceleration of DTs majority of papers focus on acceleration of already formed DTs, i.e. the hardware acceleration of DT induction is **scarcely covered**. The only work on the topic of hardware acceleration of DT induction using EAs that the authors are currently aware of is :cite:`struharik2009evolving`. However, this work focuses on greedy top-down approach where EA is used to calculate optimal coefficient vector one node at a time. Moreover, to our knowledge there are no suggested solutions based on HW/SW co-design.
+Hardware acceleration of machine learning algorithms receives significant attention in scientific community. Wide range of solutions have been suggested in the open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for acceleration of both learning and deployment phases have been proposed. Architectures for hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while architectures for acceleration of previously created SMVs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. Research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However in the field of hardware acceleration of DTs majority of papers focus on acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction is scarcely covered. Authors are currently aware of only two papers on the topic of hardware acceleration of DT induction using :cite:`struharik2009evolving,chrysos2013hc`. However, these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` incremental DT induction algorithm, where EA is used to calculate optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` authors use a HW/SW approach to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm. Authors are not aware of any previous work on hardware acceleration of full DT inductions algorithms.
 
-The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based algorithms do. As a result, less memory is needed for individual storage and induction time is shorter **[kao na primer neka referenca iz surveya]**. Nevertheless, in our experiments it proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms.
+This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA **[nasa referenca]**. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the 
+authors are aware, this is the first paper concerning with the hardware acceleration of some full DT induction algorithm.
 
-Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| algorithm should benefit from hardware acceleration. It was decided to design |cop| co-processor to accelerate the most computationally intensive part of the algorithm. Advantage of the HW/SW co-design approach is that the proposed co-processor can be used with wide variety of EA-based DT induction algorithms, besides the one described here. **[referenca ka nekom survey-u, ili ovog sto imam ili iz njegovih referenci]**
+The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do. As a result, less memory is needed for individual storage and induction time is shorter **[kao na primer neka referenca iz surveya]**. Nevertheless, it proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT **[nasa referenca]**. Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| algorithm should benefit from hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes to design |cop| (Evolutionary Full Tree Induction co-Processor) co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase, so |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with wide variety of other EA-based DT induction algorithms **[referenca ka nekom survey-u, ili ovog sto imam ili iz njegovih referenci]**, to accelerate the training set classification step that is always present during the fitness evaluation phase.
 
 |algo| algorithm
 ================
 
-This section describes the |algo| algorithm for full DT induction based on EA. It requires only one individual for the induction, which presents the best DT evolved up to the current iteration. The DT is induced from the training set. Since the algorithm is performing supervised learning, the training set consists of the problem instances which have the known class membership. |algo| algorithm starts from the randomly generated one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed, i.e. mutated, and let to perform classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed this way, it will be used to classify new instances of the problem.
+This section describes the |algo| algorithm for full DT induction based on EA. For the induction, this algorithm requires only one individual which represents the best DT evolved up to the current iteration. The DT is induced from the training set. Since the algorithm performs supervised learning, the training set consists of the problem instances which have the known class membership. |algo| algorithm starts from the randomly generated one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed, i.e. mutated, and let to perform classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed this way, it will be used to classify new instances of the problem.
 
 The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity.
 
@@ -101,15 +101,15 @@ The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the 
 .. literalinclude:: code/algorithm.py
     :caption: Overview of the |algo| algorithm
 
-The initial DT contains only one non-leaf node (root) and two leaves. The  root test coefficients are obtained by selecting two instances with different class from the training set at random, and adjusting the coefficients in such a way that these two instances take different paths after the root test. This is performed by the *initialize()* function.
+The initial DT contains only one non-leaf node (root) and two leaves. The  root test coefficients are obtained by selecting two instances with different classes from the training set at random, and adjusting the coefficients in such a way that these two instances take different paths after the root test. This is performed by the *initialize()* function.
 
 There are three main tasks performed by the |algo| algorithm:
 
 - **DT Mutation** - implemented by *mutate()* function
 - **Fitness Evaluation** - implemented by *fitness_eval()* function
-- **Individual Selection** - implemented **probati objasniti sta se krije iza ovog koraka u par recenica** by the last **if** statement. Performs comparison of the fitness of the currently best individual (*dt*) with the fitness of the newly mutated individual (*dt_mut*) and takes *dt_mut* as new current best if it has better fitness.
+- **Individual Selection** - given by the last **if** statement of the :num:`Algorithm #fig-algorithm-pca`, which represents the elemental way of selecting individuals by performing the comparison of the fitness of the currently best individual (*dt*) with the fitness of the newly mutated individual (*dt_mut*) and takes *dt_mut* as new current best if it has better fitness. |algo| algorithm implements a more complex procedure for individual selection which allows, with some probability, for an individual with worse fitness to be selected. However, this was omitted for the sake of brevity. 
 
-Next, the details on DT mutation and fitness evaluation tasks will be provided. EFTI performs two types of mutations on DT individual:
+Next, the details on DT mutation and fitness evaluation tasks will be provided. |algo| performs two types of mutations on DT individual:
 
 - Node test coefficients mutation
 - DT topology mutation
@@ -131,14 +131,14 @@ The fitness evaluation task performs the following:
 - Finding the dominant class for each leaf - implemented by the second **for** loop
 - Calculating the fitness as a weighted sum of two values: DT accuracy and DT oversize (calculated as the relative difference between the number of leaves in DT and total number of classes in training set) - implemented by the last four statements.
 
-First, the class distribution is determined by letting all instances from the training set traverse the DT, i.e. by calling the *find_dt_leaf_for_inst()* function whose pseudo-code is given in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function uses *evaluate_node_test()* function in each iteration to determine the traversal path and returns the ID of a leaf node into which the instance finished. The *evaluate_node_test()* function performs the node test evaluation given by equation :eq:`oblique_test`. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt` where one possible path is given by the red line.
+First, the class distribution is determined by letting all instances from the training set traverse the DT, i.e. by calling the *find_dt_leaf_for_inst()* function whose pseudo-code is given in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function uses *evaluate_node_test()* function in each iteration to determine the traversal path and returns the ID of a leaf node in which the instance finished the traversal. The *evaluate_node_test()* function performs the node test evaluation given by equation :eq:`oblique_test`. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt` where one possible path is given by the red line.
 
 .. _fig-find-dt-leaf-for-inst-pca:
 
 .. literalinclude:: code/find_dt_leaf_for_inst.py
     :caption: The pseudo-code of the procedure for determining the end-leaf for an instance.
 
-Next step in the fitness evaluation process (:num:`Algorithm #fig-fitness-eval-pca`) is to calculate the class distribution matrix. The classes of all the instances from the training set are known and read for each instance into the *instance_class* variable (from the *fitness_eval()* function). Based on the leaf nodes' IDs returned by *find_dt_leaf_for_inst()* and the *instance_class* variable value, the distribution matrix is updated. The :math:`d_{i,j}` element of the distribution matrix contains the number of instances of class *j* that finished into the leaf node with ID *i* after DT traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
+Next step in the fitness evaluation process (:num:`Algorithm #fig-fitness-eval-pca`) is to calculate the class distribution matrix. The classes of all the instances from the training set are known and read for each instance into the *instance_class* variable (from the *fitness_eval()* function). Based on the leaf nodes' IDs returned by *find_dt_leaf_for_inst()* and the *instance_class* variable value, the distribution matrix is updated. The :math:`d_{i,j}` element of the distribution matrix contains the number of instances of class *j* that finished in the leaf node with ID *i* after DT traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
 
 Second, the next loop of the *fitness_eval()* finds the dominant class for each leaf node. Dominant class for a leaf node is the class having the largest percentage of instances finishing the traversal in that leaf node. Formally, the dominant class *k* of the leaf node with ID *i* is:
 
@@ -147,7 +147,7 @@ Second, the next loop of the *fitness_eval()* finds the dominant class for each 
 
 If we were to do a classification run with the current DT individual over the training set, the maximum accuracy would be attained if all leaf nodes were assigned their corresponding dominant classes. Thus, each instance which finishes in a certain leaf node, that corresponds to the node's dominant class is added to the number of classification hits (the *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca`), otherwise it is qualified as a miss.
 
-Fitness is calculated as a weighted sum of two values: DT accuracy and DT oversize. DT accuracy is calculated as the percentage of classification hits. DT oversize is calculated as the relative difference between the number of leaves in DT (obtained via *leaves_cnt()* function) and total number of classes in training set (obtained via *class_cnt()* function). In order to be able to classify correctly all training set instances, after the induction, DT needs to have at least one leaf for each class which occurs in the training set. Therefore, DT starts to suffer penalties to the fitness only when the number of DT leaves exceeds the total number of classes in the training set.
+Fitness is calculated as a weighted sum of two values: DT accuracy and DT oversize. DT accuracy is calculated as the percentage of classification hits. DT oversize is calculated as the relative difference between the number of leaves in DT (obtained via *leaves_cnt()* function) and total number of classes in training set (obtained via *class_cnt()* function). In order to be able to classify correctly all training set instances, after the induction, DT needs to have at least one leaf for each class occuring in the training set. Therefore, DT starts to suffer penalties to the fitness only when the number of DT leaves exceeds the total number of classes in the training set.
 
 Complexity of the |algo| algorithm
 ----------------------------------
@@ -225,7 +225,7 @@ Profiling results
 To confirm the results obtained by the computational complexity analysis, software profiling was performed on the |algo| algorithm's C implementation. Software implementation was developed using many optimization techniques:
 
 - arithmetic operation on 64-bit operands only (optimized for 64-bit CPU), 
-- loop unfolding for node test evaluation loop :num:`Figure #fig-evaluate-node-test-pca`, 
+- loop unfolding for node test evaluation loop, 
 - maximum compiler optimization settings, etc.
 
 To perform the experiments 21 datasets, presented in :num:`Table #tbl-uci-datasets`, were selected from the UCI benchmark datasets database :cite:`newman1998uci`. UCI database is commonly used in the machine learning community to estimate and compare performance of different machine learning algorithms.
@@ -359,6 +359,7 @@ Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compile
 
 The results of one example profiling experiment on the *veh* dataset are shown in :num:`Figure #fig-profiling`. The results are given in tabular fashion with each row providing the profiling data for one function. Following data are given for each function:
 
+- **Name** - The name of the function
 - **Time** - Total amount of time spent in the function  
 - **Calls** - Total number of calls to the function
 - **% Time** - Percentage of time spent in the function relative to the total execution time.
@@ -369,7 +370,9 @@ The results of one example profiling experiment on the *veh* dataset are shown i
     
     Profiling results of the |algo| algorithm C implementation.
 
-The |algo| algorithm has obvious computational **objasniti u dodatnoj recenici kako se to vidi, sta treba sabrati** bottleneck in the fitness evaluation task, which takes 99.4% of computational time on average. So the fitness evaluation is an undoubtful candidate for hardware acceleration. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Further advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
+The execution times shown for the functions represent only the self time, i.e. the execution times of its subfunctions are subtracted from the total execution time. The functions from the top of the table in :num:`Figure #fig-profiling` (which was sorted by the execution times), all belong to the fitness evaluation task: *evaluate node test()*, *find_dt_leaf_for_inst()*, *find_node_distribution()* and *fitness_eval()*. By summing the execution times of these four functions we obtain that the fitness evaluation tasks takes about 99.84% of total time for this particular test. 
+
+Hence, the |algo| algorithm has obvious computational bottleneck in the fitness evaluation task, which takes 99.4% of computational time on average, which makes it an undoubtful candidate for hardware acceleration. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Further advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
 
 Co-processor for DT induction - |cop|
 =====================================
@@ -442,7 +445,7 @@ By using only two input multipliers and adders, the computation is parallelized 
 .. math:: N_{P}=\left \lceil log_{2}(\NAM) + 2 \right \rceil
 	:label: np
 
-The Instance Queue and Node Queue delay lines are necessary due to the pipelining. Instance Queue delays the output of the instance to the next NTE module until its corresponding node test calculation is completed, i.e. all the NTE internal pipeline stages are **passed** and the *Leaf ID Output* and *Child ID Output* values are determined. Node Queue is necessary since the *Leaf ID Input* and *Child ID Input* are received at the first pipeline stage, but are not needed until the last pipeline stage. Additionally, in order not to use separate memory for storing the information about the node's children, it is kept together with the node test coefficients in DT Memory and read at first pipeline stage. Hence, Node Queue is also used to memorize information about node's children together with the *Leaf ID Input* and *Child ID Input* values and make it available at the last stage of the pipeline, where it is needed for making a traversal choice. 
+The Instance Queue and Node Queue delay lines are necessary due to the pipelining. Instance Queue delays the output of the instance to the next NTE module until its corresponding node test calculation is completed, i.e. all the NTE internal pipeline stages are executed and the *Leaf ID Output* and *Child ID Output* values are determined. Node Queue is necessary since the *Leaf ID Input* and *Child ID Input* are received at the first pipeline stage, but are not needed until the last pipeline stage. Additionally, in order not to use separate memory for storing the information about the node's children, it is kept together with the node test coefficients in DT Memory and read at first pipeline stage. Hence, Node Queue is also used to memorize information about node's children together with the *Leaf ID Input* and *Child ID Input* values and make it available at the last stage of the pipeline, where it is needed for making a traversal choice. 
 
 At the last pipeline stage, the result of the calculation is compared with the node test *threshold* to determine if the traversal will continue to the left or right child. Along with node test coefficients |a| in the DT Memory, the following data about child nodes is stored: *Child Left ID*, *Child Right ID*, *Leaf Left ID* and *Leaf Right ID*. If the left child is a non-leaf node, the *Child Left ID* contains the ID of the child node in the next DT level, i.e. index of the child node in the next node's DT Memory sub-module, and the *Leaf Left ID*  equals 0. On the other hand, if left child is a leaf node, *Leaf Left ID* has non-zero value representing the leaf node ID, while *Child Left ID* is disregarded. The right child IDs are interpreted analogously. Depending on the decision to continue with the traversal to the left or to the right, *Child Left ID* or *Child Right ID* is output to the *Child ID Output* and *Leaf Left ID* or *Leaf Right ID* is output to the *Leaf ID Output* for the next NTE module. 
 
@@ -466,6 +469,7 @@ Width of the Port B is determined at design phase of |cop| and corresponds to th
 .. _fig-inst-mem-org:
 
 .. figure:: images/inst_mem.py
+    :width: 80% 
     
     Training set memory organization
 
@@ -518,6 +522,7 @@ This module calculates the accuracy of the DT via *distribution* matrix as descr
 .. _fig-fit-calc-bd:
 
 .. figure:: images/fitness_calc_bd.py
+    :width: 85%
     
     Accuracy Calculator block diagram
 
@@ -536,7 +541,7 @@ Control Unit provides AXI4 interface access to the configuration and Classificat
 
 - **Operation Control** - allows user to start, stop and reset the |cop| co-processor.
 - **Instance Number** - allows user to tell |cop| the number of instances in the training set, that should be processed during the classification run.
-- **Classification Performance Register** - informs the user when the accuracy evaluation task is done and allows the user to read the calculated number of classification hits. **da li da pomenem valid bit** 
+- **Classification Performance Register** - informs the user when the accuracy evaluation task is done and allows the user to read the calculated number of classification hits.
 
 Required Hardware Resources and Performance
 -------------------------------------------
@@ -627,10 +632,6 @@ Second, the number of clock cycles required to determine the DT accuracy will be
 
 and is thus dependent on the training set size.
 
-.. todo::
-    
-    **Fali prica o skalabilnosti predlozenog resenja... Kako resavamo problem ako nam je trening set veci od kapaciteta Training Set memorije?**
-
 Software for |cop| assisted DT induction
 ========================================
 
@@ -718,7 +719,7 @@ The |cop| co-processor has been implemented using the Xilinx Vivado Design Suite
       - 65 (4%)
       - 192 (5%)
 
-**Given in brackets along with each resource utilization number is a percentage of used resources from the total resources available on the corresponding FPGA devices.** :num:`Table #tbl-utilization` shows that implemented |cop| co-processor fits even into the entry level XC7Z020 Xilinx FPGA device of the Zynq series, and requires even smaller percentage of resources on entry- to mid-level Kintex7 and Virtex7 Xilinx FPGA devices (XC7K325 and XC7VX690).
+Given in brackets along with each resource utilization number is a percentage of used resources from the total resources available on the corresponding FPGA devices. :num:`Table #tbl-utilization` shows that implemented |cop| co-processor fits even into the entry level XC7Z020 Xilinx FPGA device of the Zynq series, and requires even smaller percentage of resources on entry- to mid-level Kintex7 and Virtex7 Xilinx FPGA devices (XC7K325 and XC7VX690).
 
 Estimation of Induction Speedup
 -------------------------------
@@ -727,7 +728,7 @@ Three implementations of |algo| algorithm have been developed for experiments, a
 
 - **SW-PC**: Pure software implementation for PC
 - **SW-ARM**: Pure software implementation for ARM Cortex-A9 processor
-- **HW/SW**: **time critical section je implementiran u hardveru () a remaining u softveru (malo jasnije napisati)** Part of the algorithm shown in :num:`Algorithm #fig-co-design-sw-pca` was implemented for ARM Cortex-A9 processor to use the |cop| co-processor implemented in FPGA
+- **HW/SW**: HW/SW co-design solution, where |cop| co-processor implemented in FPGA was used for the time critical fitness evaluation task. Remaining functionality of the |algo| algorithm (shown in :num:`Algorithm #fig-co-design-sw-pca`) was left in software and implemented for ARM Cortex-A9 processor.
 
 For the PC implementation, AMD Phenom(tm) II X4 965 (3.4 GHz) platform was used and the software was built using GCC 4.8.2 compiler. For the SW-ARM and HW/SW implementations, ARM Cortex-A9 667MHz (Xilinx XC7Z020-1CLG484C Zynq-7000) platform has been used. The software was built using Sourcery CodeBench Lite ARM EABI 4.8.3 compiler (from within Xilinx SDK 2014.4) and the |cop| co-processor was built using Xilinx Vivado Design Suite 2014.4. 
 
@@ -750,7 +751,7 @@ The results of the experiments are presented in :num:`Table #tbl-results`. For e
     :header-rows: 1
     :file: scripts/results.csv
 
-:num:`Table #tbl-results` indicates that the average speedup of the HW/SW implementation is 41.9 times over the SW-ARM and 3.2 times over SW-PC implementation. Speedup varies with different datasets, which is expected since the |algo| algorithm computational complexity is dependent on the dataset as the equation :eq:`cplx_final` suggests. Computational complexity increases as |NI|, |NA|, *n* and |Nc| increase. The number of nodes in DT *n* is dependant on the training set instance attribute values, but can be expected to increase also with |NI|, |NA| and |Nc|. By observing the speedup of the HW/SW implementation over pure software implementations shown in :num:`Figure #fig-speedup` for each dataset and the datasets' characteristics given in :num:`Table #tbl-uci-datasets`, it can be seen that indeed more speedup is gained for datasets with larger |NI|, |NA| and |Nc|.
+:num:`Table #tbl-results` indicates that the average speedup of the HW/SW implementation is 42 times over the SW-ARM and 3.2 times over SW-PC implementation. Speedup varies with different datasets, which is expected since the |algo| algorithm computational complexity is dependent on the dataset as the equation :eq:`cplx_final` suggests. Computational complexity increases as |NI|, |NA|, *n* and |Nc| increase. The number of nodes in DT *n* is dependant on the training set instance attribute values, but can be expected to increase also with |NI|, |NA| and |Nc|. By observing the speedup of the HW/SW implementation over pure software implementations shown in :num:`Figure #fig-speedup` for each dataset and the datasets' characteristics given in :num:`Table #tbl-uci-datasets`, it can be seen that indeed more speedup is gained for datasets with larger |NI|, |NA| and |Nc|.
 
 .. _fig-speedup:
 
@@ -759,16 +760,12 @@ The results of the experiments are presented in :num:`Table #tbl-results`. For e
     
     Speedup of the HW/SW implementation over a) SW-ARM implementation and b) SW-PC implementation, given for each dataset listed in :num:`Table #tbl-uci-datasets`
 
-.. todo::
-    
-    **Da li je ovaj grafik OK? Nisam znao od kakvih podataka da crtam candlestick...**
-
 :num:`Figure #fig-speedup` and :num:`Table #tbl-results` suggest that HW/SW implementation using |cop| co-processor offers a substantial speedup in comparison to pure software implementations for both PC and ARM. Furthermore, |cop| implementation used in the experiments operates at much lower frequency (133MHz) than both ARM (667MHz) and PC(3.4GHz) platforms. If |cop| co-processor were implemented in ASIC, the operating frequency would be increased by a factor of 10-30, and the DT induction speedup would increase accordingly.
 
 Conclusion
 ==========
 
-In this paper a parameterizable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. |cop| co-processor is used for hardware acceleration of the DT accuracy evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (EFTI) has been implemented in software to use |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW |algo| algorithm implementation with pure software implementations suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+In this paper a parameterizable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. |cop| co-processor is used for hardware acceleration of the DT accuracy evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (|algo|) has been implemented in software to use |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW |algo| algorithm implementation with pure software implementations suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
 
 .. bibliography:: hereboy.bib
 	:style: unsrt

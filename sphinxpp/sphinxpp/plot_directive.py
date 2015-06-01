@@ -340,7 +340,6 @@ def remove_coding(text):
 # Template
 #------------------------------------------------------------------------------
 
-
 TEMPLATE = """
 {{ source_code }}
 
@@ -403,6 +402,21 @@ TEMPLATE = """
 
    {% endfor %}
 
+"""
+
+TEMPLATE = """
+{{ only_latex }}
+
+    {% for img in images %}
+    {% if 'pdf' in img.formats -%}
+    .. figure:: {{ build_dir }}/{{ img.basename }}.pdf
+        {% for option in options -%}
+        {{ option }}
+        {% endfor %}
+    
+        {{ caption }}
+    {% endif -%}
+    {% endfor %}
 """
 
 exception_template = """
@@ -799,6 +813,8 @@ def run(arguments, content, options, state_machine, state, lineno):
             html_show_formats=config.plot_html_show_formats and not nofigs,
             caption=caption)
 
+        print("EVO NAS!")
+        print(result)
         total_lines.extend(result.split("\n"))
         total_lines.extend("\n")
 
