@@ -8,7 +8,7 @@ This package contains the various Sphinx extensions.
 .. add description here ..
 '''
 
-requires = ['Sphinx>=0.6', 'PyMemoize>=1.0']
+requires = ['Sphinx>=0.6']
 
 setup(
     name='sphinxpp',
@@ -18,7 +18,7 @@ setup(
     license='BSD',
     author='Bogdan Vukobratovic',
     author_email='bogdan.vukobratovic@gmail.com',
-    description='Block Diagrams in Python',
+    description='Various Sphinx extensions',
     long_description=long_desc,
     zip_safe=False,
     classifiers=[

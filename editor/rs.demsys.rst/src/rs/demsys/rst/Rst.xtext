@@ -125,14 +125,14 @@ CodeBlockDirective:
 	label=Label?
 	LINE_BREAK
 	'..' ('code::' | 'code-block::')
-	firstLine=RawText? 
+	firstLine=RawText?
 	LINE_BREAK
 	block=RawBlock?
 ;
 
 RawDirective:
 	'..' ('raw::' | 'tabularcolumns::')
-	firstLine=RawText? 
+	firstLine=RawText?
 	LINE_BREAK
 	block=RawBlock?
 ;
@@ -158,7 +158,7 @@ Block:
 MathDirective:
 //	{MathDirective}
 	LINE_BREAK
-	'..' 'math::' 
+	'..' 'math::'
     firstLine=Latex?
     LINE_BREAK
     (
@@ -199,7 +199,7 @@ FileName:
 ;
 
 OtherDirective:
-    '..' name=SIMPLE_WORD '::' 
+    '..' name=SIMPLE_WORD '::'
     firstLine=SimpleText?
     LINE_BREAK
 	block=RawBlock?
@@ -210,7 +210,7 @@ DirectiveOption:
 ;
 
 TextLine:
-     (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK     
+     (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK
 ;
 
 Text:
@@ -226,7 +226,7 @@ Literal:
     |	COLON
     |	L_ANGLE_BRACKET
     |	R_ANGLE_BRACKET
-    
+
 ;
 
 FirstTextLiteral:
@@ -304,7 +304,7 @@ OtherRole:
 ;
 
 ReplacementRef:
-	PIPE name=[Replacement|SIMPLE_WORD] PIPE 
+	PIPE name=[Replacement|SIMPLE_WORD] PIPE
 ;
 
 Reference:
@@ -316,7 +316,7 @@ Reference:
 //SimpleReference
 //  :  ReferenceName UNDERSCORE (WS | LINE_BREAK)
 //  ;
-//    
+//
 //ReferenceName:
 //	name=[Heading|SIMPLE_WORD]
 //;
@@ -326,8 +326,8 @@ RefTarget:
 	Label
 ;
 
-LongReference :  
-	BACKTICK 
+LongReference :
+	BACKTICK
 	ref=[RefTarget|SimpleText]
 	BACKTICK UNDERSCORE
   ;
@@ -342,7 +342,7 @@ ExternalReference:
 ;
 
 LatexLine:
-     text=Latex LINE_BREAK     
+     text=Latex LINE_BREAK
 ;
 
 Latex:
@@ -389,10 +389,10 @@ StyledText:
 
 Bold
   :  {Bold}
-  	 '**' 
-      text+=StyledTextLiteral+ 
+  	 '**'
+      text+=StyledTextLiteral+
      '**'
-  ;  
+  ;
 
 Italic
   :  {Italic}
@@ -401,12 +401,12 @@ Italic
 
 terminal fragment
 ALPHA_NUM:
-	('a'..'z' | 'A'..'Z' | '0'..'9') 
+	('a'..'z' | 'A'..'Z' | '0'..'9')
 ;
 
 terminal fragment
 SIMPLE_WORD_FRAGMENT:
-//	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))* 
+//	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))*
 	ALPHA_NUM (ALPHA_NUM | '-' | '_')*
 ;
 
@@ -482,12 +482,12 @@ terminal SEMI_LINE:
 terminal MINUS_LINE:
 	'-' '-' '-'+
 ;
-  
+
 //terminal SPECIAL_CHAR_LINE:
 //	('-' | '=' | '+') ('-' | '=') ('-' | '=')+
 //;
- 
-//terminal EQUAL: '=';  
+
+//terminal EQUAL: '=';
 terminal STAR: '*';
 terminal SEMI: ';';
 terminal UNDERSCORE :  '_';
