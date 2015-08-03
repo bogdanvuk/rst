@@ -1,125 +1,62 @@
-from bdp.node import *
+from bdp import *
 
-ps = block("Processing System", size=p(16,22), margin=p(0.5, 0.5), text_align="nw", dotted=True)()
+part = block(text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(1,2), p(1,2)])
 
-comp = block(size=p(6,4), node_sep=(2,2))
-ps_comp = block(size=p(6,6), node_sep=(2,3))
-bus = path(double=True, thick=False)
-bus_text = text(font="scriptsize", margin=p(0,0.5))
+comp = block(size=p(6,4), nodesep=(2,2))
+ps_comp = block(size=p(6,6), nodesep=(2,3))
+bus_cap = cap(length=0.8, width=1.3, inset=0, type='Stealth')
+bus = path(style=(bus_cap, bus_cap), line_width=0.7, double=True, border_width=0.1)
+bus_text = text(font="\\scriptsize", margin=p(0,0.5))
 
-# ps_comp = comp(ps.r(0, 3), "CPU").align_x(comp.c(), ps.c())  
-  
-cpu = ps_comp("CPU").align(ps.r(1,3))()
-mem_con = ps_comp("DDR3 Memory Controller").below(cpu)()
+#------------------------------------------------------------------------------ 
+#  PS Block
+#------------------------------------------------------------------------------ 
 
-ddr3 = ps_comp("DDR3 Memory").left(mem_con)()
-bus([ddr3.e(0.5), mem_con.w(0.5)], style='<->')()
+ps = part("Processing System")
+ps['cpu'] = ps_comp("CPU")
+ps['mem_con'] = ps_comp("DDR3 Memory Controller").below(ps['cpu'])
 
-intercon = block(r"AXI4 \\ Interconnect", mem_con.s(1.0)-cpu.n()).right(cpu)()
-bus([cpu.e(2), intercon.w(2)], style='<->')()
-t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
+ddr3 = ps_comp("DDR3 Memory").left(ps['mem_con'])
+fig << ddr3
+fig << bus(ddr3.e(0.5), ps['mem_con'].w(0.5))
+ps['intercon'] = block(r"AXI4 \\ Interconnect", ps['mem_con'].s(1.0)-ps['cpu'].n()).right(ps['cpu'])
+ps['cpu2intercon'] = bus(ps['cpu'].e(2), ps['intercon'].w(2))
+fig << bus_text("AXI4").align(ps['cpu2intercon'].pos(0.5), prev().s(0.5, 0.2))
 
-bus([mem_con.e(0.5), palign(intercon.w(), mem_con.e(0.5))], style='<->')()
-t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
+ps['mem_con2intercon'] = bus(ps['mem_con'].e(0.5), p(ps['intercon'].w()[0], ps['mem_con'].e(0.5)[1]))
+fig << bus_text("AXI4").align(ps['mem_con2intercon'].pos(0.5), prev().s(0.5, 0.2))
 
-pl = block("EFTIP hardware co-processor", size=p(25,22), margin=p(0.5, 0.5), text_align="nw", dotted=True).right(ps, 2)()
+fig << ps
 
-cu = comp("Control Unit").align_x(pl.r(1, 0)).align_y(cpu.p)()
-bus([intercon.e(2), cu.w(2)], style='<->')()
-t_axi = bus_text("AXI4").align(prev(1).pos(0.5), prev().s(0.5))()
+#------------------------------------------------------------------------------ 
+# EFTIP Ensemble
+#------------------------------------------------------------------------------ 
 
+eeftip = part("Ensemble EFTIP", group_margin=[p(0,2), p(1,2)])
 
-inst_mem = comp("Training Set Memory").right(cu, 1.5)()
-bus([cu.e(0.5), inst_mem.w(0.5)], style='<->')()
+eeftip['status'] = comp("Status", size=p(7,4), nodesep=(2,2)).right(ps['intercon'], 6).aligny(ps['cpu'].p)
+eftip = block(size=p(6,3), nodesep=(1,1))
+eeftip += eftip("$EFTIP_1$").below(eeftip['status'], 1).movex(1)
+eeftip += eftip("$EFTIP_2$").below(eeftip["$E*1*"], 1)
+eeftip += eftip("$EFTIP_{E^M}$").below(eeftip["$E*2*"], 3)
 
-fit_calc = comp("Accuracy Calculator").right(inst_mem)()
-bus([fit_calc.n(0.5), fit_calc.n(0.5) - (0,1), cu.n(0.5)], style='->', def_routing='-|')()
+eeftip_axi_enter = eeftip['status'].w(0.5) - (3,0)
 
-t_nte = block(size=(4, 2), node_sep=(3,1), text_font='footnotesize')
+eeftip += net(bus(eeftip_axi_enter, eeftip['status'].w(0.5), style=('=', bus_cap)),
+              bus(eeftip_axi_enter + (1,0), eeftip['$E*1*'].w(0.5), routedef = '|-', style=('', bus_cap)),
+              bus(eeftip_axi_enter + (1,0), eeftip['$E*2*'].w(0.5), routedef = '|-', style=('', bus_cap)),
+              bus(eeftip_axi_enter + (1,0), eeftip['$E*{E^M}*'].w(0.5), routedef = '|-', style=('', bus_cap))
+              )
 
-# nte = []
-# nte.append(t_nte("$NTE_1$").right(inst_mem)())
-# nte.append(t_nte("$NTE_2$").right(nte[0])())
-# bus([nte[0].e(0.5), nte[1].w(0.5)], style='->')()
-# 
-# nte.append(t_nte("$NTE_{D^M}$").right(nte[1], 3)())
-# bus([nte[1].e(0.5), nte[1].e(0.5) + (2,0)], style='->')()
-# bus([nte[2].w(0.5), nte[2].w(0.5) - (2,0)], style='<-')()
-# text('$\cdot\cdot\cdot$').align(mid(nte[1].c(), nte[2].c()), prev().c())()
+bus_cap_small = bus_cap(length=0.4, width=0.6)
+eeftip += bus(eeftip['status'].e(0.5), poffx(1), eeftip['$E*{E^M}*'].e(0.5) + (1,0), routedef='|-', line_width=0.3, style=(bus_cap_small, ''))
+eeftip += path(eeftip['$E*1*'].e(0.5), poffx(1))
+eeftip += path(eeftip['$E*2*'].e(0.5), poffx(1))
+eeftip += path(eeftip['$E*{E^M}*'].e(0.5), poffx(1)) 
 
-dt_mem = []
-dt_mem.append(t_nte("$L_1$").below(cu).align_x(cu.s(3))())
-dt_mem.append(t_nte("$L_2$").below(dt_mem[0])())
-dt_mem.append(t_nte("$L_{D^M}$").below(dt_mem[1], 3)())
-text(r"$\cdot\cdot\cdot$", text_font='footnotesize').align(mid(dt_mem[1].c(), dt_mem[2].c()), prev().c())()
+fig << eeftip
 
-block("DT Memory Array", dt_mem[2].s(1.0) - dt_mem[0].n() + (2,2), dotted=True, text_font='footnotesize', text_align='bc').align(dt_mem[0].n() - (1,1))()
+fig << bus(p(ps['intercon'].e(), eeftip_axi_enter), eeftip_axi_enter, style=(bus_cap, '='))
+fig << bus_text("AXI4").align(fig[-1].pos(0.5), prev().c(0, 0.2))
 
-for d in dt_mem:
-    bus([cu.s(1), d.w(0.5)], style='<->', def_routing='|-')()
-
-nte = []
-nte.append(t_nte("$NTE_1$").right(dt_mem[0])())
-nte.append(t_nte("$NTE_2$").right(dt_mem[1])())
-bus([nte[0].s(0.5), nte[1].n(0.5)], style='->')()
-nte.append(t_nte("$NTE_{D^M}$").right(dt_mem[2])())
-bus([nte[1].s(0.5), nte[1].s(0.5) + (0,1)], style='->')()
-bus([nte[2].n(0.5), nte[2].n(0.5) - (0,1)], style='<-')()
-text('$\cdot\cdot\cdot$').align(mid(nte[1].c(), nte[2].c()), prev().c())()
-
-block("Classifier", nte[2].s(1.0) - nte[0].n() + (2,2), dotted=True, text_font='footnotesize', text_align='bc').align(nte[0].n() - (1,1))()
-
-bus([nte[2].e(0.5), fit_calc.s(0.5)], style='->', def_routing='-|')()
-
-for n, d in zip(nte, dt_mem):
-    bus([d.e(0.5), n.w(0.5)], style='->')()
-    
-bus([inst_mem.s(0.5), nte[0].n(0.5)], style='->')()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 
-#     
-# dt_class = comp("Classifier").below(dt_mem_array)()
-# for i in range(dt_class.size[0]):
-#     path([dt_class.n(i+1), dt_class.s(i+1)], dotted=True)()
-
-#     
-# for i in [0, 1]:
-#     bus_text("$L_{" + str(i+1) + '}$').align(dt_class.s(i), prev().n())()
-# bus_text('$L_{D^{M}}$').align(dt_class.s(5), prev().n())()
-# text('$\cdot\cdot\cdot$').align(mid(prev(2).e(0.5), prev(1).w(0.5)), prev().c())()
-# 
-# for i in [0, 1]:
-#     bus([dt_mem_array.s(i) + (0.5, 0), dt_class.n(i) + (0.5, 0)], style='<->')()
-# bus([dt_mem_array.s(5) + (0.5, 0), dt_class.n(5) + (0.5, 0)], style='<->')()
-# text('$\cdot\cdot\cdot$').align(mid(prev(2)[1], prev(1)[0]), prev().c())()
-# # bus_text('PortB').align_x(prev(1).c(), prev().c()).align_y(dt_mem_array.s(), prev().n())()
-# 
-# bus([cu.e(0.5), dt_mem_array.w(0.5)], style='<->')()
-# # bus_text("PortA").align(dt_mem_array.w(0.5), prev().s(1.0))()
-#  
-# 
-# bus([cu.s(0.5), inst_mem.n(0.5)], style='<->')()
-# # bus_text("PortA").align(inst_mem.e(0.5), prev().n(0))()
-# bus([inst_mem.e(0.5), dt_class.w(0.5)], style='->')()
-# # bus_text("PortB").align(inst_mem.n(0.5), prev().s(0))()
-# 
-# fit_calc = comp("Fitness Calculator").right(dt_class)()
-# bus([dt_class.e(0.5), fit_calc.w(0.5)], style='->')()
-# bus([fit_calc.n(0.5), cu.n(0.5) - (0,1), cu.n(0.5)], def_routing='|-', style='<->')()
+#render_fig(fig, './system_bd.pdf')
