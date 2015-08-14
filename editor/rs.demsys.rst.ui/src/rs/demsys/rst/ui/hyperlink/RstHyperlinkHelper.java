@@ -138,6 +138,22 @@ public class RstHyperlinkHelper extends HyperlinkHelper {
 	    }
     }
     
+    public void createHyperlink(IncludeDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
+    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
+				 RstPackage.eINSTANCE.getIncludeDirective_ImportURI());
+	    if (!nodes.isEmpty()) {
+	    	INode node = nodes.get(0);
+	        
+	    	String uriString = obj.getImportURI();
+	        
+			IFile file = findFileFromRelativePath(resource, uriString);
+			
+			if (file.isAccessible()) {
+			    acceptor.accept(createGeneralHyperlink(uriString, file, node.getOffset(), node.getLength()));
+			}
+	    }
+    }
+    
 //    public void createHyperlink(IncludeDirective obj, XtextResource resource, IHyperlinkAcceptor acceptor) {
 //    	List<INode> nodes = NodeModelUtils.findNodesForFeature(obj,
 //				 RstPackage.eINSTANCE.getIncludeDirective_ImportURI());

@@ -117,6 +117,11 @@ class DocTranslator(BaseTranslator):
         self.table = None
         self.tablebody = None
 
+    def hypertarget(self, id, withdoc=True, anchor=True):
+        if withdoc:
+            id = self.curfilestack[-1] + ':' + id
+        return (anchor and '\\protect\\phantomsection' or '') + \
+            '\\label{%s}' % self.idescape(id)
 #     def visit_entry(self, node):
 #     
 #         if isinstance(node.parent.parent, nodes.thead):

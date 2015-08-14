@@ -6,12 +6,12 @@ def fitness_eval(dt, train_set):
 
     hits = 0
 
-    for leaf in leaves:
+    for leaf in dt.leaves:
         dominant_class_cnt = max(distribution[leaf])
         hits += dominant_class_cnt
 
     accuracy = hits / len(train_set)
-    oversize = leaves_cnt(dt) / class_cnt(train_set) - 1
+    oversize = len(dt.leaves) / class_cnt(train_set) - 1
     fitness = w_a * accuracy - w_s * oversize
     
     return fitness

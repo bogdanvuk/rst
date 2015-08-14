@@ -195,7 +195,7 @@ Label hidden():
 ;
 
 FileName:
-	(SIMPLE_WORD | '.' | '/' )+
+	(SIMPLE_WORD | '.' | '/' | ".." )+
 ;
 
 OtherDirective:
@@ -219,24 +219,18 @@ Text:
 
 Literal:
        Reference
-    |	SimpleLiteral
-    | 	StyledText
+    | {SimpleLiteral} value = (SimpleLiteral | COLON | L_ANGLE_BRACKET | R_ANGLE_BRACKET)
+    | 	StyledTextMarkup
     |	Role
-    |	ReplacementRef
-    |	COLON
-    |	L_ANGLE_BRACKET
-    |	R_ANGLE_BRACKET
-    
+    |	ReplacementRef   
 ;
 
 FirstTextLiteral:
-      SIMPLE_WORD
-    | StyledText
+      {SimpleLiteral} value = (SIMPLE_WORD | COLON | L_ANGLE_BRACKET |	R_ANGLE_BRACKET)
+    | StyledTextMarkup
     |	Role
     |	ReplacementRef
-    |	COLON
-    |	L_ANGLE_BRACKET
-    |	R_ANGLE_BRACKET
+    
 //    | UnderscoreWord
 //    | ReplacementRef
 ;
@@ -258,12 +252,9 @@ SimpleLiteral:
 
 StyledTextLiteral:
 	   Reference
-    |	SimpleLiteral
+    |	{SimpleLiteral} value = (SimpleLiteral | COLON | L_ANGLE_BRACKET | R_ANGLE_BRACKET)
     |	Role
     |	ReplacementRef
-    |	COLON
-    |	L_ANGLE_BRACKET
-    |	R_ANGLE_BRACKET
 ;
 
 //
@@ -382,21 +373,25 @@ RawLiteral:
 	|	COLON_WORD
 ;
 
-StyledText:
+StyledTextMarkup:
       Bold
     | Italic
+;
+
+StyledText:
+	items+=StyledTextLiteral+
 ;
 
 Bold
   :  {Bold}
   	 '**' 
-      text+=StyledTextLiteral+ 
+      text=StyledText 
      '**'
   ;  
 
 Italic
   :  {Italic}
-  	STAR text+=StyledTextLiteral+ STAR
+  	STAR text=StyledText STAR
   ;
 
 terminal fragment

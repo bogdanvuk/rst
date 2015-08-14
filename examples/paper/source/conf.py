@@ -257,12 +257,11 @@ latex_title = ur'''
     {Bogdan Z. Vukobratovic} \par
     {Faculty of Technical Sciences, University of Novi Sad, Trg Dositeja Obradovića 6, Novi Sad, 21000, Serbia} \par
     {bogdan.vukobratovic@gmail.com} \par
-    {Novi Sad, 21000, Serbia} \par
-    \vspace{25pt} \par
+    \vspace{10pt} \par
     {Rastislav J.R. Struharik} \par
-    {Faculty of Technical Sciences, University of Novi Sad, Trg Dositeja Obradovića 6, } \par
-    {Novi Sad, 21000, Serbia} \par
+    {Faculty of Technical Sciences, University of Novi Sad, Trg Dositeja Obradovića 6, Novi Sad, 21000, Serbia} \par
     {rasti@uns.ac.rs} \par
+    \vspace{10pt} \par
 \end{center}
 
 \newenvironment{sciabstract}{%
@@ -270,9 +269,9 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. EFTIP co-processor can significantly improve execution time of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of HW/SW EFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. EFTIP co-processor can significantly improve execution time of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of HW/SW EFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial DT induction time speedups for selected benchmark datasets of the standard UCI machine learning repository database.
     
-    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
+    {\it Keywords}: data mining; machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
 
     

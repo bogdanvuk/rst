@@ -6,6 +6,19 @@ package rs.demsys.rst.generator
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess
+import rs.demsys.rst.rst.Section
+import java.util.ArrayList
+import org.eclipse.emf.ecore.EObject
+import rs.demsys.rst.rst.Paragraph
+import rs.demsys.rst.rst.TextLine
+import rs.demsys.rst.rst.SimpleLiteral
+import rs.demsys.rst.rst.Bold
+import rs.demsys.rst.rst.Italic
+import rs.demsys.rst.rst.StyledText
+import rs.demsys.rst.rst.Text
+import rs.demsys.rst.rst.ImageDirective
+import rs.demsys.rst.rst.Document
+import org.eclipse.emf.common.util.EList
 
 /**
  * Generates code from your model files on save.
@@ -15,10 +28,88 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 class RstGenerator implements IGenerator {
 	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(typeof(Greeting))
-//				.map[name]
-//				.join(', '))
-	}
+//		var contents = new ArrayList<String>
+//		
+//		for (doc : resource.allContents.toIterable.filter(typeof(Document))) {
+////		for (e : resource.allContents.toIterable) {
+//			
+		}
+//
+//		fsa.generateFile("a.txt", (resource.contents.get(0) as Document).section.compile)
+//	}
+//	
+////	def String compile(EObject object)
+////		
+////		fsa.generateFile("a.txt",resource.allContents
+////				.join(', '))
+////				
+//////		fsa.generateFile('greetings.txt', 'People to greet: ' + 
+//////			resource.allContents
+//////				.filter(typeof(Greeting))
+//////				.map[name]
+//////				.join(', '))
+////	}
+//
+//	def dispatch String compile(EObject elem) {
+//		""
+//	}
+//	
+//	def dispatch String compile(TextLine elem) {
+//		return elem.first.compile + ' ' + elem.text.compile
+//	}
+//	
+//	def dispatch String compile(StyledText elem) {
+//		var contents = new ArrayList<String>
+//		
+//		for (e : elem.items) {
+//			contents.add(e.compile)
+//		}
+//			
+//		return contents.join(' ')
+//	}
+//	
+//	def dispatch String compile(Text elem) {
+//		var contents = new ArrayList<String>
+//		
+//		for (e : elem.items) {
+//			contents.add(e.compile)
+//		}
+//			
+//		return contents.join(' ')
+//	}
+//	
+//	
+//	def dispatch String compile(SimpleLiteral elem) {
+//		elem.value
+//	}
+//	
+//	def dispatch String compile(Bold elem) {
+//		"**" + elem.text.compile + "**"
+//	}
+//	
+//	def dispatch String compile(Italic elem) {
+//		"*" + elem.text.compile + "*"
+//	}
+//	
+//	def dispatch String compile(EList<Section> list){
+//		var contents = new ArrayList<String>
+//		
+//		for (elem : list) {
+//			contents.add(elem.compile)	
+//		}
+//		
+//		return contents.join('\n')
+//	}
+//	
+//	def dispatch String compile(ImageDirective elem) {
+//		'''
+//		\\image html «elem.picture» "«elem.block.block.compile»"
+//		\\image latex «elem.picture» "«elem.block.block.compile»"
+//		'''
+////		"\\image html " + elem.picture + '\n' + 
+////		"\\image latex " + elem.picture + '\n'
+////		elem.block.get
+//	}
+	
+	
 }

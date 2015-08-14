@@ -17,13 +17,13 @@ def efti():
 def fitness_eval(dt):
     hw_load_dt_diff(dt)
     
-    hw_start_fitness_eval()
+    hw_start_accuracy_eval()
 
-    while (not hw_finished_fitness_eval()):
+    while (not hw_finished_accuracy_eval()):
         pass
     
     accuracy = hw_get_hits() / len(train_set)
-    oversize = leaves_cnt(dt) / class_cnt(train_set) - 1
+    oversize = len(dt.leaves) / class_cnt(train_set) - 1
     fitness = w_a * accuracy - w_s * oversize
     
     return fitness

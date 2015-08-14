@@ -147,10 +147,16 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//RawText/item"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//RawLiteral"/>
+    <genClasses ecoreClass="Rst.ecore#//StyledTextMarkup">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//StyledTextMarkup/text"/>
+    </genClasses>
     <genClasses ecoreClass="Rst.ecore#//StyledText">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//StyledText/text"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Rst.ecore#//StyledText/items"/>
     </genClasses>
     <genClasses ecoreClass="Rst.ecore#//Bold"/>
     <genClasses ecoreClass="Rst.ecore#//Italic"/>
+    <genClasses ecoreClass="Rst.ecore#//SimpleLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Rst.ecore#//SimpleLiteral/value"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

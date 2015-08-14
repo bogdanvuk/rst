@@ -172,10 +172,17 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RawLiteral"/>
-  <eClassifiers xsi:type="ecore:EClass" name="StyledText" eSuperTypes="#//Literal #//FirstTextLiteral">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="text" upperBound="-1" eType="#//StyledTextLiteral"
+  <eClassifiers xsi:type="ecore:EClass" name="StyledTextMarkup" eSuperTypes="#//Literal #//FirstTextLiteral">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="text" eType="#//StyledText"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Bold" eSuperTypes="#//StyledText"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Italic" eSuperTypes="#//StyledText"/>
+  <eClassifiers xsi:type="ecore:EClass" name="StyledText">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1"
+        eType="#//StyledTextLiteral" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Bold" eSuperTypes="#//StyledTextMarkup"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Italic" eSuperTypes="#//StyledTextMarkup"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SimpleLiteral" eSuperTypes="#//Literal #//FirstTextLiteral #//StyledTextLiteral">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
 </ecore:EPackage>
