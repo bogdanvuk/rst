@@ -1,30 +1,15 @@
-def efti():
-    initialize(dt)
-    hw_load_training_set()
-    best_fit = fitness_eval(dt, train_set)
+def efti(train_set, ensemble_size):
+    task_train_sets = divide_train_set(train_set, ensemble_size)
     
-    for iter in range(max_iter):
-        
-        dt_mut = mutate(dt)
-        cur_fit = fitness_eval(dt_mut, train_set)
-        
-        if cur_fit > best_fit:
-            best_fit = cur_fit
-            dt = dt_mut
-            
-    return dt
-
-def fitness_eval(dt):
-    hw_load_dt_diff(dt)
+    res = []
+    initialize_result_array(res, ensemble_size)
     
-    hw_start_fitness_eval()
-
-    while (not hw_finished_fitness_eval()):
-        pass
+    create_semaphores(ensemble_size)
+    for t, r, smae_id in zip(task_train_sets, res, range(0,ensemble_size)):
+        create_task(efti_task, t, r, smae_id)
     
-    accuracy = hw_get_hits() / len(train_set)
-    oversize = leaves_cnt(dt) / class_cnt(train_set) - 1
-    fitness = w_a * accuracy - w_s * oversize
+    create_task(scheduler)
     
-    return fitness
-
+    wait_for_all_tasks()
+    
+    return res

@@ -34,25 +34,25 @@ fig << ps
 
 eeftip = part("Ensemble EFTIP", group_margin=[p(0,2), p(1,2)])
 
-eeftip['status'] = comp("Status", size=p(7,4), nodesep=(2,2)).right(ps['intercon'], 6).aligny(ps['cpu'].p)
+eeftip['status'] = comp("IRQ Status", size=p(7,4), nodesep=(2,2)).right(ps['intercon'], 6).aligny(ps['cpu'].p)
 eftip = block(size=p(6,3), nodesep=(1,1))
-eeftip += eftip("$EFTIP_1$").below(eeftip['status'], 1).movex(1)
-eeftip += eftip("$EFTIP_2$").below(eeftip["$E*1*"], 1)
-eeftip += eftip("$EFTIP_{E^M}$").below(eeftip["$E*2*"], 3)
+eeftip += eftip("$SMAE_1$").below(eeftip['status'], 1).movex(1)
+eeftip += eftip("$SMAE_2$").below(eeftip["$S*1*"], 1)
+eeftip += eftip("$SMAE_{E^M}$").below(eeftip["$S*2*"], 3)
 
 eeftip_axi_enter = eeftip['status'].w(0.5) - (3,0)
 
 eeftip += net(bus(eeftip_axi_enter, eeftip['status'].w(0.5), style=('=', bus_cap)),
-              bus(eeftip_axi_enter + (1,0), eeftip['$E*1*'].w(0.5), routedef = '|-', style=('', bus_cap)),
-              bus(eeftip_axi_enter + (1,0), eeftip['$E*2*'].w(0.5), routedef = '|-', style=('', bus_cap)),
-              bus(eeftip_axi_enter + (1,0), eeftip['$E*{E^M}*'].w(0.5), routedef = '|-', style=('', bus_cap))
+              bus(eeftip_axi_enter + (1,0), eeftip['$S*1*'].w(0.5), routedef = '|-', style=('', bus_cap)),
+              bus(eeftip_axi_enter + (1,0), eeftip['$S*2*'].w(0.5), routedef = '|-', style=('', bus_cap)),
+              bus(eeftip_axi_enter + (1,0), eeftip['$S*{E^M}*'].w(0.5), routedef = '|-', style=('', bus_cap))
               )
 
 bus_cap_small = bus_cap(length=0.4, width=0.6)
-eeftip += bus(eeftip['status'].e(0.5), poffx(1), eeftip['$E*{E^M}*'].e(0.5) + (1,0), routedef='|-', line_width=0.3, style=(bus_cap_small, ''))
-eeftip += path(eeftip['$E*1*'].e(0.5), poffx(1))
-eeftip += path(eeftip['$E*2*'].e(0.5), poffx(1))
-eeftip += path(eeftip['$E*{E^M}*'].e(0.5), poffx(1)) 
+eeftip += bus(eeftip['status'].e(0.5), poffx(1), eeftip['$S*{E^M}*'].e(0.5) + (1,0), routedef='|-', line_width=0.3, style=(bus_cap_small, ''))
+eeftip += path(eeftip['$S*1*'].e(0.5), poffx(1))
+eeftip += path(eeftip['$S*2*'].e(0.5), poffx(1))
+eeftip += path(eeftip['$S*{E^M}*'].e(0.5), poffx(1)) 
 
 fig << eeftip
 

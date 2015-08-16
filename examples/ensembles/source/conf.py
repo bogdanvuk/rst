@@ -239,6 +239,12 @@ latex_preamble = ur'''
 \newcommand{\WDTM}{W_{DTM}}
 \newcommand{\Nl}{N_{l}}
 \newcommand{\NlM}{N^{M}_{l}}
+\newcommand{\Tsw}{T_{sw}}
+\newcommand{\Ths}{T_{hs}}
+\newcommand{\Tswmut}{T_{sw\_mut}}
+\newcommand{\Tswacc}{T_{sw\_acc}}
+\newcommand{\Thsmut}{T_{hs\_mut}}
+\newcommand{\Thsacc}{T_{hs\_acc}}
 
 \renewcommand{\arraystretch}{1.2}
 

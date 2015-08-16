@@ -1,0 +1,532 @@
+grammar rs.demsys.rst.Rst hidden(WS)
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+generate rst "http://www.demsys.rs/rst/Rst"
+import "http://www.demsys.rs/rst/Bib" as bib
+
+Document:
+    section+=Section*
+	;
+
+Section:
+	BulletLine
+//	   TwoLevelBulletList
+//	|  BulletList
+    |  ReplacementDirective
+    |  Directive
+	|  Paragraph
+	|  SimpleTextHeading
+	|  Heading
+//	|  Block
+;
+
+Heading:
+	label=Label?
+	LINE_BREAK
+	(underlineTop=HeadingUnderline LINE_BREAK)?
+    name=HeadingText LINE_BREAK
+	underline=HeadingUnderline LINE_BREAK
+;
+
+SimpleTextHeading:
+	label=Label?
+	LINE_BREAK
+	(underlineTop=HeadingUnderline LINE_BREAK)?
+    name=SimpleText LINE_BREAK
+	underline=HeadingUnderline LINE_BREAK
+;
+
+HeadingText:
+	items += HeadingTextLiteral+
+;
+
+HeadingTextLiteral:
+	SimpleLiteral | ReplacementRef
+;
+
+HeadingUnderline:
+      EQUAL_LINE
+    | STAR_LINE
+    | SEMI_LINE
+    | MINUS_LINE
+;
+
+ReplacementDirective:
+	'..' Replacement 'replace' DOUBLECOLON
+//	text+=SimpleLiteral+
+	text=Text
+	LINE_BREAK
+;
+
+Replacement hidden():
+	PIPE name=SIMPLE_WORD PIPE
+;
+
+//TwoLevelBulletList:
+////	LINE_BREAK
+//	item+=TwoLevelBulletLine+
+//;
+//
+//BulletList:
+////	LINE_BREAK
+//	item+=BulletLine+
+//;
+//
+//TwoLevelBulletLine:
+//	STAR (text=Text)? LINE_BREAK
+//	block=Block?
+////	BEGIN
+////		item+=TwoLevelBulletLine+
+////	END
+//;
+
+BulletLine:
+	(MINUS | STAR) (text=Text)? (=> LINE_BREAK)
+	block=Block?
+;
+
+Paragraph:
+//	LINE_BREAK
+	TextLine
+	| LINE_BREAK
+//    (line+=TextLine)*
+;
+
+Directive:
+		MathDirective
+	|   IncludeDirective
+	|	ImageDirective
+	|	BibDirective
+	|   CodeBlockDirective
+	|	RawDirective
+	|	LabelDirective
+	|	TableDirective
+	|	OtherDirective
+	|	LiteralDirective
+;
+
+RawIndentBlock:
+    BEGIN
+       	(line+=RawLine | block+=RawIndentBlock)*
+    END
+;
+
+RawBlock:
+    BEGIN
+//    	options+=DirectiveOption*
+       	(line+=RawLine | block+=RawIndentBlock)*
+    END
+;
+
+RawLine:
+	RawText? LINE_BREAK
+;
+
+CodeBlockDirective:
+	label=Label?
+	LINE_BREAK
+	'..' ('code' | 'code-block') DOUBLECOLON
+	firstLine=RawText? 
+	LINE_BREAK
+	block=RawBlock?
+;
+
+RawDirective:
+	'..' ('raw' | 'tabularcolumns') DOUBLECOLON
+	firstLine=RawText? 
+	LINE_BREAK
+	block=RawBlock?
+;
+
+BibDirective:
+    '..' 'bibliography' DOUBLECOLON
+    bib=FileName LINE_BREAK
+    block=Block?
+;
+
+IncludeDirective:
+    '..' 'include' DOUBLECOLON
+    importURI=FileName LINE_BREAK
+;
+
+Block:
+    BEGIN
+    	options+=DirectiveOption*
+       	block+=Section*
+    END
+;
+
+MathDirective:
+//	{MathDirective}
+	LINE_BREAK
+	'..' 'math' DOUBLECOLON 
+    firstLine=Latex?
+    LINE_BREAK
+    (
+    BEGIN
+    	(':label:' name=SIMPLE_WORD LINE_BREAK)?
+    	options+=DirectiveOption*
+       	block+=LatexLine*
+    END)?
+;
+
+ImageDirective:
+//	label=LabelDirective
+	LINE_BREAK
+    '..' ('image' | 'figure') DOUBLECOLON
+    picture=FileName LINE_BREAK
+    block=Block?
+;
+
+TableDirective:
+//	label=LabelDirective
+	LINE_BREAK
+    '..' ('list-table' | 'csv-table') DOUBLECOLON
+    caption=Text LINE_BREAK
+    block=Block?
+;
+
+LabelDirective:
+	LINE_BREAK
+	'..' Label LINE_BREAK
+;
+
+Label hidden():
+	UNDERSCORE name=SIMPLE_WORD COLON
+;
+
+FileName:
+	(SIMPLE_WORD | '.' | '/' )+
+;
+
+OtherDirective:
+    '..' name=SIMPLE_WORD DOUBLECOLON
+    firstLine=SimpleText?
+    LINE_BREAK
+	block=RawBlock?
+    ;
+
+LiteralDirective:
+	(=> first=FirstTextLiteral) (text=Text)? DOUBLECOLON
+	LINE_BREAK
+	block=RawBlock?
+;
+
+DirectiveOption:
+	name=ROLE_WORD (value=Text)? LINE_BREAK
+;
+
+TextLine:
+     (=> first=FirstTextLiteral) (text=Text)? LINE_BREAK     
+;
+
+Text:
+    items+=Literal+
+;
+
+Literal:
+       Reference
+    |	SimpleLiteral
+    | 	StyledText
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
+    
+;
+
+FirstTextLiteral:
+      SIMPLE_WORD
+    | StyledText
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
+//    | UnderscoreWord
+//    | ReplacementRef
+;
+//
+//SimpleTextLine:
+//	SimpleText (=> LINE_BREAK)
+//;
+//
+SimpleText:
+	SimpleLiteral+
+;
+
+SimpleLiteral:
+//      UnderscoreWord
+//      KEYWORDS
+      SIMPLE_WORD
+    | KEYWORDS
+    | SPECIAL_CHAR
+;
+
+StyledTextLiteral:
+	   Reference
+    |	SimpleLiteral
+    |	Role
+    |	ReplacementRef
+    |	COLON
+    |	L_ANGLE_BRACKET
+    |	R_ANGLE_BRACKET
+;
+
+//
+Role:
+		MathRole
+	|	CiteRole
+	|	NumfigRole
+	|	EqRole
+	| 	OtherRole
+;
+
+MathRole:
+	':math:' BACKTICK text=Latex BACKTICK
+;
+
+HashRef hidden():
+	HASH ref=[Label|SIMPLE_WORD]
+;
+
+NumfigRole:
+	':num:' BACKTICK text=SimpleText ref=HashRef BACKTICK
+;
+
+CiteRoleEntryList:
+	entry+=[bib::Entry|SIMPLE_WORD] (',' entry+=[bib::Entry|SIMPLE_WORD])*
+;
+
+CiteRole:
+	':cite:' BACKTICK entry_list=CiteRoleEntryList BACKTICK
+;
+
+EqRole:
+	':eq:' BACKTICK ref=[MathDirective|SIMPLE_WORD] BACKTICK
+;
+
+OtherRole:
+	name=ROLE_WORD BACKTICK text=SimpleText BACKTICK
+;
+
+ReplacementRef:
+	PIPE name=[Replacement|SIMPLE_WORD] PIPE 
+;
+
+Reference:
+	  ExternalReference
+	| LongReference
+//	| SimpleReference
+  ;
+//
+//SimpleReference
+//  :  ReferenceName UNDERSCORE (WS | LINE_BREAK)
+//  ;
+//    
+//ReferenceName:
+//	name=[Heading|SIMPLE_WORD]
+//;
+//
+RefTarget:
+	SimpleTextHeading |
+	Label
+;
+
+LongReference :  
+	BACKTICK 
+	ref=[RefTarget|SimpleText]
+	BACKTICK UNDERSCORE
+  ;
+
+ExternalReferenceLiteral:
+		SimpleLiteral
+	| 	COLON
+;
+
+ExternalReference:
+	BACKTICK
+	name=SimpleText
+	L_ANGLE_BRACKET
+	(text += ExternalReferenceLiteral)+
+	R_ANGLE_BRACKET
+	BACKTICK UNDERSCORE
+;
+
+LatexLine:
+     text=Latex LINE_BREAK     
+;
+
+Latex:
+	LatexLiteral+
+;
+
+LatexLiteral:
+		SIMPLE_WORD
+	| 	SPECIAL_CHAR
+	|	UNDERSCORE
+	|	STAR
+	|	L_ANGLE_BRACKET
+	|	R_ANGLE_BRACKET
+//	|	SIMPLE_REFERENCE
+	|	PIPE
+	|	COLON
+	|	COLON_WORD
+;
+
+RawText:
+	item+=RawLiteral+
+;
+
+RawLiteral:
+		SIMPLE_WORD
+	|	ROLE_WORD
+	| 	SPECIAL_CHAR
+	|	UNDERSCORE
+	|	STAR
+	|	'**'
+	|	Role
+	|	L_ANGLE_BRACKET
+	|	R_ANGLE_BRACKET
+	|	PIPE
+	|	COLON
+	|	HASH
+	|	COLON_WORD
+;
+
+StyledText:
+      Bold
+    | Italic
+;
+
+Bold
+  :  {Bold}
+  	 '**' 
+      text+=StyledTextLiteral+ 
+     '**'
+  ;  
+
+Italic
+  :  {Italic}
+  	STAR text+=StyledTextLiteral+ STAR
+  ;
+
+terminal fragment
+ALPHA_NUM:
+	('a'..'z' | 'A'..'Z' | '0'..'9') 
+;
+
+terminal fragment
+SIMPLE_WORD_FRAGMENT:
+//	ALPHA_NUM (('_' )? (ALPHA_NUM | '-'))* 
+	ALPHA_NUM (ALPHA_NUM | '-' | '_')*
+;
+
+//terminal
+//SIMPLE_REFERENCE:
+//	ALPHA_NUM+ '_'
+//;
+
+terminal
+SIMPLE_WORD:
+	SIMPLE_WORD_FRAGMENT
+//	ALPHA_NUM (('_' | ':' )? (ALPHA_NUM | '-'))*
+//	ALPHA_NUM ('_' | ALPHA_NUM | '-')*
+;
+
+//terminal
+//COLON_SEP_WORD:
+//	ALPHA_NUM ((':')? (ALPHA_NUM | '-'))* (':') ((':')? (ALPHA_NUM | '-'))+
+//;
+
+terminal
+ROLE_WORD:
+	':' (SIMPLE_WORD_FRAGMENT ':')+
+;
+
+terminal
+COLON_WORD:
+	':' SIMPLE_WORD_FRAGMENT+
+;
+
+SPECIAL_CHAR:  (
+     '!'
+    |MINUS
+    |DASH
+    |'"'
+    |'$'
+    |'%'
+    |'&'
+    |'\''
+    |'('
+    |')'
+    |'+'
+    |','
+    |'.'
+    |'/'
+    |SEMI
+    |'='
+    |'?'
+    |'@'
+    |'['
+    |'\\'
+    |']'
+    |'^'
+    |'{'
+    |'}'
+    |'~'
+    |'...'
+    )
+  ;
+  
+KEYWORDS:
+		'raw'
+	|	'math'
+	|	'image'
+	|	'figure'
+	|	'code'
+;
+
+terminal EQUAL_LINE:
+	'=' '=' '='+
+;
+
+terminal STAR_LINE:
+	'*' '*' '*'+
+;
+
+terminal SEMI_LINE:
+	';' ';' ';'+
+;
+
+terminal MINUS_LINE:
+	'-' '-' '-'+
+;
+  
+//terminal SPECIAL_CHAR_LINE:
+//	('-' | '=' | '+') ('-' | '=') ('-' | '=')+
+//;
+ 
+//terminal EQUAL: '=';  
+terminal STAR: '*';
+terminal SEMI: ';';
+terminal UNDERSCORE :  '_';
+terminal BACKTICK :  '`';
+terminal PIPE:  '|';
+terminal COLON: ':';
+terminal DOUBLECOLON: '::';
+terminal MINUS: '-';
+terminal DASH: '--';
+terminal L_ANGLE_BRACKET: '<';
+terminal R_ANGLE_BRACKET: '>';
+terminal HASH : '#';
+
+terminal LINE_BREAK :  ('\r'? '\n' (' '|'\t')*);
+
+terminal WS         : (' '|'\t')+;
+
+//terminal ANY_OTHER: .;
+//
+terminal BEGIN: 'synthetic:BEGIN';
+terminal END: 'synthetic:END';

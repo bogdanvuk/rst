@@ -10,5 +10,5 @@ def efti(train_set, res):
         if cur_fit > best_fit:
             best_fit = cur_fit
             dt = dt_mut
-            
     res.dt = dt
+

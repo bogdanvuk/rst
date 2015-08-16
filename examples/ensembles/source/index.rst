@@ -1,7 +1,7 @@
-.. |algo| replace:: *EFTI*
-.. |task| replace:: Task
-.. |cop| replace:: *EFTIP*
-.. |acep| replace:: *ACEP*
+.. |algo| replace:: *EEFTI*
+.. |efti| replace:: *EFTI*
+.. |cop| replace:: *EEFTIP*
+.. |smae| replace:: *SMAE*
 .. |A| replace:: :math:`\mathbf{A}`
 .. |a| replace:: :math:`\mathbf{a}`
 .. |NA| replace:: :math:`N_{A}`
@@ -20,6 +20,13 @@
 .. |alpha| replace:: :math:`{\alpha}`
 .. |rho| replace:: :math:`{\rho}`
 .. |WDTM| replace:: :math:`W_{DTM}`
+.. |ne| replace:: :math:`n_e`
+.. |Ths| replace:: :math:`T_{hs}`
+.. |Tsw| replace:: :math:`T_{sw}`
+.. |Tswmut| replace:: :math:`T_{sw\_mut}`
+.. |Tswacc| replace:: :math:`T_{sw\_acc}`
+.. |Thsmut| replace:: :math:`T_{hs\_mut}`
+.. |Thsacc| replace:: :math:`T_{hs\_acc}`
 
 ==========================================================
 Co-Processor for Evolutionary Full Decision Tree Induction
@@ -51,7 +58,7 @@ where **a** represents the test coefficient vector and *thr* (abbreviated from t
 
 The DT traversal for each instance begins at DT root node and continues until a leaf is reached, when the instance is assigned the class associated with the leaf. Whenever a node is reached during the traversal the test associated with the node (given by equation :eq:`oblique_test`) is evaluated. If the test yields the value **true**, the DT traversal is continued via nodes left child, otherwise it is continued via nodes right child. In :num:`Figure #fig-oblique-dt`, one possible traversal path is shown with red line. In this example, the instance is classified into the class :math:`C_{4}` after the traversal.
 
-In general, DT can be induced in two ways: incrementally (node-by-node) and whole tree at once. Most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA), since the finding of the optimal oblique DT is a hard algorithmic problem :cite:`struharik2014inducing`. The greedy top-down recursive partitioning strategy is a computationally least demanding approach for DT induction, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results, especially if DT size is considered, are obtained by the inducers that work in full DT, with cost of higher computational complexity :cite:`struharik2014inducing`.
+In general, DT can be induced in two ways: incrementally (node-by-node) and whole tree at once. Most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA), since the finding of the optimal oblique DT is a hard algorithmic problem :cite:`barros2012survey`. The greedy top-down recursive partitioning strategy is a computationally least demanding approach for DT induction, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results, especially if DT size is considered, are obtained by the inducers that work in full DT, with cost of higher computational complexity :cite:`struharik2014inducing`.
 
 DT induction phase can be very computationally demanding and can last for hours or even days **[ref]** for practical problems.This is certainly true for full DT inference algorithms. By accelerating this task, machine learning systems could be trained faster allowing for shorter design cycles, or could process large amount of data, which is of particular interest if DTs are used in the data mining applications :cite:`witten2005data`. This might also allow DT learning systems to be rebuilt
 in real-time for applications that require such rapid adapting, such as machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
@@ -60,86 +67,82 @@ In order to accelerate DT induction phase, two general approaches can be used. F
 
 The proposed co-processor is used for acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
 
-Hardware acceleration of machine learning algorithms receives significant attention in scientific community. Wide range of solutions have been suggested in the open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for acceleration of both learning and deployment phases have been proposed. Architectures for hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while architectures for acceleration of previously created SMVs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. Research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However in the field of hardware acceleration of DTs majority of papers focus on acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction is scarcely covered. Authors are currently aware of only two papers on the topic of hardware acceleration of DT induction using :cite:`struharik2009evolving,chrysos2013hc`. However, these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` incremental DT induction algorithm, where EA is used to calculate optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` authors use a HW/SW approach to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm. Authors are not aware of any previous work on hardware acceleration of full DT inductions algorithms.
+Hardware acceleration of machine learning algorithms receives significant attention in scientific community. Wide range of solutions have been suggested in the open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for acceleration of both learning and deployment phases have been proposed. Architectures for hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while architectures for acceleration of previously created SVMs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. Research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However, in the field of hardware acceleration of DTs majority of papers focus on acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction is scarcely covered. Authors are currently aware of only two papers on the topic of hardware acceleration of DT induction algorithms :cite:`struharik2009evolving,chrysos2013hc`. But these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` incremental DT induction algorithm, where EA is used to calculate optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` a HW/SW approach was used to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm.
 
-This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA **[nasa referenca]**. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the 
-authors are aware, this is the first paper concerning with the hardware acceleration of some full DT induction algorithm.
+This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA :cite:`efti`. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT induction algorithm.
 
-The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do. As a result, less memory is needed for individual storage and induction time is shorter **[kao na primer neka referenca iz surveya]**. Nevertheless, it proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT **[nasa referenca]**. Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| algorithm should benefit from hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes to design |cop| (Evolutionary Full Tree Induction co-Processor) co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase, so |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with wide variety of other EA-based DT induction algorithms **[referenca ka nekom survey-u, ili ovog sto imam ili iz njegovih referenci]**, to accelerate the training set classification step that is always present during the fitness evaluation phase.
+The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as authors are aware, this is the first full DT building algorithm that operates on a single-individual population. This makes EFTI algorithm particularly interesting to be used in embedded applications, where memory and processing resources are tightly constrained. Nevertheless, it proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT :cite:`efti`. Being that the EAs are iterative by nature and extensively perform simple computations on the data, |algo| algorithm should benefit from hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes to design |cop| (Evolutionary Full Tree Induction co-Processor) co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase, so |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with wide variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga` to accelerate the training set classification step that is always present during the fitness evaluation phase.
 
 |algo| algorithm
 ================
 
 In this section, the |algo| algorithm for induction of DT ensembles using full DT induction approach based on EA is described. Only one individual per ensemble member is required for the induction by the |algo| algorithm. Each individual represents the best DT evolved up to the current iteration for it's corresponding ensemble member. Since |algo| uses supervised learning, the training set used to induce the ensemble consists of the problem instances together with their corresponding class memberships. The training set is divided in as many equally large parts as there are members in the ensemble and each member is induced by using its own part of the training set, i.e. its own set of instances. Each ensemble member starts off as a randomly generated one-node DT and the algorithm iteratively tries to improve on it. DTs are slightly changed, i.e. mutated, in each iteration, and let to perform classification of their corresponding training set part. The known training set classification is then used to calculate the quality of the classification results. When the newly mutated DT performs better at the classification than its predecessor, it is promoted to the new current best individual for its ensemble member and will become the base for the mutation in the next iterations, until a better one is found. After the desired number of iterations, the algorithm exits and returns the set of best DT individuals, one per ensemble members. 
 
-The :num:`Algorithm #fig-algorithm-pca` shows the |algo| algorithm entry point. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity. The inductions of individual ensemble members are completely decoupled from each another, and can be processed in separate tasks called |task| shown in :num:`Algorithm #fig-task-pca`. The |algo| first divides the training set in the parts using *divide_train_set()* function and stores them in the array *task_train_sets*. Then the result array is created using *initialize_result_array()* function and stored in the *res* array. The *res* array contains one item for each ensemble member, to which the corresponding |task| will output the induced DTs and various miscellaneous corresponding statistical data. 
+The :num:`Algorithm #fig-algorithm-pca` shows the |algo| algorithm entry point. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity. The inductions of individual ensemble members are completely decoupled from each another, and can be processed in separate tasks called |efti| shown in :num:`Algorithm #fig-task-pca`. The |algo| first divides the training set in the parts using *divide_train_set()* function and stores them in the array *task_train_sets*. Then the result array is created using *initialize_result_array()* function and stored in the *res* array. The *res* array contains one item for each ensemble member, to which the corresponding |efti| will output the induced DTs and various miscellaneous corresponding statistical data. 
 
 .. _fig-algorithm-pca:
 
 .. literalinclude:: code/algorithm.py
     :caption: Overview of the |algo| algorithm
 
-Next, the |task| s are created, assigned their corresponding *task_train_sets* item and *res* item, and run. The |algo| waits for a completion of all |task|s and returns the *res* array populated by them.
+Next, the |efti| s are created, assigned their corresponding *task_train_sets* item and *res* item, and run. The |algo| waits for a completion of all |efti|s and returns the *res* array populated by them.
 
-The :num:`Algorithm #fig-task-pca` shows the algorithmic framework for the each of the |task|s, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. 
+The :num:`Algorithm #fig-task-pca` shows the algorithmic framework for the each of the |efti|s, which is similar for all EAs. The current best DT individual is called *dt* in the pseudo-code. 
 
 .. _fig-task-pca:
 
 .. literalinclude:: code/task.py
-    :caption: Overview of the |algo| algorithm
+    :caption: Overview of the |efti| algorithm
 
-The initial DT contains only one non-leaf node (root) and two leaves. The root test coefficients are obtained by selecting two instances with different classes from the training set at random, and adjusting the coefficients in such a way that these two instances take different paths after the root test. This is performed by the *initialize()* function.
+Initialy, each individual starts of as a single node DT. In order to generate the node test coefficients, two instances with different class associations are selected at random from the training set. Each instances forms a point and each node test forms a plane in |NA|-dimensional space, where |NA| equals the size of the instance attribute vector (|A|) and node test coefficient vector (|a|). The node test coefficients are then calculated in such a way to form a plane perpendicular to the line through the two selected instances. The consequence of the way the node test is devised is that when the DT is let to classify the training set, the two selected instances (selected to have different classes) will be split by the node test, i.e. they will take different paths. This splitting of the instances is fundamental for building a classifier. Furthermore, it is expected that the instances of the same class are grouped in same regions of the attribute space, thus it is likely that the node test will also split many other instances that share classes with two selected ones. All this is implemented in the *initialize()* function. Additionally, this function will be called each time a new node is added to the DT.
 
-There are three main tasks performed by the |algo| algorithm:
+Once the DT individual is initialized, the |efti| iteratively performs three main tasks:
 
 - **DT Mutation** - implemented by *mutate()* function
 - **Fitness Evaluation** - implemented by *fitness_eval()* function
-- **Individual Selection** - given by the last **if** statement of the :num:`Algorithm #fig-algorithm-pca`, which represents the elemental way of selecting individuals by performing the comparison of the fitness of the currently best individual (*dt*) with the fitness of the newly mutated individual (*dt_mut*) and takes *dt_mut* as new current best if it has better fitness. |algo| algorithm implements a more complex procedure for individual selection which allows, with some probability, for an individual with worse fitness to be selected. However, this was omitted for the sake of brevity. 
+- **Individual Selection** - given by the last **if** statement of the :num:`Algorithm #fig-algorithm-pca`.
 
-Next, the details on DT mutation and fitness evaluation tasks will be provided. |algo| performs two types of mutations on DT individual:
+Next, the details on the main |efti| tasks will be provided. |efti| performs two types of mutations on DT individual: Node test coefficients mutation and DT topology mutation.
 
-- Node test coefficients mutation
-- DT topology mutation
+Node test coefficient is mutated by switching the value of one of its bit at random position. Only small fraction (|alpha|) of node test coefficients are mutated each iteration in order not to generate large shifts in the search space. The node tests determine the paths the instances will take during the classification, i.e. determine their classification, hence these mutation are done with hope of obtaining better classification results. Parameter |alpha| changes dynamically between the iterations. At the end of the iteration, if there was an improvement to the DT fitness, i.e. new best individual is found, |alpha| is reset to some initial value. However, in each iteration there was no improvement |alpha| is gradually increased in order to allow for bigger steps in search space. 
 
-During each iteration of |algo|, a small portion (|alpha|) of DT nodes' test coefficients is mutated at random. Coefficient is mutated by flipping one of its bits at random position. Every change in node test influences the classification, as the instances take different paths through the DT, hence being classified differently. Usually one coefficient per several nodes (dictated by parameter |alpha|) is mutated each iteration, in order for classification result to change in small steps. Parameter |alpha| is adapted dynamically from one iteration to other depending on the speed at which the DT fitness is improving in a manner that |alpha| is increased each iteration when there is no improvement, and reset to default minimal value when new individual is selected as current best.
+Topology mutations represent even larger steps in the search space and are thus employed even less often, only every few iterations. Parameter |rho| defines the probability a single node will be either removed from the DT individual or added to it. When adding a node, first one leaf node is selected at random that will be discarded and an addition made at its place. Next, the test coefficients for the new node are calculated using *initialize()* function described above and two leaf nodes are generated as its children. This way, a new test is introduced into the DT where instances of different classes might separate, take different paths through the DT and eventually finish classified as different, thus increasing the DT accuracy and its fitness. 
 
-On the other hand, topology mutations represent very large moves in the search space, so they are performed even less often. In every iteration, there is a small chance (|rho|) that a node will either be added to the DT or removed from it. This change either adds an additional test for the classification, or removes one or whole subtree of tests. The node is always added in place of an existing leaf, i.e. never in place of an internal non-leaf node.  The test coefficients of the newly added non-leaf node are calculated in the same way as are the root test coefficients during initialization. On the other hand, if node is to be removed, it is always one of the non-leaf nodes. By adding a test, a new point is created where during classification, instances from different classes might separate and take different paths through the DT and eventually be classified as different. This increases the accuracy of the DT. On the other hand, by removing the unnecessary test the DT is made smaller. Size of the DT is also an important factor in fitness calculation in |algo| algorithm.
+On the other hand, when node is to be removed, it is selected at random from all non-leaf DT nodes. The selected non-leaf node is deleted along with the whole sub-tree of nodes rooted at it. The removal of the node is done in hope of removing an unnecessary test and make the DT smaller, since the size of the DT, besides the accuracy, influences the DT fitness as well.
 
 .. _fig-fitness-eval-pca:
 
 .. literalinclude:: code/fitness_eval.py
     :caption: The pseudo-code of the fitness evaluation task.
 
-The fitness of a mutated individual (DT) is evaluated using the training set. The DT is let to classify all the problem instances and the classification results are then compared to the desired classifications specified in the training set. The pseudo-code for this task is given in :num:`Algorithm #fig-fitness-eval-pca`. The input parameter *dt* is the current DT individual and *train_set* is the training set.
+After the DT individual is mutated, its fitness is obtained using the algorithm given in :num:`Algorithm #fig-fitness-eval-pca` as weighted sum of two values: DT accuracy and DT oversize. The input parameter *dt* is the current DT individual and *train_set* is the training set. DT oversize negatively influences the fitness and is calculated as the relative difference between the number of leaves in DT (|Nl|) and total number of classes in training set (|Nc|). This means that once |Nl| becomes bigger than |Nc|, the DT individual starts to suffer penalties to its fitness. The threshold is set to |Nc| since DT needs to have at least one leaf for each of the training set classes in order to have chance of classifying the instances belonging to each of the training set classes. DT accuracy influences positively the fitness and is calculated by letting DT individual classify all the training set instances and is described in more detail in next paragraphs.
 
 The fitness evaluation task performs the following:
 
 - Finding the distribution of the classes over the leaves of the DT - implemented by the first **for** loop
 - Finding the dominant class for each leaf - implemented by the second **for** loop
-- Calculating the fitness as a weighted sum of two values: DT accuracy and DT oversize (calculated as the relative difference between the number of leaves in DT and total number of classes in training set) - implemented by the last four statements.
+- Calculating the fitness as a weighted sum of the DT accuracy and DT oversize.
 
-First, the class distribution is determined by letting all instances from the training set traverse the DT, i.e. by calling the *find_dt_leaf_for_inst()* function whose pseudo-code is given in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function uses *evaluate_node_test()* function in each iteration to determine the traversal path and returns the ID of a leaf node in which the instance finished the traversal. The *evaluate_node_test()* function performs the node test evaluation given by equation :eq:`oblique_test`. The traversal is performed in the manner depicted in the :num:`Figure #fig-oblique-dt` where one possible path is given by the red line.
+The class distribution is obtained from the classification results of the training set, calculated by the DT individual. The :math:`d_{i,j}` element of the distribution matrix contains the number of instances of class *j* that finished in the leaf node with ID *i* after DT traversal. In order to populate the matrix, the *find_dt_leaf_for_inst()* function is called (whose pseudo-code is given in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`) for each training set instance, to perform the DT traversal in the manner depicted in the :num:`Figure #fig-oblique-dt` where the red line shows one possible path. During the traversal, the *evaluate_node_test()* function is iteratively used to perform the node test evaluation given by the equation :eq:`oblique_test`, to determine in which direction the traversal should continue. The function returns the ID of a leaf (variable *leaf_id* in the :num:`Algorithm #fig-fitness-eval-pca`) in which the instance finished the traversal. Using the leaf ID and being that the class of the instance is known from the training set (variable *instance_class* in the :num:`Algorithm #fig-fitness-eval-pca`), the corresponding element *distribution[leaf_id][instance_class]* of the distribution matrix is incremented for each instance. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
 
 .. _fig-find-dt-leaf-for-inst-pca:
 
 .. literalinclude:: code/find_dt_leaf_for_inst.py
     :caption: The pseudo-code of the procedure for determining the end-leaf for an instance.
 
-Next step in the fitness evaluation process (:num:`Algorithm #fig-fitness-eval-pca`) is to calculate the class distribution matrix. The classes of all the instances from the training set are known and read for each instance into the *instance_class* variable (from the *fitness_eval()* function). Based on the leaf nodes' IDs returned by *find_dt_leaf_for_inst()* and the *instance_class* variable value, the distribution matrix is updated. The :math:`d_{i,j}` element of the distribution matrix contains the number of instances of class *j* that finished in the leaf node with ID *i* after DT traversal. After all the instances from training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
-
-Second, the next loop of the *fitness_eval()* finds the dominant class for each leaf node. Dominant class for a leaf node is the class having the largest percentage of instances finishing the traversal in that leaf node. Formally, the dominant class *k* of the leaf node with ID *i* is:
+Second, dominant class is calculated by the next loop of the *fitness_eval()* function. Dominant class for a leaf node is the class having the largest percentage of instances finishing the traversal in that leaf node. Formally, the dominant class *k* of the leaf node with ID *i* is:
 
 .. math:: k | (d_{i,k} = \max_{j}(d_{i,j}))
     :label: dominant_class
 
-If we were to do a classification run with the current DT individual over the training set, the maximum accuracy would be attained if all leaf nodes were assigned their corresponding dominant classes. Thus, each instance which finishes in a certain leaf node, that corresponds to the node's dominant class is added to the number of classification hits (the *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca`), otherwise it is qualified as a miss.
+The maximum classification accuracy over the training set is attained when all leaf nodes are assigned their corresponding dominant classes. Therefore, when an instance finishes in the leaf node whose dominant class is the same as the class of the instance, the instance classification is qualified as a hit, otherwise it is qualified as a miss. The *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca` counts the instance classification hits. The DT accuracy is then calculated as a percentage of the classification hits over the total number of instances in the training set.
 
-Fitness is calculated as a weighted sum of two values: DT accuracy and DT oversize. DT accuracy is calculated as the percentage of classification hits. DT oversize is calculated as the relative difference between the number of leaves in DT (obtained via *leaves_cnt()* function) and total number of classes in training set (obtained via *class_cnt()* function). In order to be able to classify correctly all training set instances, after the induction, DT needs to have at least one leaf for each class occuring in the training set. Therefore, DT starts to suffer penalties to the fitness only when the number of DT leaves exceeds the total number of classes in the training set.
+Finally, upon acquiring the fitness of the newly mutated DT the :num:`Algorithm #fig-algorithm-pca` performs the individual selection. The most basic individual selection is presented here for the sake of the brevity. However, the more complex procedure is implemented in |efti| algorithm which allows, with some probability, for an individual with worse fitness to be selected. In that case, the algorithm continues as if the worse fitness individual were a current best. Nevertheless, the best overall individual is always memorized and there is an increasing chance that it will be selected again if the algorithm makes no progress in fitness. 
 
 Profiling results
 -----------------
 
-To confirm the results obtained by the computational complexity analysis, software profiling was performed on the |algo| algorithm's C implementation. Software implementation was developed using many optimization techniques:
+In order to decide which part of the |algo| algorithm should be accelerated in hardware, the profiling was performed on the algorithm software implementation. Only one task running the |efti| algorithm described in :num:`Figure #fig-task-pca` was profiled at a time and the results were scaled to the arbitrary number of tasks in the `Scalability`_ section. Software was implementation in C language using many optimization techniques:
 
 - arithmetic operation on 64-bit operands only (optimized for 64-bit CPU), 
 - loop unfolding for node test evaluation loop, 
@@ -229,7 +232,7 @@ To perform the experiments 21 datasets, presented in :num:`Table #tbl-uci-datase
       - 22
       - 267
       - 2
-    * - Stell Plates Faults
+    * - Steel Plates Faults
       - spf
       - 21
       - 1941
@@ -265,7 +268,7 @@ To perform the experiments 21 datasets, presented in :num:`Table #tbl-uci-datase
       - 5456
       - 4
 
-Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compiler, run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf for each of the tests listed in :num:`Table #tbl-uci-datasets`. The results obtained by profiling were consistent with the algorithm complexity analysis performed in the previous chapter and are shown in :num:`Figure #fig-profiling-plot`. The figure shows percentage of time spent in the *fitness_eval()* function and its subfuctions for each dataset. In average, |algo| spent 99.4% of time calculating the fitness of the individual. 
+Software implementation of |algo| algorithm was compiled using GCC 4.8.2 compiler, run on AMD Phenom(tm) II X4 965 (3.4 GHz) computer and profiled using GProf for each of the tests listed in :num:`Table #tbl-uci-datasets`. The results obtained by profiling were consistent with the algorithm complexity analysis performed in the previous chapter and are shown in :num:`Figure #fig-profiling-plot`. The figure shows percentage of time spent in the *fitness_eval()* function and its subfuctions for each dataset. On average, |algo| spent 99.4% of time calculating the fitness of the individual. 
 
 .. _fig-profiling-plot:
 
@@ -285,18 +288,67 @@ The results of one example profiling experiment on the *veh* dataset are shown i
 
 .. figure:: images/profiling.png
     
-    Profiling results of the |algo| algorithm C implementation.
+    Profiling results of the |algo| algorithm's C implementation.
 
-The execution times shown for the functions represent only the self time, i.e. the execution times of its subfunctions are subtracted from the total execution time. The functions from the top of the table in :num:`Figure #fig-profiling` (which was sorted by the execution times), all belong to the fitness evaluation task: *evaluate node test()*, *find_dt_leaf_for_inst()*, *find_node_distribution()* and *fitness_eval()*. By summing the execution times of these four functions we obtain that the fitness evaluation tasks takes about 99.84% of total time for this particular test. 
+The execution times shown for the functions represent only the self time, i.e. the execution times of its subfunctions are subtracted from their total execution time. Following functions from table in :num:`Figure #fig-profiling` (which was sorted by the execution times) belong to the fitness evaluation task: *evaluate node test()*, *find_dt_leaf_for_inst()*, *find_node_distribution()* and *fitness_eval()*. By summing the execution times of these four functions we obtain that the fitness evaluation task takes about 99.84% of total time for this particular test. 
 
-Hence, the |algo| algorithm has obvious computational bottleneck in the fitness evaluation task, which takes 99.4% of computational time on average, which makes it an undoubtful candidate for hardware acceleration. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Further advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other algorithms can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc.
+Hence, the |algo| algorithm has obvious computational bottleneck in the fitness evaluation task, which takes 99.4% of computational time on average, which makes it an undoubtful candidate for hardware acceleration. Since the DT mutation task takes insignificant amount of time to perform, it was decided for it to be left in software. Further advantage of leaving the mutation in software is the ease of changing and experimenting with this task. Many other evolutionary algorithms for optimizing the DT structure can then be implemented in software and make use of the hardware accelerated fitness evaluation task like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc. This fact significantly expands the potential field of use for the proposed EFTIP co-processor core.
+
+Scalability
+-----------
+
+In this section the shape of the speedup of the HW/SW implementation over the pure software implementation of the |algo| algorithm will be calculated as function of the number of ensemble members |ne|:
+
+.. math:: speedup(n_e) = \frac{\Tsw(n_e)}{\Ths(n_e)}
+    :label: m-speedup-function
+    
+where |Tsw| and |Ths| denote the run times of the pure software and HW/SW implementations respectively. As discussed in the previous section, the good candidate for hardware acceleration of |efti| algorithm is the accuracy calculation task, while leaving the mutation to be implemented in software. Hence, we will observe separately the contributions of the two parts to the total algorithm runtime. Furthermore, the hardware accelerator for the accuracy calculation task can be easily made to calculate the accuracy for each ensemble member in parallel, since there is no coupling between different members' the induction processes. For the software implementation we obtain:
+
+.. math:: \Tsw(n_e) = \Tswmut + \Tswacc
+    :label: m-tsw-breakdown
+
+where |Tswmut| and |Tswacc| denote the amount of time pure software implementation spends on the mutation and accuracy calculation tasks respectively. |Tswmut| is a linear function of |ne|, since the mutation is performed once per iteration per ensemble member. Hence, if the number of iteration is kept constant, we obtain:
+
+.. math:: \Tswmut(n_e) = \Tswmut(1) \cdot n_e
+    :label: m-tswmut-func
+    
+On the contrary, |Tswacc| is a constant with respect to |ne|, since the training set is divided amongst ensemble members, making the number of instances being classified and thus the amount of computation constant. For the HW/SW implementation we obtain:
+
+.. math:: \Ths(n_e) = \Thsmut(1) \cdot n_e + \Thsacc
+    :label: m-ths-breakdown
+
+where |Thsmut| and |Thsacc| denote the amount of time HW/SW implementation spends on the mutation and accuracy calculation tasks respectively. |Thsmut| is implemented in software and is a linear function of |ne| for the same reasons given for |Tswmut|. Furthermore, |Thsmut| is somewhat greater than |Tswmut| (:math:`\Thsmut = \Tswmut + \Delta_t`) since it also comprises the latency of hardware accelerator interface operations, which is not present in the pure software implementation. 
+
+Because HW/SW accuracy calculation is performed in parallel for all ensemble members, the calculation time is proportional to the size of the training set allocated for each ensemble member. Since the training set is divided equally among the ensemble members, |Thsacc| is inversely proportional to the |ne|:
+
+.. math:: \Thsacc(n_e) = \frac{\Thsacc(1)}{n_e}
+    :label: m-thsacc-func
+    
+By substituting equations :eq:`m-tsw-breakdown`, :eq:`m-tswmut-func`, :eq:`m-ths-breakdown` and :eq:`m-thsacc-func` into the :eq:`m-speedup-function`, we obtain:
+
+.. math:: speedup(n_e) = \frac{\Tswmut(1) \cdot n_e + \Tswacc}{\Thsmut(1) \cdot n_e + \frac{\Thsacc(1)}{n_e}} = \frac{\Tswmut(1) \cdot n_e^{2} + \Tswacc \cdot n_e}{\Thsmut(1) \cdot n_e^{2} + \Thsacc(1)}
+    :label: m-speedup-func-subst
+    
+|Tswacc| was shown in the `Profiling results`_ section to take almost all of the computational time, hence :math:`\Tswacc \gg \Tswmut` and thus :math:`\Tswacc \gg \Thsmut`. By using hardware acceleration, we hope to accomplish :math:`\Tswacc \gg \Thsacc` as well. By taking these parameter relationships into the account, :math:`speedup(n_e)` function given by equation :eq:`m-speedup-func-subst` takes shape depicted in :num:`Figure #fig-speedup-func-plot`.
+
+.. _fig-speedup-func-plot:
+
+.. plot:: images/speedup_func_plot.py
+    :width: 100%
+    
+    The shape of the :math:`speedup(n_e)` function given by equation :eq:`m-speedup-func-subst`.
+
+The plot on :num:`Figure #fig-speedup-func-plot` suggests that accelerating the |algo| by a co-processor that performs the DT accuracy calculation in parallel for all ensemble members, will in the beginning provide increase in speedup as the number of ensemble members increase. Then, after some speedup maximum, it will slowly degrade, but continue to offer substantial speedup for all reasonable ensemble sizes. The maximum of the speedup can be found by seeking the maximum of the function in equation :eq:`m-speedup-func-subst`. By taking into the account parameter relationships, the point of maximum of the :math:`speedup(n_e)` function can be expressed as follows:
+
+.. math:: max(speedup(n_e))\approx\frac{\Tswacc}{\sqrt{\Thsacc(1)\Thsmut(1)}}\ at\ n_e \approx \sqrt{\frac{\Thsacc(1)}{\Thsmut(1)}}
+	:label: m-speedup-maximum
 
 Co-processor for DT ensemble induction - |cop|
 ==============================================
 
-Proposed |cop| co-processor performs the task of determining the accuracies of the DT individuals for the fitness evaluation tasks of the DT ensemble induction. The |cop| can calculate the DT accuracies, i.e. the number of hits contained in the *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca`, for all ensemble members in parallel. The co-processor is connected to the CPU via AXI4 AMBA bus, which can be used by software to completely control the |cop| operation:
+Proposed |cop| co-processor performs the task of determining the accuracies of the DT individuals for the fitness evaluation tasks of the DT ensemble induction. The |cop| can calculate the DT accuracies, i.e. the number of hits accumulated in the *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca`, for all ensemble members in parallel. The co-processor is connected to the CPU via AXI4 AMBA bus, which can be used by software to completely control the |cop| operation:
 
-- Download of the training set
+- Download of the training set parts for each ensemble member
 - Download of the DT descriptions, including structural organization and coefficient values for all node tests present in the DTs
 - Start of the accuracy evaluation process for each of the ensemble members individually
 - Read-out of the vector of combined statuses of the accuracy evaluation processes for all ensemble members 
@@ -309,24 +361,33 @@ Proposed |cop| co-processor performs the task of determining the accuracies of t
     
     The |cop| co-processor structure and integration with the host CPU
 
-The |cop| consists of an array of DT accuracy evaluators (|acep|), each of which can be used to evaluate the accuracy of the DT for a single ensemble member inducer. Furthermore, the co-processor features the Status block that allows the user to read-out the operation status of all |acep|. The |cop| co-processor structure and integration with the host CPU is depicted in the :num:`Figure #fig-system-bd`.
+The |cop| consists of an array of DT accuracy evaluators (|smae| - Single Member Accuracy Evaluator), each of which can be used to evaluate the accuracy of the DT for a single ensemble member inducer. Furthermore, the co-processor features the Status block that allows the user to read-out the operation status of all |smae|. The |cop| co-processor structure and integration with the host CPU is depicted in the :num:`Figure #fig-system-bd`.
 
-|acep|
+Each |smae| unit comprises an *irq* (interrupt request) signal used to inform the Status block that the |smae| unit has finished the accuracy evaluation. The IRQ Status block comprises an array of IRQ Status Word Registers which are accessible to the user via AXI bus. Each IRQ Status Word is a register packed from the bits representing the statuses of up to 32 |smae| units. Each bit is called SMAE *i* Status Bit, where *i* represents the ID of the |smae| unit whose status the bit is tracking as shown in figure :num:`Figure #fig-irq-status`. The bits of the IRQ Status Word Register are sticky, i.e. set each time the *irq* is signaled from the corresponding |smae| and cleared when the register is read by the user.
+
+.. _fig-irq-status:
+
+.. bdp:: images/irq_status.py
+    
+    IRQ Status
+
+
+|smae|
 ------
 
 .. _fig-eftip:
 
 .. bdp:: images/eftip.py
     
-    The |acep| module structure
+    The |smae| module structure
 
-The major components of the |acep| co-processor and their connections are depicted in the :num:`Figure #fig-eftip`:
+The major components of the |smae| co-processor and their connections are depicted in the :num:`Figure #fig-eftip`:
 
 - **Classifier**: Performs the DT traversal for each training set instance, i.e. implements the *find_dt_leaf_for_inst()* function in :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined, with each stage performing DT node test calculations for one DT level. |DM| is the number of pipeline stages and thus the maximum supported depth of the induced DT. For each instance in the training set, the Classifier outputs the ID assigned to the leaf in which the instance finished the traversal (please refer to *fitness_eval()* function :num:`Algorithm #fig-fitness-eval-pca`).
 - **Training Set Memory**: The memory for storing all training set instances that should be processed by the |cop| co-processor.
 - **DT Memory Array**: The array of memories used to store the DT description with elements :math:`L_{1}` through :math:`L_{D^{M}}`. The Classifier calculates node tests for each DT level in parallel. Each Classifier pipeline stage requires its own memory that holds description of all nodes at DT level it is associated with.
 - **Accuracy Calculator**: Calculates the accuracy of the DT based on the classification data received from the Classifier. For each instance of the training set, the Classifier supplies the ID of the leaf in which the instance finished. Based on this information, the Accuracy Calculator updates the distribution matrix and calculates the number of hits which is sent to the Control Unit and stored in the memory-maped Classification Performance Register, ready to be read by the user.
-- **Control Unit**: Acts as a bridge between the AXI4 interface and internal protocols and controls the accuracy evaluation process.
+- **Control Unit**: Acts as a bridge between the AXI4 interface and internal protocols and controls the accuracy evaluation process. Furthermore, it generates the pulse on the *irq* output upon finishing the accuracy evaluation process.
 
 Required Hardware Resources and Performance
 -------------------------------------------
@@ -420,25 +481,35 @@ and is thus dependent on the training set size.
 Software for |cop| assisted DT ensemble induction
 =================================================
 
-With |cop| co-processor performing DT accuracy evaluation task, remaining functionality of the |task| algorithm (:num:`Algorithm #fig-algorithm-pca`) is implemented in software. Furthermore, software needs to implement procedures for interfacing the |cop| co-processor as well. 
-
-The further major difference to the pure software solution that arises from the use of the |cop| is the 
-
-The pseudo-code for software used in the co-design is given by :num:`Algorithm #fig-co-design-sw-pca`.
+As it was described, |cop| co-processor can perform accuracy evaluation task in parallel for as many ensemble members as there are |smae| units. Hence, in HW/SW implementation of the |algo| algorithm, each of the |efti| tasks is assigned one |smae| unit to use exclusively for acceleration of accuracy evaluation for its DT individual. Since there is a single AXI bus connecting the CPU to |cop| co-processor, no two |efti| tasks can access it in the same time. Hence, a scheduler task is needed to manage the granting of access rights to the tasks by using semaphores of the underlying operating system to signal that the access to the |cop| has been granted to the task. The |algo| top level pseudo-code with added instantiation of the synchronization mechanism in form of the scheduler task and the semaphores is presented in :num:`Algorithm #fig-co-design-sw-pca`. Furthermore, each of the tasks is assigned a unique ID (variable *smae_id* in the pseudo-code), which serves as a handle to the semaphore and the |smae| unit of the |cop| co-processor assigned to the task.
 
 .. _fig-co-design-sw-pca:
 
 .. literalinclude:: code/co_design_sw.py
     :caption: The pseudo-code of the |algo| algorithm using |cop| co-processor 
 
-The only difference to the pure software solution of the main *efti()* function, is that the training set needs to be transfered to the |cop| co-processor, which is performed by the *hw_load_training_set()* function. Since |cop|'s memory space is mapped to the main CPU's memory space via AXI bus, this function simply copies the instances to the memory region corresponding to the Training Set Memory of the |cop|.
+First let us show how each |efti| task(:num:`Algorithm #fig-algorithm-pca`) needs to be changed in order to support the co-processor. New |efti| pseudo-code for HW/SW co-design is given by :num:`Algorithm #fig-co-design-sw-pca`. The *smae_id* is used by all hardware interface functions to calculate the hardware addresses belonging to the assigned |smae| unit. First the training set needs to be loaded into the |smae|, since it will be needed to perform the accuracy calculation. Because |cop|'s memory space is mapped to the main CPU's memory space via AXI bus, the *hw_load_training_set()* function simply copies all instances of the training set to the Training Set Memory address space of the assigned |smae| unit.
 
-The *fitness_eval()* function performs the following:
+.. _fig-co-design-efti-pca:
 
-- uploads the new (mutated) DT description to the |cop|, by changing only the mutated parts in the memory that is mapped to the DT Memory Array of the |cop| via *hw_load_dt_diff()* function,
-- initiates the DT accuracy evaluation by writing to the Operation Control register of the |cop| via *hw_start_fitness_eval()* function,
-- waits for the DT accuracy evaluation results to become available, by polling the |cop| Classification Performance Register via *hw_finished_fitness_eval()* function,
-- fetches the number of classification hits from the |cop| Classification Performance Register via *hw_get_hits()* and calculates the fitness in the same manner as in :num:`Algorithm #fig-fitness-eval-pca`. 
+.. literalinclude:: code/co_design_efti.py
+    :caption: The pseudo-code of the |efti| task algorithm used in the HW/SW co-design implementation
+
+Each time DT individual is mutated its description needs to be reloaded into the DT Memory Array of the assigned |smae| unit. Since only small parts of the DT individuals are mutated each iteration, only the changed parts can be loaded to the co-processor in order to optimize the traffic. Hence, the *mutate()* function is slightly changed to return the list of all changes it made to the DT individual into the *dt_diff* variable. The function *hw_load_dt_diff()* is then called to copy all these changes to appropriate DT Memory Array locations of the assigned |smae| unit. Furthermore, if new DT individual does not get selected for a new current best, the mutations need to be discarded. This is executed by the *hw_revert_dt_diff()* function, which undoes all the changes applied by the *hw_load_dt_diff()* function.
+
+.. _fig-co-design-fitness-eval-pca:
+
+.. literalinclude:: code/co_design_fitness_eval.py
+    :caption: The pseudo-code of the fitness evaluation function used in the HW/SW co-design implementation
+
+The pseudo-code for the *fitness_eval()* function used in the HW/SW co-design implementation is shown in the figure :num:`Figure #fig-co-design-fitness-eval-pca`. With training set and DT description readily loaded into the co-processor, signal is sent to the the assigned |smae| to start the accuracy evaluation. After that the task waits for the semaphore signal form the Scheduler task to indicate that the accuracy has been calculated and the access to the |cop| has been granted it. The task switch performed by the underlying operating system and the processor is freed to serve other |efti| tasks.
+
+The pseudo-code of the Scheduler task is given in :num:`Algorithm #fig-co-design-scheduler-pca`. The main function of the scheduler task is to monitor the IRQ Status Registers of the |cop| and based on its value signal the semaphores assigned to the corresponding |efti| tasks. The Scheduler task reads the |cop| status via *hw_get_status()* function into the variable *status*. It then iterates over all bits of the variable *status* that correspond to the SMAE Status Bits, and checks which of them have the value of 1, meaning the corresponding |smae| unit has reported the end of the accuracy evaluation process. The corresponding |efti| task is then woken by signaling the appropriate semaphore.
+
+.. _fig-co-design-scheduler-pca:
+
+.. literalinclude:: code/co_design_scheduler.py
+    :caption: The pseudo-code of the |algo| algorithm using |cop| co-processor 
 
 The hardware interface function pseudo-codes were omitted for brevity.
 
@@ -478,7 +549,7 @@ The customization parameters of the |cop| co-processor, whose description is giv
     * - Max. number of nodes per level (:math:`N^{M}_{nl}`)
       - 16  
 
-The |cop| co-processor has been implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in :num:`Table #tbl-utilization`. The maximum operating frequency of 133 MHz of system clock frequency for the implemented |cop| co-processor was attained.
+The |cop| co-processor has been modeled in VHDL hardware description language and implemented using the Xilinx Vivado Design Suite 2014.4 software for logic synthesis and implementation with default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in :num:`Table #tbl-utilization`. The maximum operating frequency of 133 MHz of system clock frequency for the implemented |cop| co-processor was attained.
 
 .. tabularcolumns:: l l l l
 
@@ -540,7 +611,7 @@ The results of the experiments are presented in :num:`Table #tbl-results`. For e
     :header-rows: 1
     :file: scripts/results.csv
 
-:num:`Table #tbl-results` indicates that the average speedup of the HW/SW implementation is 42 times over the SW-ARM and 3.2 times over SW-PC implementation. Speedup varies with different datasets. Computational complexity increases as |NI|, |NA|, *n* and |Nc| increase. The number of nodes in DT *n* is dependant on the training set instance attribute values, but can be expected to increase also with |NI|, |NA| and |Nc|. By observing the speedup of the HW/SW implementation over pure software implementations shown in :num:`Figure #fig-speedup` for each dataset and the datasets' characteristics given in :num:`Table #tbl-uci-datasets`, it can be seen that indeed more speedup is gained for datasets with larger |NI|, |NA| and |Nc|.
+:num:`Table #tbl-results` indicates that the average speedup of the HW/SW implementation is 42 times over the SW-ARM and 3.2 times over SW-PC implementation. Computational complexity increases as |NI|, |NA|, *n* and |Nc| increase. The number of nodes in DT *n* is dependant on the training set instance attribute values, but can be expected to increase also with |NI|, |NA| and |Nc|. By observing the speedup of the HW/SW implementation over pure software implementations shown in :num:`Figure #fig-speedup` for each dataset and the datasets' characteristics given in :num:`Table #tbl-uci-datasets`, it can be seen that indeed more speedup is gained for datasets with larger |NI|, |NA| and |Nc|.
 
 .. _fig-speedup:
 
@@ -549,12 +620,12 @@ The results of the experiments are presented in :num:`Table #tbl-results`. For e
     
     Speedup of the HW/SW implementation over a) SW-ARM implementation and b) SW-PC implementation, given for each dataset listed in :num:`Table #tbl-uci-datasets`
 
-:num:`Figure #fig-speedup` and :num:`Table #tbl-results` suggest that HW/SW implementation using |cop| co-processor offers a substantial speedup in comparison to pure software implementations for both PC and ARM. Furthermore, |cop| implementation used in the experiments operates at much lower frequency (133MHz) than both ARM (667MHz) and PC(3.4GHz) platforms. If |cop| co-processor were implemented in ASIC, the operating frequency would be increased by a factor of 10-30, and the DT induction speedup would increase accordingly.
+:num:`Figure #fig-speedup` and :num:`Table #tbl-results` suggest that HW/SW implementation using |cop| co-processor offers a substantial speedup in comparison to pure software implementations for both PC and ARM. Furthermore, |cop| implementation used in the experiments operates at much lower frequency (133MHz) than both ARM (667MHz) and PC(3.4GHz) platforms. If |cop| co-processor were implemented in ASIC, the operating frequency would be increased by an order of magnitude, and the DT induction speedup would increase accordingly.
 
 Conclusion
 ==========
 
-In this paper a parameterizable co-processor for hardware aided decision tree (DT) induction using evoulutionary approach is proposed. |cop| co-processor is used for hardware acceleration of the DT accuracy evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (|algo|) has been implemented in software to use |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW |algo| algorithm implementation with pure software implementations suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+In this paper a parameterizable co-processor for hardware aided decision tree (DT) induction using evolutionary approach is proposed. |cop| co-processor is used for hardware acceleration of the DT accuracy evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (|algo|) has been implemented in software to use the |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW |algo| algorithm implementation with pure software implementations suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
 
 .. bibliography:: hereboy.bib
 	:style: unsrt

@@ -5,8 +5,9 @@ bus_cap = cap(length=0.8, width=1.3, inset=0, type='Stealth')
 bus = path(style=(bus_cap, bus_cap), line_width=0.7, double=True, border_width=0.1, shorten = [0.2, 0.2])
 bus_text = text(font="\\scriptsize", margin=p(0,0.5))
 
-pl = block("EFTIP hardware co-processor", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(0,2), p(0,2)])
+pl = block("EFTIP hardware co-processor", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(1,2), p(1,2)])
 pl += comp("Control Unit")
+fig << text("irq").left(pl['Co'], 3)
 pl += comp("Training Set Memory").right(pl['Co'], 1.5)
 pl += bus(pl['Co'].e(0.5), pl['Tr'].w(0.5))
 
@@ -55,5 +56,4 @@ pl += bus(pl['Tr'].s(0.5), nte[0].n(0.5), style=('', bus_cap))
 
 fig << pl
 #render_fig(fig, './eftip.pdf')
-
 
