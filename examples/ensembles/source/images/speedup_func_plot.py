@@ -11,12 +11,12 @@ f = [real(10*x*x + 50000*x)/(12*x*x + 5000) for x in t]
 tick_params(axis='both', which='major', labelsize=18)
 plt = plot(t,f)
 
-gca().axes.get_yaxis().set_visible(False)
+# gca().axes.get_yaxis().set_visible(False)
 gca().spines['right'].set_visible(False)
 gca().spines['top'].set_visible(False)
-gca().set_yticks([])
+# gca().set_yticks([])
 # gca().set_xticks([])
-gca().set_ylabel("speedup", fontsize=30)
+gca().set_ylabel("speedup", fontsize=20)
 gca().set_xlabel("$n_e$", fontsize=30, multialignment = 'right')
 gca().axes.get_xaxis().set_label_coords(1,-0.1)
 # gca().spines['bottom'].capstyle = "projecting"
@@ -38,6 +38,7 @@ gca().annotate("",(1,0),xytext=(-al,0), **kwargs) # bottom spine arrow
 gca().annotate("",(0,1),xytext=(0,-al), **kwargs) # left spin arrow
 
 margins(0.03, 0.1)
-
+xlim(1, 85)
+gca().yaxis.grid(True)
 
 show()
