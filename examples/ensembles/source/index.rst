@@ -1,3 +1,6 @@
+.. role:: raw(raw)
+   :format: latex
+
 .. |algo| replace:: *EEFTI*
 .. |efti| replace:: *EFTI*
 .. |eftis| replace:: *EFTIs*
@@ -62,7 +65,9 @@ The DT traversal for each instance begins at DT root node and continues until a 
 
 In general, DT can be induced in two ways: incrementally (node-by-node) and whole tree at once. Most of DT induction algorithms use some kind of heuristic for optimization process, which is often some sort of evolutionary algorithm (EA), since the finding of the optimal oblique DT is a hard algorithmic problem :cite:`barros2012survey`. The greedy top-down recursive partitioning strategy is a computationally least demanding approach for DT induction, hence most DT induction algorithms use this approach. Naturally, this approach suffers from inability of escaping local optima. Better results, especially if DT size is considered, are obtained by the inducers that work in full DT, with cost of higher computational complexity :cite:`struharik2014inducing`.
 
-DT induction phase can be very computationally demanding and can last for hours or even days **[ref]** for practical problems.This is certainly true for full DT inference algorithms. By accelerating this task, machine learning systems could be trained faster allowing for shorter design cycles, or could process large amount of data, which is of particular interest if DTs are used in the data mining applications :cite:`witten2005data`. This might also allow DT learning systems to be rebuilt
+**Nisam dirao odavde ->**
+
+DT induction phase can be very computationally demanding and can last for hours or even days for practical problems. This is certainly true for full DT inference algorithms. By accelerating this task, machine learning systems could be trained faster allowing for shorter design cycles, or could process large amount of data, which is of particular interest if DTs are used in the data mining applications :cite:`witten2005data`. This might also allow DT learning systems to be rebuilt
 in real-time for applications that require such rapid adapting, such as machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
 
 In order to accelerate DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating selected machine learning systems.
@@ -70,6 +75,8 @@ In order to accelerate DT induction phase, two general approaches can be used. F
 The proposed co-processor is used for acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
 
 Hardware acceleration of machine learning algorithms receives significant attention in scientific community. Wide range of solutions have been suggested in the open literature for various predictive models. Authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for acceleration of both learning and deployment phases have been proposed. Architectures for hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while architectures for acceleration of previously created SVMs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. Research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However, in the field of hardware acceleration of DTs majority of papers focus on acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction is scarcely covered. Authors are currently aware of only two papers on the topic of hardware acceleration of DT induction algorithms :cite:`struharik2009evolving,chrysos2013hc`. But these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` incremental DT induction algorithm, where EA is used to calculate optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` a HW/SW approach was used to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm.
+
+**<- dovde**
 
 In this paper, a hardware acceleration of a novel full DT ensemble evolutionary induction algorithm based on Bagging [**ref**], called |algo| is presented. The Bagging approach was chosen for the |algo| since it makes the induction of the ensemble members completely decoupled from each other, making it very well suited for the parallelization and hence hardware acceleration. The |algo| uses |efti| :cite:`efti` (Evolutionary Full Tree Induction) algorithm that performs the induction of the full oblique classification DTs. The |efti| algorithm was chosen as the ensemble member inducer since it provides smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT :cite:`efti`. However, |efti| is more computationally demanding than the incremental inducers, hence |algo| could merit greatly from a hardware accelerator, making it more attractive. In this paper, |cop| co-processor is proposed to accelerate parts of the |algo| that are most computationally intensive, with remaining parts of the algorithm run on CPU. The |cop| co-processor architecture benefits also from the fact that |efti| algorithm evolves the DT using only one individual, in contrast to many other algorithms based on EA that require populations :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. The architecture can thus be simplified with hardware resources allocated only for a single individual per ensemble member. Furthermore, by using HW/SW co-design approach, the proposed |cop| co-processor can be used to accelerate DT ensemble inducers based on Bagging which rely on a variety of other EA-based DT inductino algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT ensemble induction algorithm based on bagging.
 
@@ -328,9 +335,6 @@ Required Hardware Resources and Performance
 
 The |cop| co-processor is implemented as an IP core with many customization parameters that can be configured at the design phase and are given in :num:`Table #tbl-cop-params`. These parameters mainly impose constraints on the maximum size of the DT that can be induced and the maximum size of the training set that can be used. 
 
-.. role:: raw(raw)
-   :format: latex
-
 **Promeniti oznake**
 
 .. tabularcolumns:: c p{0.4\linewidth} p{0.4\linewidth}
@@ -451,8 +455,6 @@ By substituting equations :eq:`m-tsw-breakdown`, :eq:`m-tswmut-func`, :eq:`m-ths
 
 |Tswacc| was shown in the `Profiling results`_ section to take almost all of the computational time. This parameter is heavily influenced by the amount of computation needed to calculate the instance traversal (:num:`Algorithm #fig-find-dt-leaf-for-inst-pca`). Time needed to perform the traversal for all instances is proportional to the number of instances in the training set (|NI|), number of attributes |A| (equation :eq:`oblique_test`) and the depth of the DT. Depth of the DT is determined by the complexity of the training set data, but the larger training sets with higher |Nc| and |A| tend to require larger trees to meet the classification accuracy. The datasets that can be of interest to run induction on using the |cop| are the ones that require significant time to execute in software on the CPU. For these datasets :math:`\Tswacc \gg \Tswmut` and thus :math:`\Tswacc \gg \Thsmut`. By using hardware acceleration and massive parallelism, :math:`\Tswacc \gg \Thsacc` is accomplished as well. By taking these parameter relationships into the account, :math:`speedup(n_e)` function given by equation :eq:`m-speedup-func-subst` takes shape depicted in :num:`Figure #fig-speedup-func-plot`.
 
-**Staviti za jedan konkretan slucaj iz eksperimenata**
-
 .. _fig-speedup-func-plot:
 .. plot:: images/speedup_func_plot.py
     :width: 100%
@@ -469,40 +471,36 @@ Furthermore, the :num:`Figure #fig-speedup-func-plot` shows that even though the
 Software for |cop| assisted DT ensemble induction
 =================================================
 
-**Nagojiti sto vise**
-
-As it was described, |cop| co-processor can perform accuracy evaluation task in parallel for as many ensemble members as there are |smae| units. Hence, in HW/SW implementation of the |algo| algorithm, each of the |efti| tasks is assigned one |smae| unit to use exclusively for acceleration of accuracy evaluation for its DT individual. Since there is a single AXI bus connecting the CPU to |cop| co-processor, no two |efti| tasks can access it in the same time. Hence, a scheduler task is needed to manage the granting of access rights to the tasks by using semaphores of the underlying operating system to signal that the access to the |cop| has been granted to the task. The |algo| top level pseudo-code with added instantiation of the synchronization mechanism in form of the scheduler task and the semaphores is presented in :num:`Algorithm #fig-co-design-sw-pca`. Furthermore, each of the tasks is assigned a unique ID (variable *smae_id* in the pseudo-code), which serves as a handle to the semaphore and the |smae| unit of the |cop| co-processor assigned to the task.
+As it was described in previous chapters, |cop| co-processor can perform accuracy evaluation task in parallel for as many ensemble members as there are |smae| units within. Hence, in HW/SW implementation of the |algo| algorithm, each of the |efti| tasks is assigned one |smae| unit to use exclusively for acceleration of accuracy evaluation for its DT individual. Since there is a single AXI bus connecting the CPU to |cop| co-processor, no two |efti| tasks can access it in the same time. Hence, a Scheduler task is needed to manage the access rights by using semaphores of the underlying operating system to signal that the access to the |cop| has been granted to the task. The |algo| top level pseudo-code with added instantiation of the synchronization mechanism in form of the Scheduler task and the semaphores is presented in :num:`Algorithm #fig-co-design-sw-pca`. Furthermore, each of the tasks is assigned a unique ID (variable *smae_id* in the pseudo-code), which serves as a handle to the semaphore and the |smae| unit of the |cop| co-processor assigned to the task. The hardware interface function pseudo-codes were omitted for brevity.
 
 .. _fig-co-design-sw-pca:
 .. literalinclude:: code/co_design_sw.py
     :caption: The pseudo-code of the |algo| algorithm using |cop| co-processor 
 
-First let us show how each |efti| task(:num:`Algorithm #fig-algorithm-pca`) needs to be changed in order to support the co-processor. New |efti| pseudo-code for HW/SW co-design is given by :num:`Algorithm #fig-co-design-sw-pca`. The *smae_id* is used by all hardware interface functions to calculate the hardware addresses belonging to the assigned |smae| unit. First the training set needs to be loaded into the |smae|, since it will be needed to perform the accuracy calculation. Because |cop|'s memory space is mapped to the main CPU's memory space via AXI bus, the *hw_load_training_set()* function simply copies all instances of the training set to the Training Set Memory address space of the assigned |smae| unit.
+First let us show how each |efti| task(:num:`Algorithm #fig-algorithm-pca`) needs to be changed in order to support the co-processor. New |efti| pseudo-code for HW/SW co-design is given by :num:`Algorithm #fig-co-design-sw-pca`. Because |cop|'s memory space is mapped to the main CPU's memory space via AXI bus, the *hw_load_training_set()* function simply copies all instances of the training set to the Training Set Memory address space of the assigned |smae| unit. The *smae_id* is used by all hardware interface functions to select the correct address space, i.e. to calculate the hardware addresses belonging to the assigned |smae| unit. 
+
+First, the training set needs to be loaded into the |smae|, since it will be needed to perform the accuracy calculation. Each time DT individual is mutated its description needs to be reloaded into the DT Memory Array of the assigned |smae| unit. Since only small parts of the DT individuals are mutated each iteration, only the changed parts can be loaded to the co-processor in order to optimize the traffic. Hence, the *mutate()* function is slightly changed to return the list of all changes it made to the DT individual into the *dt_diff* variable. The function *hw_load_dt_diff()* is then called to copy only these changes to appropriate DT Memory Array locations of the assigned |smae| unit. Furthermore, if new DT individual does not get selected for a new current best, the mutations need to be discarded. This is executed by the *hw_revert_dt_diff()* function, which undoes all the changes applied by the *hw_load_dt_diff()* function.
 
 .. _fig-co-design-efti-pca:
 .. literalinclude:: code/co_design_efti.py
-    :caption: The pseudo-code of the |efti| task algorithm used in the HW/SW co-design implementation
+    :caption: The pseudo-code of the |efti| task algorithm used in the HW/SW co-design implementation 
 
-Each time DT individual is mutated its description needs to be reloaded into the DT Memory Array of the assigned |smae| unit. Since only small parts of the DT individuals are mutated each iteration, only the changed parts can be loaded to the co-processor in order to optimize the traffic. Hence, the *mutate()* function is slightly changed to return the list of all changes it made to the DT individual into the *dt_diff* variable. The function *hw_load_dt_diff()* is then called to copy all these changes to appropriate DT Memory Array locations of the assigned |smae| unit. Furthermore, if new DT individual does not get selected for a new current best, the mutations need to be discarded. This is executed by the *hw_revert_dt_diff()* function, which undoes all the changes applied by the *hw_load_dt_diff()* function.
+The pseudo-code for the *fitness_eval()* function used in the HW/SW co-design implementation is shown in the figure :num:`Figure #fig-co-design-fitness-eval-pca`. With training set and DT description readily loaded into the co-processor, signal is sent to the the assigned |smae| to start the accuracy evaluation. After that the task waits for the semaphore signal form the Scheduler task to indicate that the accuracy has been calculated and the access to the |cop| has been granted it. The task switch performed by the underlying operating system and the processor is freed to serve other |efti| tasks.
 
 .. _fig-co-design-fitness-eval-pca:
 .. literalinclude:: code/co_design_fitness_eval.py
     :caption: The pseudo-code of the fitness evaluation function used in the HW/SW co-design implementation
 
-The pseudo-code for the *fitness_eval()* function used in the HW/SW co-design implementation is shown in the figure :num:`Figure #fig-co-design-fitness-eval-pca`. With training set and DT description readily loaded into the co-processor, signal is sent to the the assigned |smae| to start the accuracy evaluation. After that the task waits for the semaphore signal form the Scheduler task to indicate that the accuracy has been calculated and the access to the |cop| has been granted it. The task switch performed by the underlying operating system and the processor is freed to serve other |efti| tasks.
-
 The pseudo-code of the Scheduler task is given in :num:`Algorithm #fig-co-design-scheduler-pca`. The main function of the scheduler task is to monitor the IRQ Status Registers of the |cop| and based on its value signal the semaphores assigned to the corresponding |efti| tasks. The Scheduler task reads the |cop| status via *hw_get_status()* function into the variable *status*. It then iterates over all bits of the variable *status* that correspond to the SMAE Status Bits, and checks which of them have the value of 1, meaning the corresponding |smae| unit has reported the end of the accuracy evaluation process. The corresponding |efti| task is then woken by signaling the appropriate semaphore.
 
 .. _fig-co-design-scheduler-pca:
 .. literalinclude:: code/co_design_scheduler.py
-    :caption: The pseudo-code of the |algo| algorithm using |cop| co-processor 
-
-The hardware interface function pseudo-codes were omitted for brevity.
+    :caption: The pseudo-code of the Scheduler task used in the HW/SW co-design implementation
 
 Experiments
 ===========
 
-** Probali smo RTOS, veliki latency. U nedostatku besplatnih RTOSa za Cortex-A9, napisali smo nas jednostavan cooperative scheduler.**
+**Probali smo RTOS, veliki latency. U nedostatku besplatnih RTOSa za Cortex-A9, napisali smo nas jednostavan cooperative scheduler.**
 
 In this section the results of the experiments designed to estimate DT induction speedup of the software implementation of the |algo| algorithm using |cop| co-processor over pure software implementation of the |algo| algorithm are given.
 
@@ -574,7 +572,7 @@ Three implementations of |algo| algorithm have been developed for experiments, a
 - **SW-ARM**: Pure software implementation for ARM Cortex-A9 processor
 - **HW/SW**: HW/SW co-design solution, where |cop| co-processor implemented in FPGA was used for the time critical fitness evaluation task. Remaining functionality of the |algo| algorithm (shown in :num:`Algorithm #fig-co-design-sw-pca`) was left in software and implemented for ARM Cortex-A9 processor.
 
-For the PC implementation, AMD Phenom(tm) II X4 965 (3.4 GHz) platform was used and the software was built using GCC 4.8.2 compiler. For the SW-ARM and HW/SW implementations, ARM Cortex-A9 667MHz (Xilinx **XC7Z020-1CLG484C Ovo necemo reci** Zynq-7000) platform has been used. The software was built using Sourcery CodeBench Lite ARM EABI 4.8.3 compiler (from within Xilinx SDK 2014.4) and the |cop| co-processor was built using Xilinx Vivado Design Suite 2014.4. 
+For the PC implementation, AMD Phenom(tm) II X4 965 (3.4 GHz) platform was used and the software was built using GCC 4.8.2 compiler. For the SW-ARM and HW/SW implementations, ARM Cortex-A9 667MHz (Xilinx Zynq-7000) platform has been used. The software was built using Sourcery CodeBench Lite ARM EABI 4.8.3 compiler (from within Xilinx SDK 2014.4) and the |cop| co-processor was built using Xilinx Vivado Design Suite 2014.4. 
 
 Care was taken when writing the software and many optimization techniques were employed as described in chapter `Profiling results`_ in order to create the fastest possible software implementation and have a fair comparison with the HW/SW solution.
 
@@ -587,17 +585,13 @@ All datasets from :num:`Table #tbl-uci-datasets` were compiled together with the
 
 The results of the experiments are presented in :num:`Table #tbl-results`. For each implementation and dataset, the average induction times of the five 5-fold cross-validation runs are given together with their 95% confidence intervals. The last row of the table provides the average speedup of the HW/SW implementation over both SW-ARM and SW-PC implementations, together with the 95% confidence intervals.
 
-**1. Opcija: U tabeli da stavljamo speedup-e, bez apsolutnih vrednosti**
-
-.. tabularcolumns:: l R{0.15\linewidth} R{0.15\linewidth} R{0.15\linewidth}
+.. tabularcolumns:: l || R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth} || R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth} R{0.05\linewidth}
 .. _tbl-results:
 .. csv-table:: DT induction times for various |algo| implementations and average speedup of HW/SW implementation over pure software implementations
     :header-rows: 1
     :file: scripts/results.csv
 
 :num:`Table #tbl-results` indicates that the average speedup of the HW/SW implementation is 42 times over the SW-ARM and 3.2 times over SW-PC implementation. Computational complexity increases as |NI|, |NA|, *n* and |Nc| increase. The number of nodes in DT *n* is dependant on the training set instance attribute values, but can be expected to increase also with |NI|, |NA| and |Nc|. By observing the speedup of the HW/SW implementation over pure software implementations shown in :num:`Figure #fig-speedup` for each dataset and the datasets' characteristics given in :num:`Table #tbl-uci-datasets`, it can be seen that indeed more speedup is gained for datasets with larger |NI|, |NA| and |Nc|.
-
-** Svaki histogram pocepati na 5 (koliko ima razlicitih velicina ansambla), mozda podeliti na dva grafika da se sve vidi **
 
 .. _fig-speedup:
 .. plot:: images/speedup_plot.py
@@ -607,10 +601,12 @@ The results of the experiments are presented in :num:`Table #tbl-results`. For e
 
 :num:`Figure #fig-speedup` and :num:`Table #tbl-results` suggest that HW/SW implementation using |cop| co-processor offers a substantial speedup in comparison to pure software implementations for both PC and ARM. Furthermore, |cop| implementation used in the experiments operates at much lower frequency (133MHz) than both ARM (667MHz) and PC(3.4GHz) platforms. If |cop| co-processor were implemented in ASIC, the operating frequency would be increased by an order of magnitude, and the DT induction speedup would increase accordingly.
 
+**Staviti grafik za speedup jednog dataseta u funkciji broja ansambala, ali sweepovati za po jedan i pokazati da se poklapa sa teorijskim predvidjanjima**
+
 Conclusion
 ==========
 
-In this paper a parameterizable co-processor for hardware aided decision tree (DT) induction using evolutionary approach is proposed. |cop| co-processor is used for hardware acceleration of the DT accuracy evaluation task since this task is proven in the paper to be the execution time bottleneck. The algorithm for full DT induction using evolutionary approach (|algo|) has been implemented in software to use the |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW |algo| algorithm implementation with pure software implementations suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+In this paper a parameterizable co-processor for hardware aided induction of decision tree (DT) ensembles using EA is proposed. The algorithm for induction of full oblique DT ensembles using EA (|algo|) has been chosen to be accelerated since it uses only one individaul per ensemble member for induction and generates smaller ensemble members with same or better accuracy then other well-known DT induction algorithms. Furthermore, it is based on the Bagging algorithm, making it suitable for parallelization. It was shown in the paper that |algo| algorithm spends most of the execution time for DT accuracy evaluation process, hence |cop| co-processor was developped to accelerate that task. The |algo| algorithm has been implemented in software and modified to use the |cop| co-processor implemented in FPGA as a co-processor. Comparison of HW/SW implementation of the |algo| algorithm with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
 
 .. bibliography:: hereboy.bib
 	:style: unsrt

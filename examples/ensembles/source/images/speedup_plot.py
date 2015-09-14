@@ -6,69 +6,48 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from matplotlib.pyplot import xticks
 
-arm_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/arm.js'
-hw_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/hw.js'
-pc_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/pc.js'
-
-with open(arm_js) as f:
-    arm_res = json.load(f)
-with open(hw_js) as f:
-    hw_res = json.load(f)
-with open(pc_js) as f:
-    pc_res = json.load(f)
-
-table = {}
-
-for d in hw_res['dataset']:
-    table[d] = [(), (), ()]
-
-for i, res in enumerate([hw_res, arm_res, pc_res]):
-    for d, r in res['res'].items():
-
-        t = []
-
-        for _,cv_run in r.items():
-            for _,run in cv_run.items():
-                t += [run['timing']]
-
-        table[d][i] = sum(t)/len(t)
-
-
-
-spdup_arm = []
-spdup_pc = []
+spdup_arm = [[] for _ in range(5)]
+spdup_pc = [[] for _ in range(5)]
 datasets = []
 
-exec_arm = []
-exec_pc = []
-exec_hw = []
+with open('/data/projects/rst/examples/ensembles/source/scripts/results.csv', 'r', newline='') as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    
+    iterreader = iter(csvreader)
+    next(iterreader)
+    for row in iterreader:
+        for i in range(5):
+            spdup_arm[i] += [int(row[i+1])]
+            spdup_pc[i] += [int(row[i+6])]
+        
+        datasets += [row[0]]
 
-for d,res in iter(sorted(table.items())):
-    spdup_arm += [res[1]/res[0]]
-    spdup_pc += [res[2]/res[0]]
-    datasets += [d]
-    exec_hw += [res[0]]
-    exec_arm += [res[1]]
-    exec_pc += [res[2]]
+print(spdup_arm)
+print(spdup_pc)
+print(datasets)
 
 fs = 20
 opacity = 0.4
-bar_width = 0.5
+bar_width = 0.15
 index = np.arange(len(datasets))
 
 fig, (ax0, ax1) = plt.subplots(figsize=(16,6), nrows=2, sharex=True, tight_layout=True)
 
-ax0.bar(index - 0.5*bar_width, spdup_arm, bar_width,
-                 alpha=opacity,
-                 color='b',
-                 label='HW/SW')
-ax0.yaxis.set_major_locator(MultipleLocator(20))
+for i in range(5):
+#     print(index - (i - 2.5)*bar_width)
+    ax0.bar(index + (i - 2.5)*bar_width, spdup_arm[i], width=bar_width,
+                     alpha=opacity,
+                     color='b')
+    
+ax0.yaxis.set_major_locator(MultipleLocator(80))
 ax0.yaxis.grid(True)
 ax0.set_title('a) HW/SW speedup over SW-ARM implementation', fontsize=fs, loc='left')
-ax1.bar(index - 0.5*bar_width, spdup_pc, bar_width,
-                 alpha=opacity,
-                 color='r',
-                 label='HW/SW')
+
+for i in range(5):
+    ax1.bar(index + (i - 2.5)*bar_width, spdup_pc[i], width=bar_width,
+                     alpha=opacity,
+                     color='r')
 ax1.yaxis.grid(True)
 ax1.set_title('b) HW/SW speedup over SW-PC implementation', fontsize=fs, loc='left')
 plt.xticks(range(len(datasets)), datasets)

@@ -250,14 +250,14 @@ latex_preamble = ur'''
 
 \lhead{}
 \chead{}
-\rhead{\fontsize{8pt}{12pt}\selectfont Co-Processor for Evolutionary Full Decision Tree Induction \thepage}
+\rhead{\fontsize{8pt}{12pt}\selectfont Co-Processor for DT Ensemble Evolution \thepage}
 
 '''
 
 latex_title = ur'''
 
 \begin{center}
-    {\rm\Large Co-Processor for Evolutionary Full Decision Tree Induction} \par
+    {\rm\Large Co-Processor for DT Ensemble Evolution } \par
     \vspace{25pt}
     \it\small
     {Bogdan Z. Vukobratovic} \par
@@ -276,7 +276,7 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper \underline{to be the execution time bottleneck}. EFTIP co-processor can significantly improve execution time of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of HW/SW EFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided induction of decision tree ensembles using evolutionary approach (DT Ensemble Evolution co-Processor - DTEEP) is proposed. EEFTIP is used for hardware acceleration of the fitness evaluation task since it is shown that most of the execution time is spent on this task. EEFTIP co-processor can significantly improve execution time of a novel algorithm for full tree evolutionary induction of decision tree ensembles (EEFTI) by accelerating the fitness evaluation task. Comparison of HW/SW EEFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
 
     {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
@@ -311,7 +311,7 @@ latex_elements = {
 author = 'bvukobratovic'
 
 latex_documents = [
-  (master_doc, 'ensembles.tex', 'A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction',
+  (master_doc, 'ensembles.tex', 'Co-Processor for Full Tree Evolutionary Induction of Decision Tree Ensembles',
    author,
    'howto'),
 ]
