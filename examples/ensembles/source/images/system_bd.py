@@ -38,21 +38,21 @@ eeftip['status'] = comp("IRQ Status", size=p(7,4), nodesep=(2,2)).right(ps['inte
 eftip = block(size=p(6,3), nodesep=(1,1))
 eeftip += eftip("$SMAE_1$").below(eeftip['status'], 1).movex(1)
 eeftip += eftip("$SMAE_2$").below(eeftip["$S*1*"], 1)
-eeftip += eftip("$SMAE_{S^M}$").below(eeftip["$S*2*"], 3)
+eeftip += eftip("$SMAE_{S_m}$").below(eeftip["$S*2*"], 3)
 
 eeftip_axi_enter = eeftip['status'].w(0.5) - (3,0)
 
 eeftip += net(bus(eeftip_axi_enter, eeftip['status'].w(0.5), style=('=', bus_cap)),
               bus(eeftip_axi_enter + (1,0), eeftip['$S*1*'].w(0.5), routedef = '|-', style=('', bus_cap)),
               bus(eeftip_axi_enter + (1,0), eeftip['$S*2*'].w(0.5), routedef = '|-', style=('', bus_cap)),
-              bus(eeftip_axi_enter + (1,0), eeftip['$S*{S^M}*'].w(0.5), routedef = '|-', style=('', bus_cap))
+              bus(eeftip_axi_enter + (1,0), eeftip['$S*{S_m}*'].w(0.5), routedef = '|-', style=('', bus_cap))
               )
 
 bus_cap_small = bus_cap(length=0.4, width=0.6)
-eeftip += bus(eeftip['status'].e(0.5), poffx(1), eeftip['$S*{S^M}*'].e(0.8) + (1,0), routedef='|-', line_width=0.3, style=(bus_cap_small, ''))
+eeftip += bus(eeftip['status'].e(0.5), poffx(1), eeftip['$S*{S_m}*'].e(0.8) + (1,0), routedef='|-', line_width=0.3, style=(bus_cap_small, ''))
 eeftip += path(eeftip['$S*1*'].e(0.5), poffx(1), shorten=(0,0.1))
 eeftip += path(eeftip['$S*2*'].e(0.5), poffx(1), shorten=(0,0.1))
-eeftip += path(eeftip['$S*{S^M}*'].e(0.5), poffx(1), shorten=(0,0.1)) 
+eeftip += path(eeftip['$S*{S_m}*'].e(0.5), poffx(1), shorten=(0,0.1)) 
 
 fig << eeftip
 

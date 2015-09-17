@@ -6,7 +6,7 @@ fig = plt.figure(figsize=(16,4), tight_layout=True)
 plt.tick_params(axis='X', which='major', labelsize=18)
 
 t = arange(1, 128, 1)
-f = [real(10*x*x + 50000*x)/(20*x*x + 5000) for x in t]
+f = [real(10*x*x + 50000*x)/(20*x*x + 2000) for x in t]
 
 tick_params(axis='both', which='major', labelsize=18)
 plt = plot(t,f)
@@ -38,7 +38,7 @@ gca().annotate("",(1,0),xytext=(-al,0), **kwargs) # bottom spine arrow
 gca().annotate("",(0,1),xytext=(0,-al), **kwargs) # left spin arrow
 
 margins(0.03, 0.1)
-xlim(1, 85)
+xlim(1, 50)
 gca().yaxis.grid(True)
 gca().yaxis.set_major_locator(MultipleLocator(20))
 

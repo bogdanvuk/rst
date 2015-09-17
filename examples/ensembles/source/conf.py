@@ -233,12 +233,13 @@ latex_preamble = ur'''
 \pagestyle{fancy}
 
 \newcommand{\NA}{N_{A}}
-\newcommand{\DM}{D^{M}}
-\newcommand{\NAM}{N^{M}_{A}}
-\newcommand{\NIM}{N^{M}_{I}}
-\newcommand{\WDTM}{W_{DTM}}
+\newcommand{\SM}{S_m}
+\newcommand{\LM}{L_m}
+\newcommand{\AM}{A_{m}}
+\newcommand{\IM}{I_{m}}
+\newcommand{\WDTD}{W_{DTD}}
 \newcommand{\Nl}{N_{l}}
-\newcommand{\NlM}{N^{M}_{l}}
+\newcommand{\NlM}{N_{lm}}
 \newcommand{\Tsw}{T_{sw}}
 \newcommand{\Ths}{T_{hs}}
 \newcommand{\Tswmut}{T_{sw\_mut}}
@@ -247,6 +248,7 @@ latex_preamble = ur'''
 \newcommand{\Thsacc}{T_{hs\_acc}}
 
 \renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{.4em}
 
 \lhead{}
 \chead{}
@@ -276,9 +278,9 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided induction of decision tree ensembles using evolutionary approach (DT Ensemble Evolution co-Processor - DTEEP) is proposed. EEFTIP is used for hardware acceleration of the fitness evaluation task since it is shown that most of the execution time is spent on this task. EEFTIP co-processor can significantly improve execution time of a novel algorithm for full tree evolutionary induction of decision tree ensembles (EEFTI) by accelerating the fitness evaluation task. Comparison of HW/SW EEFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial speedups for all tests performed on UCI datasets.
+    In this paper a co-processor for hardware aided induction of decision tree ensembles using evolutionary approach (DT Ensemble Evolution co-Processor - DTEEP) is proposed. DTEEP is used for hardware acceleration of the fitness evaluation since it is shown that the most of the ensemble inference time is spent on this task. DTEEP co-processor can significantly improve execution time of the algorithm for full tree evolutionary induction of decision tree ensembles (EEFTI) by accelerating the fitness evaluation task. Comparison of HW/SW EEFTI implementation with pure software implementation suggests that the proposed HW/SW architecture offers substantial speedups for all tests performed on selected UCI datasets.
 
-    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
+    {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; ensemble classifiers; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
 
 

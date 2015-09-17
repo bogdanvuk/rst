@@ -18,8 +18,8 @@ with open('/data/projects/rst/examples/ensembles/source/scripts/results.csv', 'r
     next(iterreader)
     for row in iterreader:
         for i in range(5):
-            spdup_arm[i] += [int(row[i+1])]
-            spdup_pc[i] += [int(row[i+6])]
+            spdup_arm[i] += [float(row[i+1])]
+            spdup_pc[i] += [float(row[i+6])]
         
         datasets += [row[0]]
 

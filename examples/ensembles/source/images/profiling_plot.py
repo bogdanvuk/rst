@@ -39,10 +39,12 @@ for f in files:
             if row[0] in ['evaluate_node_test', 'find_dt_leaf_for_inst', 'find_node_distribution', 'fitness_eval']:
                 fit_eval_perc += float(row[3])
 
-        datasets.append(path.splitext(f)[0].split('_')[1])
+        datasets.append(path.splitext(f)[0])
         percents.append(fit_eval_perc)
 
 formatter = FuncFormatter(to_percent)
+
+# print('AVG:', sum(percents)/len(percents))
 
 m = min(percents) - 1
 

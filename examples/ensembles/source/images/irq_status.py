@@ -22,13 +22,13 @@ def make_reg(text, pos):
 # fig << bit("SMAE 0 Status Bit").right(fig[-1], 0)
 
 reg1 = make_reg(["$SMAE_{{{0}}}$ Status Bit".format(i) for i in [32, 31, 2, 1]], (0,0))
-regn = make_reg(["Unused", "Unused", "$SMAE_{S^M}$ Status Bit", "$SMAE_{S^M-1}$ Status Bit"], (0,8))
+regn = make_reg(["Unused", "Unused", "$SMAE_{S_m}$ Status Bit", "$SMAE_{S_m-1}$ Status Bit"], (0,8))
 
 
 fig << reg1
 fig << text("IRQ Status Word 0", align='right').left(reg1[0]).aligny(reg1[0].c(), prev().c())
 fig << regn
-fig << text(r"IRQ Status Word $\left \lceil \frac{S^M}{32} \right \rceil$", align='right').left(regn[0]).aligny(regn[0].c(), prev().c())
+fig << text(r"IRQ Status Word $\left \lceil \frac{S_m}{32} \right \rceil$", align='right').left(regn[0]).aligny(regn[0].c(), prev().c())
 
 for i in [0, 1, 3, 4]:
     fig << text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$").align(mid(reg1[i].c(), regn[i].c()), prev().c())
