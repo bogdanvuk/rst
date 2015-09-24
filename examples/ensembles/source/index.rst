@@ -576,7 +576,7 @@ The VHDL language has been used to model the |cop| co-processor and it was imple
     :header-rows: 1 
     
     * - FPGA Device
-      - Slices
+      - Slices/CLBs
       - BRAMs
       - DSPs
     * - xc7z100
