@@ -506,64 +506,93 @@ To estimate the DT ensemble induction speedup of the HW/SW over pure software im
 Required Hardware Resources for the |cop| co-processor
 ------------------------------------------------------
 
-The values of the customization parameters, given in the :num:`Table #tbl-exp-params`, were chosen so that the |cop| co-processor could support the ensemble induction of up to 25 members from all datasets of the :num:`Table #tbl-uci-datasets`. The datasets *mushroom*, *w21* and *wfr* were preprocessed using the PCA (Principal Component Analysis) to reduce their number of attributes to 16. This was done so that all datasets could fit in the |cop| with parameter |AM| set to 16, making it footprint smaller for the experiments.
+The values of the customization parameters, given in the :num:`Table #tbl-exp-params`, were chosen so that the |cop| co-processor could support the ensemble induction of up to 25 members from all datasets of the :num:`Table #tbl-uci-datasets`. The datasets *mushroom*, *w21* and *wfr* were preprocessed using the PCA (Principal Component Analysis) to reduce their number of attributes to 16. This was done so that all datasets could fit in the |cop| co-processor with parameter |AM| set to 16, in order to have smaller |cop| footprint for the experiments.
 
-.. tabularcolumns:: p{0.5\linewidth} p{0.07\linewidth} 
+.. tabularcolumns:: p{0.4\linewidth} *{5}{R{0.08\linewidth}}
 .. _tbl-exp-params:
-.. list-table:: Values of the customization parameters of the |cop| co-processor instance used in the DT induction speedup experiments
+.. list-table:: Values of the customization parameters of the |cop| co-processor instances, one for each of the ensemble sizes used in the experiments.
     :header-rows: 1 
     
     * - Parameter
-      - Value
-    * - Ensemble members max. (|SM|)
-      - 25
+      - |SM| = 2
+      - |SM| = 4
+      - |SM| = 8
+      - |SM| = 16
+      - |SM| = 25
     * - DT max. depth (|LM|)
+      - 5
+      - 5
+      - 5
+      - 5
       - 5
     * - Max. attributes num. (|AM|)
       - 16
+      - 16
+      - 16
+      - 16
+      - 16
     * - Attribute encoding resolution (:math:`R_{A}`)
+      - 16
+      - 16
+      - 16
+      - 16
       - 16
     * - Class encoding resolution (:math:`R_{C}`)
       - 8
+      - 8
+      - 8
+      - 8
+      - 8
     * - Max. training set classes (:math:`C_{M}`)
+      - 64
+      - 64
+      - 64
+      - 64
       - 64
     * - Max. number of leaves (|ACEM|)
       - 16
+      - 16
+      - 16
+      - 16
+      - 16
     * - Max. number of training set instances (|IM|)
       - 24000
+      - 12000
+      - 6000
+      - 4096
+      - 2048
     * - Max. number of nodes per level (:math:`N_{lm}`)
-      - 16  
-The VHDL language has been used to model the |cop| co-processor and it was implemented using the Xilinx Vivado Design Suite 2015.2 software for the logic synthesis and implementation with the default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in the :num:`Table #tbl-utilization`. The operating frequency of 100 MHz of the system clock frequency for the implemented |cop| co-processor was attained.
+      - 16
+      - 16
+      - 16
+      - 16
+      - 16
 
-**Nije sredjena tabela**
+The VHDL language has been used to model the |cop| co-processor and it was implemented using the Xilinx Vivado Design Suite 2015.2 software for the logic synthesis and implementation with the default synthesis and P&R options. From the implementation report files, device utilization data has been analyzed for the largest |cop| co-processor instance with |SM| = 5 (:num:`Table #tbl-exp-params`), and information about the number of used slices, BRAMs and DSP blocks has been extracted, and is presented in the :num:`Table #tbl-utilization`. The operating frequency of 100 MHz of the system clock frequency was attained for all the implemented |cop| co-processor instances from the :num:`Table #tbl-exp-params`.
 
-.. tabularcolumns:: l l l l
+.. tabularcolumns:: p{0.3\linewidth} *{3}{p{0.2\linewidth}}
 .. _tbl-utilization:
-.. list-table:: FPGA resources required to implement the |cop| co-processor for the DT ensemble classifier induction with the selected UCI datasets
+.. list-table:: FPGA resources required to implement the |cop| co-processor with |SM| set to 25 for the DT ensemble classifier induction with the selected UCI datasets
     :header-rows: 1 
     
     * - FPGA Device
       - Slices
       - BRAMs
       - DSPs
-    * - XC7Z020
-      - 6587 (55%)
-      - 65 (47%)
-      - 192 (87%)
-    * - XC7Z100
-      - 6556 (9%)
-      - 65 (9%)
-      - 192 (10%)
-    * - XC7K325
-      - 6750 (13%)
-      - 65 (15%)
-      - 192 (23%)
-    * - XC7VX690
-      - 6708 (6%)
-      - 65 (4%)
-      - 192 (5%)
+    * - xc7z100
+      - 62091 (89%)
+      - 412.5 (55%)
+      - 2000 (99%)
+    * - xcku115
+      - 33231 (40%)
+      - 412.5 (19%)
+      - 2000 (36%)
+    * - xc7vx690
+      - 63885 (59%)
+      - 412.5 (28%)
+      - 2000 (56%)
 
-Given in the brackets along with each resource utilization number is a percentage of used resources from the total resources available in the corresponding FPGA devices. :num:`Table #tbl-utilization` shows that the implemented |cop| co-processor fits even into the entry level XC7Z020 Xilinx FPGA device of the Zynq series, and requires even smaller percentage of resources on entry- to mid-level Kintex7 and Virtex7 Xilinx FPGA devices (XC7K325 and XC7VX690).
+Given in the brackets along with each resource utilization number is a percentage of used resources from the total resources available in the corresponding FPGA devices. :num:`Table #tbl-utilization` shows that the implemented |cop| co-processor fits into xc7z100 Xilinx FPGA device of the Zynq series, and into mid- to high-level Virtex7 and UltraScale Kintex7 Xilinx FPGA devices (xc7vx690 and xcku115).
 
 Estimation of the Induction Speedup
 -----------------------------------
