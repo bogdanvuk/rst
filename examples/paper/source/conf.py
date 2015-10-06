@@ -220,7 +220,7 @@ htmlhelp_basename = 'paper1doc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_preamble = ur'''
-\nonstopmode
+
 \usepackage[none]{hyphenat}
 \usepackage{booktabs}
 

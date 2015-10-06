@@ -20,14 +20,20 @@ with open('/data/projects/rst/examples/ensembles/source/scripts/results.csv', 'r
         for i in range(5):
             spdup_arm[i] += [float(row[i+1])]
             spdup_pc[i] += [float(row[i+6])]
-        
+
         datasets += [row[0]]
+
+# Remove the average line
+datasets = datasets[:-1]
+for i in range(5):
+    spdup_arm[i] = spdup_arm[i][:-1]
+    spdup_pc[i] = spdup_pc[i][:-1]
 
 print(spdup_arm)
 print(spdup_pc)
 print(datasets)
 
-fs = 20
+fs = 18
 opacity = 0.4
 bar_width = 0.15
 index = np.arange(len(datasets))

@@ -42,6 +42,7 @@ extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig
           'sphinx.ext.autodoc',
           'sphinx.ext.doctest']
 
+numfig = True
 numfig_format = {'figure': 'Figure %s',
                  'table': 'Table %s',
                  'code-block': 'Algorithm %s'}
@@ -252,14 +253,14 @@ latex_preamble = ur'''
 
 \lhead{}
 \chead{}
-\rhead{\fontsize{8pt}{12pt}\selectfont Co-Processor for DT Ensemble Evolution \thepage}
+\rhead{\fontsize{8pt}{12pt}\selectfont A System for Hardware Aided Decision Tree Ensemble Evolution \thepage}
 
 '''
 
 latex_title = ur'''
 
 \begin{center}
-    {\rm\Large Co-Processor for DT Ensemble Evolution } \par
+    {\rm\Large A System for Hardware Aided Decision Tree Ensemble Evolution } \par
     \vspace{25pt}
     \it\small
     {Bogdan Z. Vukobratovic} \par
@@ -278,7 +279,7 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided induction of decision tree ensembles using evolutionary approach (DT Ensemble Evolution co-Processor - DTEEP) is proposed. DTEEP is used for hardware acceleration of the fitness evaluation since it is shown that the most of the ensemble inference time is spent on this task. DTEEP co-processor can significantly improve execution time of the algorithm for full tree evolutionary induction of decision tree ensembles (EEFTI) by accelerating the fitness evaluation task. Comparison of HW/SW EEFTI implementation with pure software implementation suggests that the proposed HW/SW architecture offers substantial speedups for all tests performed on selected UCI datasets.
+    In this paper a system for hardware aided induction of decision tree ensembles using evolutionary approach (DT Ensemble Evolution co-Processor - DTEEP) is proposed. DTEEP is used for hardware acceleration of the fitness evaluation since it is shown that the most of the ensemble inference time is spent on this task. DTEEP co-processor can significantly improve execution time of the algorithm for full tree evolutionary induction of decision tree ensembles (EEFTI) by accelerating the fitness evaluation task. Comparison of HW/SW EEFTI implementation with pure software implementation suggests that the proposed HW/SW architecture offers substantial speedups for all tests performed on selected UCI datasets.
 
     {\it Keywords}: data mining, machine learning; hardware-software co-design; decision trees; evolutionary algorithms; ensemble classifiers; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
@@ -313,7 +314,7 @@ latex_elements = {
 author = 'bvukobratovic'
 
 latex_documents = [
-  (master_doc, 'ensembles.tex', 'Co-Processor for Full Tree Evolutionary Induction of Decision Tree Ensembles',
+  (master_doc, 'ensembles.tex', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
    author,
    'howto'),
 ]
@@ -358,7 +359,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'ensembles', 'A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction',
+  (master_doc, 'ensembles', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
    author, 'ensembles', 'One line description of project.',
    'Miscellaneous'),
 ]

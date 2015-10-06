@@ -62,7 +62,7 @@ in real-time for applications that require such rapid adapting, such as machine 
 .. _fig-evolutionary-dt-algorithm-tree:
 
 .. graphviz:: images/taxonomy.dot
-    :caption: Taxonomy of evolutionary algorithms for DT induction as introduced in :cite:`barros2012survey`.
+    :caption: Taxonomy of evolutionary algorithms for DT induction.
     
 In order to accelerate DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating selected machine learning systems.
 
