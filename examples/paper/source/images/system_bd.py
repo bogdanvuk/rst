@@ -46,8 +46,8 @@ dt_mem.append(t_dt_mem("$L_2$").below(dt_mem[0])())
 dt_mem.append(t_dt_mem("$L_{D^M}$").below(dt_mem[1], 3)())
 
 for d in dt_mem:
-    t_dt_submem("coef").align(d.e(0), prev().e(0))()
-    t_dt_submem("topo").align(d.e(1.0), prev().e(1.0))()
+    t_dt_submem("CM").align(d.e(0), prev().e(0))()
+    t_dt_submem("SM").align(d.e(1.0), prev().e(1.0))()
 
 text(r"$\cdot\cdot\cdot$", text_font='footnotesize').align(mid(dt_mem[1].c(), dt_mem[2].c()), prev().c())()
 

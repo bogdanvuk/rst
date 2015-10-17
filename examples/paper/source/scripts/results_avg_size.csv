@@ -1,0 +1,23 @@
+Dataset,HW/SW [s],SW-ARM [s],SW-PC [s]
+ausc,:math:`3.7 \pm 0.30`,:math:`3.7 \pm 0.30`,:math:`3.9 \pm 0.43`
+ca,:math:`4.2 \pm 0.40`,:math:`4.2 \pm 0.40`,:math:`4.4 \pm 0.48`
+car,:math:`8.2 \pm 0.44`,:math:`8.2 \pm 0.44`,:math:`8.2 \pm 0.41`
+cmc,:math:`9.0 \pm 0.65`,:math:`9.0 \pm 0.65`,:math:`10.0 \pm 0.83`
+ctg,:math:`13.5 \pm 0.71`,:math:`13.5 \pm 0.71`,:math:`14.4 \pm 0.68`
+ger,:math:`4.2 \pm 0.35`,:math:`4.2 \pm 0.35`,:math:`4.0 \pm 0.30`
+jvow,:math:`15.1 \pm 0.45`,:math:`15.1 \pm 0.45`,:math:`15.2 \pm 0.62`
+page,:math:`5.4 \pm 0.34`,:math:`5.4 \pm 0.34`,:math:`5.1 \pm 0.30`
+pid,:math:`5.8 \pm 0.51`,:math:`5.8 \pm 0.51`,:math:`5.8 \pm 0.45`
+psd,:math:`3.7 \pm 0.31`,:math:`3.7 \pm 0.31`,:math:`3.5 \pm 0.27`
+sb,:math:`2.0 \pm 0.00`,:math:`2.0 \pm 0.00`,:math:`2.0 \pm 0.00`
+seg,:math:`11.7 \pm 0.79`,:math:`11.7 \pm 0.79`,:math:`10.8 \pm 0.81`
+sick,:math:`2.2 \pm 0.22`,:math:`2.2 \pm 0.22`,:math:`2.3 \pm 0.23`
+spect,:math:`6.4 \pm 0.43`,:math:`6.4 \pm 0.43`,:math:`4.3 \pm 0.47`
+spf,:math:`12.5 \pm 0.97`,:math:`12.5 \pm 0.97`,:math:`14.2 \pm 0.60`
+thy,:math:`3.5 \pm 0.24`,:math:`3.5 \pm 0.24`,:math:`3.4 \pm 0.29`
+veh,:math:`12.1 \pm 0.81`,:math:`12.1 \pm 0.81`,:math:`12.9 \pm 0.75`
+vote,:math:`4.7 \pm 0.44`,:math:`4.7 \pm 0.44`,:math:`4.7 \pm 0.55`
+vow,:math:`15.6 \pm 0.45`,:math:`10.0 \pm 0.00`,:math:`11.0 \pm 0.00`
+w21,:math:`6.2 \pm 0.49`,:math:`6.3 \pm 0.45`,:math:`6.4 \pm 0.46`
+wfr,:math:`10.9 \pm 0.65`,:math:`10.2 \pm 0.80`,:math:`10.6 \pm 0.67`
+Average speedup,,:math:`1.0 \pm 0.04`,:math:`1.0 \pm 0.05`

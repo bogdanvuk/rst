@@ -236,7 +236,6 @@ latex_preamble = ur'''
 \newcommand{\DM}{D^{M}}
 \newcommand{\NAM}{N^{M}_{A}}
 \newcommand{\NIM}{N^{M}_{I}}
-\newcommand{\WDTM}{W_{DTM}}
 \newcommand{\Nl}{N_{l}}
 \newcommand{\NlM}{N^{M}_{l}}
 
@@ -269,12 +268,12 @@ latex_title = ur'''
 {\end{quote}}
 
 \begin{sciabstract}
-    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. EFTIP co-processor can significantly improve execution time of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of HW/SW EFTI implementation with pure software implementation suggests that proposed HW/SW architecture offers substantial DT induction time speedups for selected benchmark datasets of the standard UCI machine learning repository database.
-    
+    In this paper a co-processor for hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. EFTIP co-processor can significantly improve the execution time of a novel algorithm for full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. Comparison of the HW/SW EFTI implementation with the pure software implementation suggests that the proposed HW/SW architecture offers substantial DT induction time speedups for the selected benchmark datasets from the standard UCI machine learning repository database.
+
     {\it Keywords}: data mining; machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
 \end{sciabstract}
 
-    
+
 '''
 
 latex_elements = {
@@ -305,7 +304,7 @@ author = 'bvukobratovic'
 
 latex_documents = [
   (master_doc, 'paper1.tex', 'A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction',
-   author, 
+   author,
    'howto'),
 ]
 

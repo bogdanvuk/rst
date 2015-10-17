@@ -22,7 +22,7 @@ table = {}
 for d in hw_res['dataset']:
     table[d] = [(), (), ()]
 
-for i, res in enumerate([hw_res, arm_res, pc_res]):
+for i, res in enumerate([arm_res, pc_res]):
     for d, r in res['res'].items():
 
         t = []
@@ -31,9 +31,22 @@ for i, res in enumerate([hw_res, arm_res, pc_res]):
             for _,run in cv_run.items():
                 t += [run['timing']]
 
-        table[d][i] = sum(t)/len(t)
+        table[d][i+1] = sum(t)/len(t)
 
+hw_run = []
+if 'hw_run' in hw_res:
+    hw_run.extend(hw_res['hw_run'])
 
+hw_times = {}
+for run in hw_run:
+    dataset_name = run['dataset']
+    if dataset_name not in hw_times:
+        hw_times[dataset_name] = []
+    
+    hw_times[dataset_name].append(run['timing'])
+
+for d, t in hw_times.items():
+    table[d][0] = sum(t)/len(t)
 
 spdup_arm = []
 spdup_pc = []
@@ -64,13 +77,13 @@ ax0.bar(index - 0.5*bar_width, spdup_arm, bar_width,
                  label='HW/SW')
 ax0.yaxis.set_major_locator(MultipleLocator(20))
 ax0.yaxis.grid(True)
-ax0.set_title('a) HW/SW speedup over SW-ARM implementation', fontsize=fs, loc='left')
+ax0.set_title('a) HW/SW speedup over the SW-ARM implementation', fontsize=fs, loc='left')
 ax1.bar(index - 0.5*bar_width, spdup_pc, bar_width,
                  alpha=opacity,
                  color='r',
                  label='HW/SW')
 ax1.yaxis.grid(True)
-ax1.set_title('b) HW/SW speedup over SW-PC implementation', fontsize=fs, loc='left')
+ax1.set_title('b) HW/SW speedup over the SW-PC implementation', fontsize=fs, loc='left')
 plt.xticks(range(len(datasets)), datasets)
 plt.margins(0.03)
 plt.tick_params(axis='both', which='major', labelsize=18)

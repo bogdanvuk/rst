@@ -17,14 +17,11 @@ def mean_confidence_interval(data, confidence=0.95):
     return m, h
 
 arm_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/arm.js'
-dsp_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/dsp.js'
 hw_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/hw.js'
 pc_js = '/data/projects/rst/examples/paper/source/data/crossvalidation/pc.js'
 
 with open(arm_js) as f:    
     arm_res = json.load(f)
-with open(dsp_js) as f:    
-    dsp_res = json.load(f)    
 with open(hw_js) as f:    
     hw_res = json.load(f)
 with open(pc_js) as f:    
@@ -33,15 +30,11 @@ with open(pc_js) as f:
 table = {}    
 
 for d in hw_res['dataset']:
-    table[d] = [(), (), (), ()]
+    table[d] = [(), (), ()]
 
 hw_run = []
 if 'hw_run' in hw_res:
     hw_run.extend(hw_res['hw_run'])
-    
-dsp_run = []
-if 'dsp_run' in dsp_res:
-    dsp_run.extend(dsp_res['dsp_run'])
 
 hw_times = {}
 for run in hw_run:
@@ -49,21 +42,10 @@ for run in hw_run:
     if dataset_name not in hw_times:
         hw_times[dataset_name] = []
     
-    hw_times[dataset_name].append(run['timing'])
+    hw_times[dataset_name].append(run['leaves'])
 
 for d, t in hw_times.items():
     table[d][0] = mean_confidence_interval(t)
-    
-dsp_times = {}
-for run in dsp_run:
-    dataset_name = run['dataset']
-    if dataset_name not in dsp_times:
-        dsp_times[dataset_name] = []
-    
-    dsp_times[dataset_name].append(run['timing'])
-
-for d, t in dsp_times.items():
-    table[d][3] = mean_confidence_interval(t)
 
 for i, res in enumerate([arm_res, pc_res]):
     for d, r in res['res'].items():
@@ -71,36 +53,28 @@ for i, res in enumerate([arm_res, pc_res]):
          
         for _,cv_run in r.items():
             for _,run in cv_run.items():
-                t += [run['timing']]
+                t += [run['leaves']]
 
         print(d)
         table[d][i + 1] = mean_confidence_interval(t)
 
-with open('results.csv', 'w', newline='') as csvfile:
+with open('results_avg_size.csv', 'w', newline='') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=',',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
     
-    csvwriter.writerow(['Dataset','HW/SW [s]','SW-ARM [s]','SW-PC [s]','SW-DSP [s]'])
+    csvwriter.writerow(['Dataset','HW/SW [s]','SW-ARM [s]','SW-PC [s]'])
     
     spdup_arm = []
-    spdup_dsp = []
     spdup_pc = []
     
     for d,res in iter(sorted(table.items())):
         row = [d]
         
         for r in res:
-            try:
-                row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(r[0], r[1])]
-            except:
-                row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(0, 0)]
+            row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(r[0], r[1])]
         
         spdup_arm += [res[1][0]/res[0][0]]
         spdup_pc += [res[2][0]/res[0][0]]
-        try:
-            spdup_dsp += [res[3][0]/res[0][0]]
-        except:
-            pass
         
         csvwriter.writerow(row)
     
@@ -108,7 +82,6 @@ with open('results.csv', 'w', newline='') as csvfile:
         
     row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(*mean_confidence_interval(spdup_arm))]
     row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(*mean_confidence_interval(spdup_pc))]
-    row += [":math:`{0:0.1f} \pm {1:0.2f}`".format(*mean_confidence_interval(spdup_dsp))]
     
     csvwriter.writerow(row)
     
