@@ -38,10 +38,23 @@ for d in hw_res['dataset']:
 hw_run = []
 if 'hw_run' in hw_res:
     hw_run.extend(hw_res['hw_run'])
-    
+
+pc_run = []  
+arm_run = []
+dsp_run = []
+
+for s, res, run in zip(['pc_run', 'arm_run', 'dsp_run'], [pc_res, arm_res, dsp_res], [pc_run, arm_run, dsp_run]):
+    if s in res:
+        run.extend(res[s])
+
 dsp_run = []
 if 'dsp_run' in dsp_res:
     dsp_run.extend(dsp_res['dsp_run'])
+
+dsp_run = []
+if 'dsp_run' in dsp_res:
+    dsp_run.extend(dsp_res['dsp_run'])
+
 
 hw_times = {}
 for run in hw_run:
@@ -55,26 +68,18 @@ for d, t in hw_times.items():
     table[d][0] = mean_confidence_interval(t)
     
 dsp_times = {}
-for run in dsp_run:
-    dataset_name = run['dataset']
-    if dataset_name not in dsp_times:
-        dsp_times[dataset_name] = []
-    
-    dsp_times[dataset_name].append(run['timing'])
+pc_times = {}
+arm_times = {}
+for i,(timings, run_list) in enumerate(zip([arm_times, pc_times , dsp_times],[arm_run, pc_run, dsp_run])):
+    for run in run_list:
+        dataset_name = run['dataset']
+        if dataset_name not in timings:
+            timings[dataset_name] = []
+            
+        timings[dataset_name].append(run['timing'])
 
-for d, t in dsp_times.items():
-    table[d][3] = mean_confidence_interval(t)
-
-for i, res in enumerate([arm_res, pc_res]):
-    for d, r in res['res'].items():
-        t = []
-         
-        for _,cv_run in r.items():
-            for _,run in cv_run.items():
-                t += [run['timing']]
-
-        print(d)
-        table[d][i + 1] = mean_confidence_interval(t)
+    for d, t in timings.items():
+        table[d][i+1] = mean_confidence_interval(t)
 
 with open('results.csv', 'w', newline='') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=',',

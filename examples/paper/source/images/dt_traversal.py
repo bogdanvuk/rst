@@ -23,7 +23,7 @@ def draw_children(parent, templ, t, separation):
     return objs
 
 def draw_node_test_eq(node, id, pos):
-    t = "$\mathbf{a_{" + str(id) + "}}\cdot \mathbf{A} < threshold_{" + str(id) + "}$"
+    t = "$\mathbf{a_{" + str(id) + "}}\cdot \mathbf{A} < thr_{" + str(id) + "}$"
     if pos == 'left':
         text(t).align(node.w(0.5), prev().e(1.0))()
     else:

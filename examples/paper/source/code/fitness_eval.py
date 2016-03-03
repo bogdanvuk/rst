@@ -5,13 +5,24 @@ def fitness_eval(dt, train_set):
         distribution[leaf_id][instance_class] += 1
 
     hits = 0
-
-    for leaf in dt.leaves:
+    dt_classes = set()
+    dt_impurity = []
+    
+    for leaf in leaves:
         dominant_class_cnt = max(distribution[leaf])
+        dominant_class = distribution[leaf].index(dominant_class_cnt)
+        impurity = dominant_class_cnt/sum(distribution[leaf])
+        
+        dt_classes.add(dominant_class)
+        dt_impurity.append(impurity)
         hits += dominant_class_cnt
 
-    accuracy = hits / len(train_set)
-    oversize = len(dt.leaves) / class_cnt(train_set) - 1
-    fitness = w_a * accuracy - w_s * oversize
+    Nc = class_cnt(train_set)
     
-    return fitness
+    accuracy = hits / len(train_set)
+    oversize = w_s*(leaves_cnt(dt) - Nc)/Nc
+    missing  = w_m*(Nc - len(dt_classes))/Nc
+    
+    fitness = accuracy * (1 - oversize) * (1 + missing)
+    
+    return fitness, dt_impurity

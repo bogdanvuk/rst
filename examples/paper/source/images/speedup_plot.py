@@ -25,16 +25,14 @@ table = {}
 for d in hw_res['dataset']:
     table[d] = [(), (), (), ()]
 
-for i, res in enumerate([arm_res, pc_res]):
-    for d, r in res['res'].items():
-
-        t = []
-
-        for _,cv_run in r.items():
-            for _,run in cv_run.items():
-                t += [run['timing']]
-
-        table[d][i+1] = sum(t)/len(t)
+# for i, (res, run_name) in enumerate(zip([arm_res, pc_res], ["arm_run", "pc_run"])):
+#     for r in res[run_name]:
+#         d = r['dataset']
+#         t = []
+# 
+#         t += [run['timing']]
+# 
+#     table[d][i+1] = sum(t)/len(t)
 
 hw_run = []
 if 'hw_run' in hw_res:
@@ -52,19 +50,40 @@ for d, t in hw_times.items():
     table[d][0] = sum(t)/len(t)
     
 dsp_run = []
-if 'dsp_run' in dsp_res:
-    dsp_run.extend(dsp_res['dsp_run'])
-    
-dsp_times = {}
-for run in dsp_run:
-    dataset_name = run['dataset']
-    if dataset_name not in dsp_times:
-        dsp_times[dataset_name] = []
-    
-    dsp_times[dataset_name].append(run['timing'])
+pc_run = []  
+arm_run = []
 
-for d, t in dsp_times.items():
-    table[d][3] = sum(t)/len(t)  
+for s, res, run in zip(['pc_run', 'arm_run', 'dsp_run'], [pc_res, arm_res, dsp_res], [pc_run, arm_run, dsp_run]):
+    if s in res:
+        run.extend(res[s])
+
+dsp_times = {}
+pc_times = {}
+arm_times = {}
+for i,(timings, run_list) in enumerate(zip([arm_times, pc_times , dsp_times],[arm_run, pc_run, dsp_run])):
+    for run in run_list:
+        dataset_name = run['dataset']
+        if dataset_name not in timings:
+            timings[dataset_name] = []
+            
+        timings[dataset_name].append(run['timing'])
+
+    for d, t in timings.items():
+        table[d][i+1] = sum(t)/len(t)
+
+# if 'dsp_run' in dsp_res:
+#     dsp_run.extend(dsp_res['dsp_run'])
+    
+# dsp_times = {}
+# for run in dsp_run:
+#     dataset_name = run['dataset']
+#     if dataset_name not in dsp_times:
+#         dsp_times[dataset_name] = []
+#     
+#     dsp_times[dataset_name].append(run['timing'])
+# 
+# for d, t in dsp_times.items():
+#     table[d][3] = sum(t)/len(t)  
 
 spdup_arm = []
 spdup_pc = []
