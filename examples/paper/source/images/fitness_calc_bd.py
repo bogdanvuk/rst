@@ -56,10 +56,10 @@ bus_text("$dominant\\_class_1$").align(acc_prov.w(1) - (0.5, 0), prev().s(1.0))(
 path([fb['dc_calc'].e(0.5), fb['dc_calc'].e(0.5) + (3,0), acc_prov.w(3)], style='->', def_routing='|-')()
 bus_text("$dominant\\_class\\_cnt_{1}$").align(acc_prov.w(3) - (0.5, 0), prev().s(1.0))()
 path([fb['dc_calc'].e(0.75), fb['dc_calc'].e(0.75) + (2,0), acc_prov.w(5)], style='->', def_routing='|-')()
-bus_text("$impurity_{1}$").align(acc_prov.w(5) - (0.5, 0), prev().s(1.0))()
+bus_text("$total\_cnt_{1}$").align(acc_prov.w(5) - (0.5, 0), prev().s(1.0))()
 
 path([fbm['dc_calc'].e(0.25), fbm['dc_calc'].e(0.25) + (2,0), acc_prov.w(11)], style='->', def_routing='|-')()
-bus_text("$impurity_{N^{M}_{l}}$").align(acc_prov.w(11) - (0.5, 0), prev().s(1.0))()
+bus_text("$total\_cnt_{N^{M}_{l}}$").align(acc_prov.w(11) - (0.5, 0), prev().s(1.0))()
 path([fbm['dc_calc'].e(0.5), fbm['dc_calc'].e(0.5) + (3,0), acc_prov.w(13)], style='->', def_routing='|-')()
 bus_text("$dominant\\_class\\_cnt_{N^{M}_{l}}$").align(acc_prov.w(13) - (0.5, 0), prev().s(1.0))()
 path([fbm['dc_calc'].e(0.75), fbm['dc_calc'].e(0.75) + (4,0), acc_prov.w(15)], style='->', def_routing='|-')()

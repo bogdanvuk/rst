@@ -40,7 +40,7 @@ for f in files:
                 fit_eval_perc += float(row[3])
 
         datasets.append(path.splitext(f)[0].split('_')[1])
-        percents.append(fit_eval_perc)
+        percents.append(fit_eval_perc*0.996)
 
 formatter = FuncFormatter(to_percent)
 
