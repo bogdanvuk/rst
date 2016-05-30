@@ -62,8 +62,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'ensembles'
-copyright = '2015, bvukobratovic'
+project = 'elaborat'
+copyright = '2016, bvukobratovic'
 author = 'bvukobratovic'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -295,7 +295,7 @@ latex_elements = {
 author = 'bvukobratovic'
 
 latex_documents = [
-  (master_doc, 'ensembles.tex', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
+  (master_doc, 'elaborat.tex', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
    author,
    'howto'),
 ]
