@@ -43,9 +43,9 @@ extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig
           'sphinx.ext.doctest']
 
 numfig = True
-numfig_format = {'figure': 'Figure %s',
-                 'table': 'Table %s',
-                 'code-block': 'Algorithm %s'}
+numfig_format = {'figure': 'Slika %s',
+                 'table': 'Tabela %s',
+                 'code-block': 'Algoritam %s'}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -224,6 +224,7 @@ latex_preamble = ur'''
 \nonstopmode
 \usepackage[none]{hyphenat}
 \usepackage{booktabs}
+\usepackage{hyperref}
 
 \usepackage{fancyhdr}
 \usepackage{array}

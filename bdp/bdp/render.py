@@ -4,14 +4,14 @@ import os
 import argparse
 from subprocess import Popen, PIPE
 
-import bdp.node
+from . import node
 
 class BdpError(Exception):
     pass
 
 def render_tikz(file_name, bdp_gen_path, search_paths=[]):
     found = False
-    importlib.reload(bdp.node)
+    importlib.reload(node)
     try:
         bdp_file_name = file_name
         print(bdp_file_name)

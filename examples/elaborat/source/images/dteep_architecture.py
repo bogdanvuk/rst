@@ -14,9 +14,9 @@ bus_text = text(font="\\scriptsize", margin=p(0,0.5))
 
 ps = part("Processing System")
 ps['cpu'] = ps_comp("CPU")
-ps['mem_con'] = ps_comp("DDR3 Memory Controller").below(ps['cpu'])
+ps['mem_con'] = ps_comp("DDR3 Memorijski Kontroler").below(ps['cpu'])
 
-ddr3 = ps_comp("DDR3 Memory").left(ps['mem_con'])
+ddr3 = ps_comp("DDR3 Memorija").left(ps['mem_con'])
 fig << ddr3
 fig << bus(ddr3.e(0.5), ps['mem_con'].w(0.5))
 ps['intercon'] = block(r"AXI4 \\ Interconnect", ps['mem_con'].s(1.0)-ps['cpu'].n()).right(ps['cpu'])
@@ -29,10 +29,10 @@ fig << bus_text("AXI4").align(ps['mem_con2intercon'].pos(0.5), prev().s(0.5, 0.2
 fig << ps
 
 #------------------------------------------------------------------------------ 
-# DTEEP Ensemble
+# EFTIP Ensemble
 #------------------------------------------------------------------------------ 
 
-eeftip = part("Ensemble DTEEP", group_margin=[p(0,2), p(1,2)])
+eeftip = part("DTEEP koprocesor", group_margin=[p(0,2), p(1,2)])
 
 eeftip['status'] = comp("IRQ Status", size=p(7,4), nodesep=(2,2)).right(ps['intercon'], 6).aligny(ps['cpu'].p)
 eftip = block(size=p(6,3), nodesep=(1,1))
