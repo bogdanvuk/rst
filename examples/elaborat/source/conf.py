@@ -263,7 +263,7 @@ latex_title = ur'''
 \begin{center}
 {\rm\Huge Elaborat za doktorat } \par
 \vspace{25pt}
-kandidat Bogdan Vukobratović, savetnik dr. Rastistlav Struharik
+kandidat Bogdan Vukobratović, savetnik dr Rastistlav Struharik
 \vspace{50pt}
 \end{center}
 

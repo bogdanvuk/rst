@@ -76,21 +76,22 @@
 %\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
 }
 
+\usepackage{listings}
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
-
+\usepackage[utf8]{inputenc}
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Short title]{Full Title of the Talk} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Short title]{Kvalifikacioni Ispit} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Bogdan Vukobratović} % Your name
-\institute[UCLA] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+\institute[FTN] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
-University of California \\ % Your institution for the title page
+Fakultet Tehničkih Nauka \\ % Your institution for the title page
 \medskip
-\textit{john@smith.com} % Your email address
+\textit{bogdan.vukobratovic@gmail.com} % Your email address
 }
 \date{\today} % Date, can be changed to a custom date
 
@@ -100,42 +101,106 @@ University of California \\ % Your institution for the title page
 \titlepage % Print the title page as the first slide
 \end{frame}
 
-\begin{frame}
-\frametitle{Overview} % Table of contents slide, comment this block out to remove it
-\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-\end{frame}
+%\begin{frame}
+%\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+%\end{frame}
 
 %----------------------------------------------------------------------------------------
 %	PRESENTATION SLIDES
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-\section{First Section} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+% \section{} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
 %------------------------------------------------
 
-\subsection{Subsection Example} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
+% \subsection{Subsection Example} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
 
 \begin{frame}
-\frametitle{Paragraphs of Text}
-Sed iaculis dapibus gravida. Morbi sed tortor erat, nec interdum arcu. Sed id lorem lectus. Quisque viverra augue id sem ornare non aliquam nibh tristique. Aenean in ligula nisl. Nulla sed tellus ipsum. Donec vestibulum ligula non lorem vulputate fermentum accumsan neque mollis.\\~\\
-
-Sed diam enim, sagittis nec condimentum sit amet, ullamcorper sit amet libero. Aliquam vel dui orci, a porta odio. Nullam id suscipit ipsum. Aenean lobortis commodo sem, ut commodo leo gravida vitae. Pellentesque vehicula ante iaculis arcu pretium rutrum eget sit amet purus. Integer ornare nulla quis neque ultrices lobortis. Vestibulum ultrices tincidunt libero, quis commodo erat ullamcorper id.
+\frametitle{Predlog naslova doktorske disertacije}
+\huge{\centerline{“Hardverska akceleracija algoritama}}
+\huge{\centerline{za formiranje celih stabala odluke}}
+\huge{\centerline{i njihovih ansambala”}}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Bullet Points}
+\frametitle{Cilj istraživanja - Motivacija}
+
+Cilj istraživanja - razvoj algoritama za indukciju celih stabala
+odluke i njihova efikasna implementacija u “embedded” sistemima.\\
+\vspace{1em}
+Algoritmi za indukciju celih stabala odluke proizvode kompaktnija
+stabla.\\
+\vspace{1em}
+Motivacija:\\
+\vspace{1em}
 \begin{itemize}
-\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
-\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
-\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
-\item Nam cursus est eget velit posuere pellentesque
-\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
+\item Okamova oštrica: jednostavnije = bolje
+\item Jednostavnija stabla $\implies$ manje hardverskih resursa
 \end{itemize}
 \end{frame}
 
 %------------------------------------------------
+
+\begin{frame}
+\frametitle{Cilj istraživanja}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Razvoj novog evolutivnog algoritma za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju - EFTI
+\item Razvoj nove hardverske arhitekture za akceleraciju EFTI
+  algoritma - EFTIP
+\item Razvoj novog evolutivnog algoritma za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma - EEFTI
+\item Razvoj hardverske arhitekture za akceleraciju EEFTI algoritma - DTEEP
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Plan rada - EFTI 1/2}
+\small\begin{lstlisting}[language=Python]
+def efti(train_set):
+    initialize(dt)
+    best_fit = fitness_eval(dt, train_set)
+
+    for iter in range(max_iter):
+        dt_mut = mutate(dt)
+        cur_fit = fitness_eval(dt_mut, train_set)
+
+        if (cur_fit > best_fit) or (random() < p_escape):
+            best_fit = cur_fit
+            dt = dt_mut
+
+    return dt
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Plan rada - EFTI 2/2}
+\begin{itemize}
+\item Mutacija - nafunkcija mutate() na nasumiˇcan naˇcin menja jedinku u nadi da c  ́ e novonastala
+jedinka (promenljiva dt_mut) napredovati u pogledu fitnesa. Mogu se vršiti dve vrste
+mutacija: mutacija vektora koeficijenata testova u c ˇ vorovima ili oduzimanje/dodavanje
+novog c ˇ vora u stablo.
+\item Evaluacija fitnesa - funkcija fitness_eval() na ve ́c pomenut naˇcin proraˇcunava fitness
+mutirane jedinke - promenljiva cur_fit
+\item Selekcija - implementirana poslednjim if blokom u petlji, u kojoj se proverava da li
+je ostvaren napredak u pogledu fitnesa, u kom sluˇcaju se mutirana jedinka prihvata za
+trenutno najbolju. U suprotnom, da bi se omogu ́cilo evolutivnom algoritmu da napusti
+lokalne optimume (i na taj naˇcin ima šansu da prona de
+ ̄ globalni optimum) ipak se daje
+šansa, obiˇcno mala, jedinki sa nižim fitnesom da bude prihva ́cena. Nasumiˇcno, neke
+jedinke sa nižim fitnesom c  ́ e biti prihva ́cene, a ostale odbaˇcene.
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+
 
 \begin{frame}
 \frametitle{Blocks of Highlighted Text}
@@ -256,4 +321,4 @@ This statement requires citation \cite{p1}.
 
 %----------------------------------------------------------------------------------------
 
-\end{document} 
+\end{document}
