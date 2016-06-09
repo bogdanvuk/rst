@@ -168,9 +168,9 @@ stabala odluke na bazi EFTI algoritma
 \end{figure}
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Intuitivan model, visok stepen imunosti na šum, podjednako dobar kako za numeričke tako i za kategoričke atribute, mogućnost rada sa redudantnim ili nedostajućim atributima, itd.
+\item Intuitivan model, visok stepen imunosti na šum, podjednako dobar kako za numeričke tako i za kategoričke atribute, mogućnost rada sa redundantnim ili nedostajućim atributima itd.
 \item Pronalaženje optimalnog testa u čvoru je NP-težak problem $\implies$ upotrebljavaju se heuristike
-\item Dva generalna pristupa indukciji: inkrementalni (čvor-po-čvor, ``greedy'') i celo stablo od jednom
+\item Dva generalna pristupa indukciji: inkrementalni (čvor-po-čvor, ``greedy'') i celo stablo odjednom
 \end{itemize}
 \end{frame}
 
@@ -199,16 +199,16 @@ stabala odluke na bazi EFTI algoritma}
 \item Algoritam je evolutivan, te podrazumeva:
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Mutaciju - nasumičnu izmenu jedinke u nadi za unapređenjem fitnesa. 
+\item Mutaciju - nasumičnu izmenu jedinke u nadi za unapređenjem fitnesa.
 \begin{itemize}
 \item Mutacija koeficijenata testova u čvorovima
-\item Oduzimanje/dodavanje čvorova 
+\item Oduzimanje/dodavanje čvorova
 \end{itemize}
-\item Evaluacija fitnesa - mera kvaliteta jedinke na osnovu parametara od interesa: tačnost, veličina, prisutnost svih klasa problema u listovima, čistoća listova, balansiranost, itd.
-\item Selekcija - odlučuje o prihvatanju mutirane jedinke
+\item Evaluaciju fitnesa - meru kvaliteta jedinke na osnovu parametara od interesa: tačnost, veličina, prisutnost svih klasa problema u listovima, čistoća listova, balansiranost, itd.
+\item Selekciju - odlučivanje o prihvatanju mutirane jedinke
 \begin{itemize}
 \item Ako je ostvaren napredak u fitnesu
-\item Naumično iako je jedinka slabijeg fitnesa $\implies$ beg iz lokalnog optimuma
+\item Nasumično, iako je jedinka slabijeg fitnesa $\implies$ beg iz lokalnog optimuma
 \end{itemize}
 \end{itemize}
 \end{itemize}
@@ -256,7 +256,7 @@ stabala odluke na bazi EFTI algoritma}
 \frametitle{Plan rada - EFTIP 2/3}
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} - 
+\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} -
 broj atributa i \emph{D} - prosečna dužina puta instance kroz stablo )\\
 \vspace{1em}
 \centerline{$T(fitness\_eval) = O(N_{I}\cdot D\cdot n)$}
@@ -304,7 +304,7 @@ stabala odluke na bazi EFTI algoritma
 \end{itemize}
 \vspace{1em}
 \vspace{1em}
-\item Putpuni ``decoupling'' između procesa indukcije članova $\implies$ idealno za paralelizaciju
+\item Potpuni ``decoupling'' između procesa indukcije članova $\implies$ idealno za paralelizaciju
 \end{itemize}
 \end{frame}
 
@@ -315,15 +315,15 @@ stabala odluke na bazi EFTI algoritma
 \small\begin{lstlisting}[language=Python]
 def efti(train_set, ensemble_size):
     task_train_sets = divide_train_set(train_set, ensemble_size)
-    
+
     res = []
     initialize_result_array(res, ensemble_size)
-    
+
     for t, r in zip(task_train_sets, res):
         create_task(efti_task, t, r)
-    
+
     wait_for_all_tasks()
-    
+
     return res
 \end{lstlisting}
 \end{frame}
@@ -349,7 +349,7 @@ stabala odluke na bazi EFTI algoritma}
 \frametitle{Plan rada - DTEEP 2/3}
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} - 
+\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} -
 broj atributa i \emph{D} - prosečna dužina puta instance kroz stablo )\\
 \vspace{1em}
 \centerline{$T(fitness\_eval) = O(N_{I}\cdot D\cdot n)$}
@@ -376,7 +376,7 @@ broj atributa i \emph{D} - prosečna dužina puta instance kroz stablo )\\
 \frametitle{Metode}
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Poređenje C implementacija EFTI algoritma po brzini i tačnosti sa ostalim standardnim algoritmima: OC1, CART, HBDT, GaTree, GALE, itd.
+\item Poređenje C implementacije EFTI algoritma po brzini i tačnosti sa ostalim standardnim algoritmima: OC1, CART, HBDT, GaTree, GALE itd.
 \item \emph{UCI} baza standardnih ulaznih problema
 \item Poređenje HW/SW kodizajnova na osnovu EFTIP i DTEEP koprocesora sa čistim softverskim implementacijama EFTI i EEFTI algoritama
 \end{itemize}
