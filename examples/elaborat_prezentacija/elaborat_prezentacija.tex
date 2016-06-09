@@ -79,12 +79,15 @@
 \usepackage{listings}
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\newcommand{\light}[1]{\textcolor{lightgray}{#1}}
+
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[Short title]{Kvalifikacioni Ispit} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Kvalifikacioni Ispit]{Kvalifikacioni Ispit} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{Bogdan Vukobratović} % Your name
 \institute[FTN] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -93,7 +96,7 @@ Fakultet Tehničkih Nauka \\ % Your institution for the title page
 \medskip
 \textit{bogdan.vukobratovic@gmail.com} % Your email address
 }
-\date{\today} % Date, can be changed to a custom date
+\date{09.06.2016.} % Date, can be changed to a custom date
 
 \begin{document}
 
@@ -127,18 +130,17 @@ Fakultet Tehničkih Nauka \\ % Your institution for the title page
 
 \begin{frame}
 \frametitle{Cilj istraživanja - Motivacija}
-
-Cilj istraživanja - razvoj algoritama za indukciju celih stabala
-odluke i njihova efikasna implementacija u “embedded” sistemima.\\
-\vspace{1em}
-Algoritmi za indukciju celih stabala odluke proizvode kompaktnija
-stabla.\\
-\vspace{1em}
-Motivacija:\\
-\vspace{1em}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Cilj istraživanja - razvoj algoritama za indukciju celih stabala
+odluke i njihova efikasna implementacija u “embedded” sistemima.
+\item Algoritmi za indukciju celih stabala odluke proizvode kompaktnija
+stabla:
 \begin{itemize}
 \item Okamova oštrica: jednostavnije = bolje
+\vspace{1em}
 \item Jednostavnija stabla $\implies$ manje hardverskih resursa
+\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -146,22 +148,76 @@ Motivacija:\\
 
 \begin{frame}
 \frametitle{Cilj istraživanja}
+\begin{enumerate}
+\setlength{\itemsep}{\fill}
+\item EFTI - Novi evolutivni algoritam za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju
+\item EFTIP - Hardverska arhitektura za akceleraciju EFTI algoritma
+\item EEFTI - Novi evolutivni algoritam za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma
+\item DTEEP - Hardverska arhitektura za akceleraciju EEFTI algoritma
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Stabla odluke}
+\begin{figure}
+\includegraphics[width=0.7\linewidth]{oblique_dt_traversal.pdf}
+\end{figure}
 \begin{itemize}
 \setlength{\itemsep}{\fill}
-\item Razvoj novog evolutivnog algoritma za indukciju celih neortogonalnih stabala
-odluke, koji ne zahteva populaciju - EFTI
-\item Razvoj nove hardverske arhitekture za akceleraciju EFTI
-  algoritma - EFTIP
-\item Razvoj novog evolutivnog algoritma za indukciju ansambala neortogonalnih celih
-stabala odluke na bazi EFTI algoritma - EEFTI
-\item Razvoj hardverske arhitekture za akceleraciju EEFTI algoritma - DTEEP
+\item Intuitivan model, visok stepen imunosti na šum, podjednako dobar kako za numeričke tako i za kategoričke atribute, mogućnost rada sa redudantnim ili nedostajućim atributima, itd.
+\item Pronalaženje optimalnog testa u čvoru je NP-težak problem $\implies$ upotrebljavaju se heuristike
+\item Dva generalna pristupa indukciji: inkrementalni (čvor-po-čvor, ``greedy'') i celo stablo od jednom
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Plan rada - EFTI 1/3}
+\begin{enumerate}
+\setlength{\itemsep}{\fill}
+\item EFTI - Novi evolutivni algoritam za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju
+\item\light{EFTIP - Hardverska arhitektura za akceleraciju EFTI algoritma}
+\item\light{EEFTI - Novi evolutivni algoritam za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma}
+\item\light{DTEEP - Hardverska arhitektura za akceleraciju EEFTI algoritma}
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Plan rada - EFTI 2/3}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Evoluira samo jednu jedinku
+\item Algoritam je evolutivan, te podrazumeva:
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Mutaciju - nasumičnu izmenu jedinke u nadi za unapređenjem fitnesa. 
+\begin{itemize}
+\item Mutacija koeficijenata testova u čvorovima
+\item Oduzimanje/dodavanje čvorova 
+\end{itemize}
+\item Evaluacija fitnesa - mera kvaliteta jedinke na osnovu parametara od interesa: tačnost, veličina, prisutnost svih klasa problema u listovima, čistoća listova, balansiranost, itd.
+\item Selekcija - odlučuje o prihvatanju mutirane jedinke
+\begin{itemize}
+\item Ako je ostvaren napredak u fitnesu
+\item Naumično iako je jedinka slabijeg fitnesa $\implies$ beg iz lokalnog optimuma
+\end{itemize}
+\end{itemize}
 \end{itemize}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}[fragile]
-\frametitle{Plan rada - EFTI 1/2}
+\frametitle{Plan rada - EFTI 3/3}
 \small\begin{lstlisting}[language=Python]
 def efti(train_set):
     initialize(dt)
@@ -182,141 +238,154 @@ def efti(train_set):
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Plan rada - EFTI 2/2}
+\frametitle{Plan rada - EFTIP 1/3}
+\begin{enumerate}
+\setlength{\itemsep}{\fill}
+\item\light{EFTI - Novi evolutivni algoritam za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju}
+\item EFTIP - Hardverska arhitektura za akceleraciju EFTI algoritma
+\item\light{EEFTI - Novi evolutivni algoritam za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma}
+\item\light{DTEEP - Hardverska arhitektura za akceleraciju EEFTI algoritma}
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Plan rada - EFTIP 2/3}
 \begin{itemize}
-\item Mutacija - nafunkcija mutate() na nasumiˇcan naˇcin menja jedinku u nadi da c  ́ e novonastala
-jedinka (promenljiva dt_mut) napredovati u pogledu fitnesa. Mogu se vršiti dve vrste
-mutacija: mutacija vektora koeficijenata testova u c ˇ vorovima ili oduzimanje/dodavanje
-novog c ˇ vora u stablo.
-\item Evaluacija fitnesa - funkcija fitness_eval() na ve ́c pomenut naˇcin proraˇcunava fitness
-mutirane jedinke - promenljiva cur_fit
-\item Selekcija - implementirana poslednjim if blokom u petlji, u kojoj se proverava da li
-je ostvaren napredak u pogledu fitnesa, u kom sluˇcaju se mutirana jedinka prihvata za
-trenutno najbolju. U suprotnom, da bi se omogu ́cilo evolutivnom algoritmu da napusti
-lokalne optimume (i na taj naˇcin ima šansu da prona de
- ̄ globalni optimum) ipak se daje
-šansa, obiˇcno mala, jedinki sa nižim fitnesom da bude prihva ́cena. Nasumiˇcno, neke
-jedinke sa nižim fitnesom c  ́ e biti prihva ́cene, a ostale odbaˇcene.
+\setlength{\itemsep}{\fill}
+\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} - 
+broj atributa i \emph{D} - prosečna dužina puta instance kroz stablo )\\
+\vspace{1em}
+\centerline{$T(fitness\_eval) = O(N_{I}\cdot D\cdot n)$}
+\item HW/SW kodizajn pristup akceleraciji EFTI-ja
+\begin{itemize}
+\item Računanje fitnesa $\implies$ hardver
+\item Mutacija i selekcija $\implies$ softver
+\end{itemize}
 \end{itemize}
 \end{frame}
+
 %------------------------------------------------
 
-
-\begin{frame}
-\frametitle{Blocks of Highlighted Text}
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
-
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
-
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
+\begin{frame}[fragile]
+\frametitle{Plan rada - EFTIP 3/3}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{eftip_architecture.pdf}
+\end{figure}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
+\frametitle{Plan rada - EEFTI 1/3}
 \begin{enumerate}
-\item Statement
-\item Explanation
-\item Example
+\setlength{\itemsep}{\fill}
+\item\light{EFTI - Novi evolutivni algoritam za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju}
+\item\light{EFTIP - Hardverska arhitektura za akceleraciju EFTI algoritma}
+\item EEFTI - Novi evolutivni algoritam za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma
+\item\light{DTEEP - Hardverska arhitektura za akceleraciju EEFTI algoritma}
 \end{enumerate}
-
-\column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-
-\end{columns}
-\end{frame}
-
-%------------------------------------------------
-\section{Second Section}
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Table}
-\begin{table}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\caption{Table caption}
-\end{table}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
+\frametitle{Plan rada - EEFTI 2/3}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item ``Bagging'' algoritam za indukciju ansambala
+\begin{itemize}
+\item Podela trening skupa na podskupove $\implies$ svaki podskup za indukciju jednog člana
+\end{itemize}
+\vspace{1em}
+\vspace{1em}
+\item Putpuni ``decoupling'' između procesa indukcije članova $\implies$ idealno za paralelizaciju
+\end{itemize}
 \end{frame}
 
 %------------------------------------------------
 
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Verbatim}
-\begin{example}[Theorem Slide Code]
-\begin{verbatim}
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}\end{verbatim}
-\end{example}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Figure}
-Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{test}
-%\end{figure}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Citation}
-An example of the \verb|\cite| command to cite within the presentation:\\~
-
-This statement requires citation \cite{p1}.
+\begin{frame}[fragile]
+\frametitle{Plan rada - EEFTI 3/3}
+\small\begin{lstlisting}[language=Python]
+def efti(train_set, ensemble_size):
+    task_train_sets = divide_train_set(train_set, ensemble_size)
+    
+    res = []
+    initialize_result_array(res, ensemble_size)
+    
+    for t, r in zip(task_train_sets, res):
+        create_task(efti_task, t, r)
+    
+    wait_for_all_tasks()
+    
+    return res
+\end{lstlisting}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{References}
-\footnotesize{
-\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[Smith, 2012]{p1} John Smith (2012)
-\newblock Title of the publication
-\newblock \emph{Journal Name} 12(3), 45 -- 678.
-\end{thebibliography}
-}
+\frametitle{Plan rada - DTEEP 1/3}
+\begin{enumerate}
+\setlength{\itemsep}{\fill}
+\item\light{EFTI - Novi evolutivni algoritam za indukciju celih neortogonalnih stabala
+odluke, koji ne zahteva populaciju}
+\item\light{EFTIP - Hardverska arhitektura za akceleraciju EFTI algoritma}
+\item\light{EEFTI - Novi evolutivni algoritam za indukciju ansambala neortogonalnih celih
+stabala odluke na bazi EFTI algoritma}
+\item DTEEP - Hardverska arhitektura za akceleraciju EEFTI algoritma
+\end{enumerate}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\Huge{\centerline{The End}}
+\frametitle{Plan rada - DTEEP 2/3}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Kompleksnost računanja fitnesa (\(N_{I}\) - broj instanci u trening setu, \emph{n} - 
+broj atributa i \emph{D} - prosečna dužina puta instance kroz stablo )\\
+\vspace{1em}
+\centerline{$T(fitness\_eval) = O(N_{I}\cdot D\cdot n)$}
+\item HW/SW kodizajn pristup akceleraciji EFTI-ja
+\begin{itemize}
+\item Računanje fitnesa $\implies$ hardver
+\item Mutacija i selekcija $\implies$ softver
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Plan rada - DTEEP 3/3}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{dteep_architecture.pdf}
+\end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Metode}
+\begin{itemize}
+\setlength{\itemsep}{\fill}
+\item Poređenje C implementacija EFTI algoritma po brzini i tačnosti sa ostalim standardnim algoritmima: OC1, CART, HBDT, GaTree, GALE, itd.
+\item \emph{UCI} baza standardnih ulaznih problema
+\item Poređenje HW/SW kodizajnova na osnovu EFTIP i DTEEP koprocesora sa čistim softverskim implementacijama EFTI i EEFTI algoritama
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{Hvala na pažnji!}}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
