@@ -51,7 +51,7 @@ where **a** represents the coefficient vector, |NA| equals the size of the attri
 
 .. _fig-oblique-dt:
 
-.. figure:: images/dt_traversal.py
+.. figure:: images/dt_traversal.pdf
 
     An example of the oblique binary DT with one possible traversal path shown in red.
 
@@ -81,28 +81,51 @@ The |algo| algorithm was chosen to be accelerated by hardware, since it does not
 |algo| algorithm
 ================
 
-This section describes an evolutionary algorithm for full DT induction using supervised learning - the |algo|. This algorithm has been devised with three goals in mind:
+This section describes an evolutionary algorithm for oblique full DT induction using supervised learning - the |algo|. The main motivation for creating |algo| was to develop an algorithm that: 
+
+1. can induce smaller DTs than the existing solutions without the loss of accuracy, and
+2. can be effitiently used in embedded applications.
+
+In the field of machine learning, as is with most other scientific disciplines, simpler models are prefered over the more complex ones as stated in the principle of Occam's razor :cite:`gauch2003scientific`. The preference for simplicity in the scientific method is based on the falsifiability criterion. For each accepted model of a phenomenon, there is extremely large number of possible alternatives with an increasing level of  complexity, because aspects in which the model fails to correctly describe the phenomenon can always be masked with ad hoc hypotheses to prevent the model from being falsified. Therefore, simpler theories are preferable to more complex ones because they are more testable. Hence, there is an obvious benefit for having the algorithm that induces smaller DTs, since smaller DT corresponds to simpler description of the phenomenon being modeled by it.
+
+Second, with growth and advancements in the field of electronics, wireless communications, networking, cognitive and affective computing and robotics, embedded devices have penetrated deeper into our daily lives. In order for them to seemlesly integrate  
+
+Finding the smallest DT consistent with the training set is NP-hard problem :cite:`murthy1994system`, hence, in general it is solved using some kind of heuristic. The DT is said to be consistent with the training set if and only if it classifies all the training set instances in the same was as given in the training set. The main motivation 
+
+The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems. By accelerating this task, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process large amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adapting, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
+
+
+ This algorithm has been devised with three goals in mind:
 
 1. It has to be suitable for the implementations on embedded systems, by having low hardware resource requirements,
 2. It should be easily parallelizable, and
-3. It has to provide better DT induction solutions than exesting DT induction algorithms
+3. It has to provide better DT induction solutions than existing DT induction algorithms
 
-  Algoritam obično optimizuje parametre testa u procesu maksimizacije neke ciljne funkcije koja meri kvalitet podele instanci iz trening skupa koje u procesu klasifikacije uspevaju da stignu do čvora kome je pridružen test. Ovom podelom se dobijaju dva podskupa instanci, od kojih se svaki prosleđuje na obradu po jednom potomku čvora. Za svaki od ova dva podskupa se dalje proverava da li se sastoje od instanci koje pripadaju različitim klasama ili je pak podskup "čist", u smislu da sadrži instance samo jedne klase. U slučaju da je podskup čist, kao potomak se dodaje list i njemu se asocira klasa instanci iz podskupa. U suprotnom, proces indukcije stabla se nastavlja iterativno i kao potomak se dodaje novi čvor u cilju dalje deobe podskupa instanci na čiste podskupove. Prednost inkrementalnog pristupa je brzina, ali indukovana stabla su suboptimalna po veličini i kasnijim klasifikacionim rezultatima na novim instancama. Razni algoritmi za inkrementalnu indukciju stabala odluke su predloženi u literaturi :cite:`quinlan1986induction,islam2010explore,mahmood2010novel,yildiz2012univariate,lopez2013fisher,breiman1984classification,murthy1994system,cantu2003inducing,liu2011improved,manwani2012geometric,barros2014framework,struharik2014inducing`.
+General approaches to DT induction
+----------------------------------
 
-There are two general approaches to DT induction using supervised learning: incremental (node-by-node) and full tree induction. The incremental approach uses greedy top-down recursive partitioning strategy of the training set for the tree growth. The algorithm starts with an empty DT and continues by forming the root node test and adding it to the DT. In the attribute space, the root node test splits the training set in two partitions, one that will be used to form the root's left child subtree, and the other the right child subtree. In other words, the root node is assigned the whole training set, which is partitioned in two by the root node test and each partition is assigned to one of the root's two children. The node test coefficients are optimized in the process of maximizing some cost function measuring the quality of the split. Iteratively, the nodes are added to the DT, whose tests further divide the training set partitions assigned to them. If the node is assigned a partition of the training set where all instances belong to the same class, i.e. the partition is clean, no further division is needed and the node becomes the leaf with that class assigned to it. Otherwise, the process of partitioning is continued until only clean partitions remain.
+There are two general approaches to DT induction using supervised learning: incremental (node-by-node) and full tree induction.
 
-This approach is greedy in the sense that node test coefficients (coefficient vector **a** and threshold value *thr*) are optimized for a node based on the training set partition assigned to the node, i.e. based on the "local" information. The information on how the training set partitions are handled in other subtrees of the DT (subtrees not containg the node currently being inserted into the DT) are not used to help optimize the test coefficients. Furthermore, by the time the node has been added to the DT and the algorithm continued creating other nodes, the situation has changed and the new information is available, but it will not be used to further optimize the test of the node already added to the DT. This means that only some local optimum can be achieved.
+The incremental approach uses greedy top-down recursive partitioning strategy of the training set for the tree growth. The algorithm starts with an empty DT and continues by forming the root node test and adding it to the DT. In the attribute space, the root node test splits the training set in two partitions, one that will be used to form the root's left child subtree, and the other the right child subtree. In other words, the root node is assigned the whole training set, which is partitioned in two by the root node test and each partition is assigned to one of the root's two children. The node test coefficients are optimized in the process of maximizing some cost function measuring the quality of the split. Iteratively, the nodes are added to the DT, whose tests further divide the training set partitions assigned to them. If the node is assigned a partition of the training set where all instances belong to the same class, i.e. the partition is clean, no further division is needed and the node becomes the leaf with that class assigned to it. Otherwise, the process of partitioning is continued until only clean partitions remain. In this stage, the induced DT is considered overfitted, i.e it performs flawlessly on the training set, but badly on the instances outside the training set. The common approach for increasing the performance of the overfitted DT on new instances is prunning.
 
-Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem :cite:`heath1993induction`, therefore most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`. Computationally least demanding approach for the DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most of the DT induction algorithms use this approach. Naturally, this approach suffers from the inability of escaping the local optima. Better results, especially if the DT size is considered, could be obtained by the inducers that work on full DT, with cost of the higher computational complexity :cite:`struharik2014inducing`.
+This approach is greedy in the sense that the node test coefficients (coefficient vector **a** and threshold value *thr*) are optimized based on the training set partition assigned to the node, i.e. based on the "local" information. The information on how the training set partitions are handled in other subtrees of the DT (subtrees not containg the node currently being inserted into the DT) are not used to help optimize the test coefficients. Furthermore, by the time the node has been added to the DT and the algorithm continued creating other nodes, the situation has changed and the new information is available, but it will not be used to further optimize the test of the node already added to the DT. This means that only some local optimum of the induced DT can be achieved. Various algorithms for incremental DT induction have been proposed in the literature :cite:`quinlan1986induction,islam2010explore,mahmood2010novel,yildiz2012univariate,lopez2013fisher,breiman1984classification,murthy1994system,cantu2003inducing,liu2011improved,manwani2012geometric,barros2014framework,struharik2014inducing`.
 
-The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems. This is certainly true for the full DT inference algorithms. By accelerating this task, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process large amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adapting, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
+The other approach for the DT inference is the full DT induction. In this approach a complete DT is manipulated during the inference process. Acording to some algorithm the tree nodes are added or removed, and their associated tests are modified. Considerable number of full DT inference algorithms has been also proposed :cite:`papagelis2000ga,bot2000application,krketowski2005global,llora2004mixed,otero2012inducing,boryczka2015enhancing`.
 
+Incremental algorithms use a simpler heuristic and are computationally less demanding than the full DT inducers. However, the algorithms that optimize the DT as a whole, using complete information during the optimization process, generally lead to more compact and possibly more accurate DTs when compared with incremental approaches. Furthermore, the DTs can be induced both using only axis-parallel node tests or using oblique node tests. The advantage of using only axis-parallel tests is in reduced complexity as the task of finding the optimal axis-parallel split of the training set is polynomial in terms of |NA| and |NI|. More precisely, the optimization process needs to explore only :math:`N_A \cdot N_I` distinct possible axis-parallel splits :cite:`murthy1994system`. On the other hand, in order to find the optimal oblique split, total of :math:`2^d \cdot \binom{N_A}{N_I}` posible hyperplanes need to be considered, making it an NP-hard problem. On the other hand, the DTs induced with oblique tests offten have much smaller number of nodes than the ones with axis-parallel tests.
+
+Since the process of finding the optimal oblique DT is a hard algorithmic problem, most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`.
 
 .. _fig-evolutionary-dt-algorithm-tree:
 
 .. figure:: images/taxonomy.pdf
 
     The taxonomy of evolutionary algorithms for DT induction.
+
+Evolutionary oblique full DT induction
+--------------------------------------
+
+In order for |algo| to be suitable for hardware acceleration                                                                         
 
 In order to save on needed resources for the implementation, the |algo| algorithm operates on a single candidate solution. One popular approach pursued in open literature for inducing DTs by global optimization is using evolutionary algorithms, which in turn operate on a population of candidate solutions. The typical populations used by these algorithms contain tens or even hundereds of individuals. By using only a single candidate solution, the |algo| algorithm requires one or even two orders of magnitude less hardware resources for the implementation then the existing evolutionary algorithms.
 
@@ -432,7 +455,7 @@ The proposed |cop| co-processor performs the task of determining the accuracy of
 
 .. _fig-system-bd:
 
-.. figure:: images/system_bd.py
+.. figure:: images/system_bd.pdf
     :width: 100%
 
     The |cop| co-processor structure and integration with the host CPU
@@ -452,7 +475,7 @@ The classifier module performs the classification of an arbitrary set of instanc
 
 .. _fig-dt-classifier-bd:
 
-.. figure:: images/classifier.py
+.. figure:: images/classifier.pdf
 
     The Classifier architecture.
 
@@ -478,7 +501,7 @@ The NTE operation is again pipelined internally for the maximal throughput. The 
 
 .. _fig-dt-test-eval-bd:
 
-.. figure:: images/evaluator.py
+.. figure:: images/evaluator.pdf
 
     The NTE (Node Test Evaluator) block architecture
 
@@ -514,7 +537,7 @@ The width of the NTE Port is determined at the design phase of the |cop|, and co
 
 .. _fig-inst-mem-org:
 
-.. figure:: images/inst_mem.py
+.. figure:: images/inst_mem.pdf
     :width: 80%
 
     The Training set memory organization
@@ -528,7 +551,7 @@ DT Memory Array is composed of |DM| sub-modules, that are used for storing the D
 
 .. _fig-dt-mem-array-org:
 
-.. figure:: images/dt_mem.py
+.. figure:: images/dt_mem.pdf
 
     The DT memory organization
 
@@ -558,7 +581,7 @@ This module calculates the accuracy of the DT via the distribution matrix, as de
 
 .. _fig-fit-calc-bd:
 
-.. figure:: images/fitness_calc_bd.py
+.. figure:: images/fitness_calc_bd.pdf
     :width: 85%
 
     The Accuracy Calculator block diagram

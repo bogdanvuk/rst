@@ -37,14 +37,15 @@ from sphinxpp import latex_mods
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
+extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.sphinxext.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
           'sphinxpp.plot_directive',
           'sphinx.ext.autodoc',
           'sphinx.ext.doctest']
 
-numfig_format = {'figure': 'Figure %s',
-                 'table': 'Table %s',
-                 'code-block': 'Algorithm %s'}
+numfig = True
+numfig_format = {'figure': 'Slika %s',
+                 'table': 'Tabela %s',
+                 'code-block': 'Algoritam %s'}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -61,8 +62,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'paper1'
-copyright = '2015, bvukobratovic'
+project = 'elaborat'
+copyright = '2016, bvukobratovic'
 author = 'bvukobratovic'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -215,14 +216,15 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'paper1doc'
+htmlhelp_basename = 'ensemblesdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_preamble = ur'''
-
+\nonstopmode
 \usepackage[none]{hyphenat}
 \usepackage{booktabs}
+\usepackage{hyperref}
 
 \usepackage{fancyhdr}
 \usepackage{array}
@@ -233,46 +235,41 @@ latex_preamble = ur'''
 \pagestyle{fancy}
 
 \newcommand{\NA}{N_{A}}
+\newcommand{\SM}{S_m}
+\newcommand{\LM}{L_m}
+\newcommand{\AM}{A_{m}}
+\newcommand{\IM}{I_{m}}
+\newcommand{\WDTD}{W_{DTD}}
+\newcommand{\Nl}{N_{l}}
+\newcommand{\NlM}{N_{lm}}
+\newcommand{\Tsw}{T_{sw}}
+\newcommand{\Ths}{T_{hs}}
+\newcommand{\Tswmut}{T_{sw\_mut}}
+\newcommand{\Tswacc}{T_{sw\_acc}}
+\newcommand{\Thsmut}{T_{hs\_mut}}
+\newcommand{\Thsacc}{T_{hs\_acc}}
 \newcommand{\DM}{D^{M}}
 \newcommand{\NAM}{N^{M}_{A}}
 \newcommand{\NIM}{N^{M}_{I}}
-\newcommand{\Nl}{N_{l}}
-\newcommand{\NlM}{N^{M}_{l}}
 
 \renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{.4em}
 
 \lhead{}
 \chead{}
-\rhead{\fontsize{8pt}{12pt}\selectfont Co-Processor for Evolutionary Full Decision Tree Induction \thepage}
+\rhead{\fontsize{8pt}{12pt}\selectfont PhD Thesis \thepage}
 
 '''
 
 latex_title = ur'''
 
 \begin{center}
-    {\rm\Large Co-Processor for Evolutionary Full Decision Tree Induction} \par
-    \vspace{25pt}
-    \it\small
-    {Bogdan Z. Vukobratovic} \par
-    {Faculty of Technical Sciences, University of Novi Sad, Trg Dositeja Obradovića 6, Novi Sad, 21000, Serbia} \par
-    {bogdan.vukobratovic@gmail.com} \par
-    \vspace{10pt} \par
-    {Rastislav J.R. Struharik} \par
-    {Faculty of Technical Sciences, University of Novi Sad, Trg Dositeja Obradovića 6, Novi Sad, 21000, Serbia} \par
-    {rasti@uns.ac.rs} \par
-    \vspace{10pt} \par
+{\rm\Huge PhD Thesis } \par
+\vspace{25pt}
+{\Huge{Hardware acceleration of non-incremental algorithms for induction of the decision trees and their ensembles} \par}
+Bogdan Vukobratović, mentor dr Rastistlav Struharik
+\vspace{50pt}
 \end{center}
-
-\newenvironment{sciabstract}{%
-\begin{quote} \small}
-{\end{quote}}
-
-\begin{sciabstract}
-    In this paper a co-processor for the hardware aided decision tree induction using evolutionary approach (EFTIP) is proposed. EFTIP is used for hardware acceleration of the fitness evaluation task since this task is proven in the paper to be the execution time bottleneck. The EFTIP co-processor can significantly improve the execution time of a novel algorithm for the full decision tree induction using evolutionary approach (EFTI) when used to accelerate the fitness evaluation task. The comparison of the HW/SW EFTI implementation with the pure software implementation suggests that the proposed HW/SW architecture offers substantial DT induction time speedups for the selected benchmark datasets from the standard UCI machine learning repository database.
-
-    {\it Keywords}: data mining; machine learning; hardware-software co-design; decision trees; evolutionary algorithms; hardware acceleration; FPGA; co-processor.
-\end{sciabstract}
-
 
 '''
 
@@ -281,7 +278,7 @@ latex_elements = {
 'papersize': 'a4paper',
 
 # The font size ('10pt', '11pt' or '12pt').
-'pointsize': '8pt',
+'pointsize': '12pt',
 
 # Additional stuff for the LaTeX preamble.
 'preamble': latex_preamble,
@@ -303,7 +300,7 @@ latex_elements = {
 author = 'bvukobratovic'
 
 latex_documents = [
-  (master_doc, 'paper1.tex', 'A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction',
+  (master_doc, 'elaborat.tex', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
    author,
    'howto'),
 ]
@@ -334,7 +331,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'paper1', 'paper1 Documentation',
+    (master_doc, 'ensembles', 'ensembles Documentation',
      [author], 1)
 ]
 
@@ -348,8 +345,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'paper1', 'A Co-Processor for Evolutionary Full Tree Oblique Decision Tree Induction',
-   author, 'paper1', 'One line description of project.',
+  (master_doc, 'ensembles', 'A System for Hardware Aided Decision Tree Ensemble Evolution',
+   author, 'ensembles', 'One line description of project.',
    'Miscellaneous'),
 ]
 
