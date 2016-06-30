@@ -1,7 +1,8 @@
 .. |algo| replace:: *EFTI*
 .. |cop| replace:: *EFTIP*
-.. |A| replace:: :math:`\mathbf{A}`
-.. |a| replace:: :math:`\mathbf{a}`
+.. |w| replace:: :math:`\mathbf{w}`
+.. |th| replace:: :math:`\theta`
+.. |x| replace:: :math:`\mathbf{x}`
 .. |NA| replace:: :math:`N_{A}`
 .. |NAM| replace:: :math:`N^{M}_{A}`
 .. |NIM| replace:: :math:`N^{M}_{I}`
@@ -42,12 +43,12 @@ The machine learning systems can be constructed using supervised learning, unsup
 
 The machine learning systems can perform various tasks, such as classification, regression, clustering, etc. The classification implies categorizing objects given the list of their attributes. Widely used to represent classification models is a DT classifier, which can be depicted in a flowchart-like tree structure. Due to their comprehensible nature, that resembles the human reasoning, DTs have been widely used to represent classification models. Amongst other machine learning algorithms DTs have several advantages, such as the robustness to noise, the ability to deal with redundant or missing attributes, the ability to handle both numerical and categorical data and the facility of understanding the computation process.
 
-This paper focuses on oblique binary classification DTs. The leaves of the DT represent the classes of the problem. The non-leaves contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - **A**. The tests performed by oblique DT in each node have the following form:
+This paper focuses on oblique binary classification DTs. The leaves of the DT represent the classes of the problem. The non-leaves contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - |x|. The tests performed by oblique DT in each node have the following form:
 
-.. math:: \mathbf{a}\cdot \mathbf{A} = \sum_{i=1}^{N_A}a_{i}\cdot A_{i} < thr,
+.. math:: \mathbf{w}\cdot \mathbf{x} = \sum_{i=1}^{N_A}w_{i}\cdot x_{i} < \theta,
     :label: oblique_test
 
-where **a** represents the coefficient vector, |NA| equals the size of the attribute and the coefficient vectors and *thr* models the afine part of the test. The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT.
+where |w| represents the coefficient vector, |NA| equals the size of the attribute and the coefficient vectors and |th| models the afine part of the test. The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT.
 
 .. _fig-oblique-dt:
 
@@ -105,7 +106,7 @@ Finding the smallest DT consistent with the training set is NP-hard problem :cit
 
 The incremental approach uses greedy top-down recursive partitioning strategy of the training set for the tree growth. The algorithm starts with an empty DT and continues by forming the root node test and adding it to the DT. In the attribute space, the root node test splits the training set in two partitions, one that will be used to form the root's left child subtree, and the other the right child subtree. In other words, the root node is assigned the whole training set, which is partitioned in two by the root node test and each partition is assigned to one of the root's two children. The node test coefficients are optimized in the process of maximizing some cost function measuring the quality of the split. Iteratively, the nodes are added to the DT, whose tests further divide the training set partitions assigned to them. If the node is assigned a partition of the training set where all instances belong to the same class, i.e. the partition is clean, no further division is needed and the node becomes the leaf with that class assigned to it. Otherwise, the process of partitioning is continued until only clean partitions remain. In this stage, the induced DT is considered overfitted, i.e it performs flawlessly on the training set, but badly on the instances outside the training set. The common approach for increasing the performance of the overfitted DT on new instances is prunning.
 
-This approach is greedy in the sense that the node test coefficients (coefficient vector **a** and threshold value *thr*) are optimized based on the training set partition assigned to the node, i.e. based on the "local" information. The information on how the training set partitions are handled in other subtrees of the DT (subtrees not containg the node currently being inserted into the DT) are not used to help optimize the test coefficients. Furthermore, by the time the node has been added to the DT and the algorithm continued creating other nodes, the situation has changed and the new information is available, but it will not be used to further optimize the test of the node already added to the DT. This means that only some local optimum of the induced DT can be achieved. Various algorithms for incremental DT induction have been proposed in the literature :cite:`quinlan1986induction,islam2010explore,mahmood2010novel,yildiz2012univariate,lopez2013fisher,breiman1984classification,murthy1994system,cantu2003inducing,liu2011improved,manwani2012geometric,barros2014framework,struharik2014inducing`.
+This approach is greedy in the sense that the node test coefficients (coefficient vector |w| and threshold value |th|) are optimized based on the training set partition assigned to the node, i.e. based on the "local" information. The information on how the training set partitions are handled in other subtrees of the DT (subtrees not containg the node currently being inserted into the DT) are not used to help optimize the test coefficients. Furthermore, by the time the node has been added to the DT and the algorithm continued creating other nodes, the situation has changed and the new information is available, but it will not be used to further optimize the test of the node already added to the DT. This means that only some local optimum of the induced DT can be achieved. Various algorithms for incremental DT induction have been proposed in the literature :cite:`quinlan1986induction,islam2010explore,mahmood2010novel,yildiz2012univariate,lopez2013fisher,breiman1984classification,murthy1994system,cantu2003inducing,liu2011improved,manwani2012geometric,barros2014framework,struharik2014inducing`.
 
 The other approach for the DT inference is the full DT induction. In this approach a complete DT is manipulated during the inference process. Acording to some algorithm the tree nodes are added or removed, and their associated tests are modified. Considerable number of full DT inference algorithms has been also proposed :cite:`papagelis2000ga,bot2000application,krketowski2005global,llora2004mixed,otero2012inducing,boryczka2015enhancing`.
 
@@ -127,13 +128,26 @@ The evolutionary algorithms for inducing DTs by global optimization (the full DT
 The algorithm description
 -------------------------
 
-The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all evolutionary algorithms and comprises main tasks of the individual mutation, fitness evaluation and selection. The DT is induced from the training set. Since the |algo| algorithm performs the supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the evolution from the randomly generated one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed and its fitness function is evaluated.
+The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all evolutionary algorithms and comprises main tasks of the individual mutation, fitness evaluation and selection. The DT is induced from the training set. Since the |algo| algorithm performs the supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the evolution from the randomly generated one-node DT (containing only the root) and iteratively tries to improve on it. In each iteration DT is slightly changed and its fitness function is evaluated.
 
 .. _fig-algorithm-pca:
 
 .. literalinclude:: code/algorithm.py
     :caption: Overview of the |algo| algorithm
     :language: none
+
+At the beggining of the |algo| algorithm, the initial individual needs to be generated. Since |algo| has a goal of creating DTs as small as possible, the initial individual will be first created empty and than the root node will be generated and inserted into it.
+
+The DT node insertion algorithm
+-------------------------------
+
+Each time a node is to be added to the DT, the node's test needs to be initialized. In order to allow for wider search space exploration, the node tests are generated at random, but they still need to be guided by the structure of the training set to speed up the convergence of the evolutianary algorithm towards the optimal solution. One of the approaches for the random initialization of the node test is based on the randomly chosen mixed dipole and is suggested in :cite:`krketowski2005global`. The mixed dipole is defined by two instances from the training set that belong to different classes. As shown in :num:`Figure #fig-dipole-hyperplane`, the procedure consists of placing the hyperplane :math:`H_{ij}(\mathbf{w},\theta)` (corresponding to the node test given by the equation :eq:`oblique_test`) in the attribute space, perpendicular to the line connecting the mixed dipole :math:`(\mathbf{x}^i, \mathbf{x}^j)`. The hyperplane exact position is determined by randomly generated parameter :math:`\delta \in (0,1)`.
+
+.. _fig-dipole-hyperplane:
+.. plot:: images/dipole_hyperplane_plot.py
+    :width: 80%
+
+    Initialization of the node tast based on the randomly chosen dipole :math:`H_{ij}(\mathbf{w},\theta)` is a hyperplane corresponding to the node test, |w| is coefficient vector, and |th| is the threshold.
 
 
 The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree of the DT balance, etc. Hence, in order to solve this multi-objective optimizational problem with the random search approach, a cost function needs to be defined to effectively collapse it to a single objective optimizational problem. The cost function needs to take into the account.
