@@ -1,55 +1,61 @@
-dt = { '00': {'class':0,
-              'id': 0,
-              'level': 0,
-              'coef': [0.2, 0.3],
-              'thr': 0.25,
-              'left': '10',
-              'right': '11'},
-       '10': {'class':1,
-              'id': 0,
-              'level': 1,
-              'coef': [],
-              'thr': 0,
-              'left': '',
-              'right': ''},
-       '11': {'class':0,
-              'id': 1,
-              'level': 1,
-              'coef': [0.2, -0.3],
-              'thr': -0.07,
-              'left': '21',
-              'right': '20'},
-       '20': {'class':2,
-              'id': 0,
-              'level': 2,
-              'coef': [],
-              'thr': 0,
-              'left': '',
-              'right': ''},
-       '21': {'class':0,
-              'id': 1,
-              'level': 2,
-              'coef': [1, 0],
-              'thr': 0.8,
-              'left': '30',
-              'right': '31'},
-       '30': {'class':3,
-              'id': 0,
-              'level': 3,
-              'coef': [],
-              'thr': 0,
-              'left': '',
-              'right': ''},
-       '31': {'class':4,
-              'id': 1,
-              'level': 3,
-              'coef': [],
-              'thr': 0,
-              'left': '',
-              'right': ''}
+# dt = { '00': {'cls':0,
+#               'id': 0,
+#               'lvl': 0,
+#               'coeffs': [0.2, 0.3],
+#               'thr': 0.25,
+#               'left': '10',
+#               'right': '11'},
+#        '10': {'cls':1,
+#               'id': 0,
+#               'lvl': 1,
+#               'coeffs': [],
+#               'thr': 0,
+#               'left': '',
+#               'right': ''},
+#        '11': {'cls':0,
+#               'id': 1,
+#               'lvl': 1,
+#               'coeffs': [0.2, -0.3],
+#               'thr': -0.07,
+#               'left': '21',
+#               'right': '20'},
+#        '20': {'cls':2,
+#               'id': 0,
+#               'lvl': 2,
+#               'coeffs': [],
+#               'thr': 0,
+#               'left': '',
+#               'right': ''},
+#        '21': {'cls':0,
+#               'id': 1,
+#               'lvl': 2,
+#               'coeffs': [1, 0],
+#               'thr': 0.8,
+#               'left': '30',
+#               'right': '31'},
+#        '30': {'cls':3,
+#               'id': 0,
+#               'lvl': 3,
+#               'coeffs': [],
+#               'thr': 0,
+#               'left': '',
+#               'right': ''},
+#        '31': {'cls':4,
+#               'id': 1,
+#               'lvl': 3,
+#               'coeffs': [],
+#               'thr': 0,
+#               'left': '',
+#               'right': ''}
+# 
+# 
+# }
 
+#dt = {"(0,0)": {"lvl": 0, "id": 0,"cls": 0,"left": "(1,0)","right": "(1,1)","thr": -0.01953,"coeffs": [0.31268,-0.35934]},"(1,0)": {"lvl": 1, "id": 0,"cls": 0,"left": "(2,1)","right": "(2,2)","thr": 0.30469,"coeffs": [0.44415,0.11185]},"(2,1)": {"lvl": 2, "id": 1,"cls": 1,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(1,1)": {"lvl": 1, "id": 1,"cls": 0,"left": "(2,2)","right": "(2,3)","thr": -0.16406,"coeffs": [-0.08939,-0.25507]},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,3)": {"lvl": 2, "id": 3,"cls": 3,"left": "","right": "","thr": 0.00000,"coeffs": []}}
 
-}
+import json
+with open('/data/personal/doktorat/prj/efti_pc/dt.js') as data_file:    
+    dt = json.load(data_file)
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -98,12 +104,12 @@ def trim_outside_intersections(hier, path, intersections):
 
         if not remove:
             for h,p in zip(hier, path):
-                #print('h{}{}, p={} '.format(h['level'], h['id'], p))
-                #print(inter, np.dot(inter, h['coef']) - h['thr'])
-                if np.absolute(np.dot(inter, h['coef']) - h['thr']) < 1e-5:
+                #print('h{}{}, p={} '.format(h['lvl'], h['id'], p))
+                #print(inter, np.dot(inter, h['coeffs']) - h['thr'])
+                if np.absolute(np.dot(inter, h['coeffs']) - h['thr']) < 1e-5:
                     continue
-                elif ((np.dot(inter, h['coef']) < h['thr']) and (p == 'right')) or \
-                     ((np.dot(inter, h['coef']) > h['thr']) and (p == 'left')):
+                elif ((np.dot(inter, h['coeffs']) < h['thr']) and (p == 'right')) or \
+                     ((np.dot(inter, h['coeffs']) > h['thr']) and (p == 'left')):
                     remove = True
                     #print('Removed')
                     break
@@ -116,7 +122,7 @@ def trim_outside_intersections(hier, path, intersections):
 
 
 def get_intersections(hier, path, node):
-    hcoef = node['coef'] + [-node['thr']]
+    hcoef = node['coeffs'] + [-node['thr']]
     intersections = []
     for a in axis_coefs:
         inter = lines_intersection(hcoef, a)
@@ -124,12 +130,12 @@ def get_intersections(hier, path, node):
             intersections.append(inter)
 
     for h in hier:
-        phcoef = h['coef'] + [-h['thr']]
+        phcoef = h['coeffs'] + [-h['thr']]
         inter = lines_intersection(hcoef, phcoef)
         if inter is not None:
             intersections.append(inter)
 
-    print('{}{}: '.format(node['level'], node['id']))
+    print('{}{}: '.format(node['lvl'], node['id']))
 
     trim_outside_intersections(hier, path, intersections)
 
@@ -137,12 +143,12 @@ def get_intersections(hier, path, node):
     return intersections
 
 def plot_subspace(dt, n, hier=[], path=[]):
-    if n['left']:
+    if n['left'] != "-1":
         inter = get_intersections(hier, path, n)
         n['line'] = inter
         if hier is None:
-            plt.contour(x.ravel(), y.ravel(), n['coef'][0]*x + n['coef'][1]*y, [n['thr']], linewidths=2, colors='k')
-        else:
+            plt.contour(x.ravel(), y.ravel(), n['coeffs'][0]*x + n['coeffs'][1]*y, [n['thr']], linewidths=2, colors='k')
+        elif inter:
             print(inter)
             plt.plot([inter[0][0], inter[1][0]], [inter[0][1], inter[1][1]], linewidth=2, color='k')
 
@@ -160,13 +166,14 @@ def plot_subspace(dt, n, hier=[], path=[]):
             intersections.extend(h['line'])
 
         trim_outside_intersections(hier, path, intersections)
-        print('CLASS: {}{}: '.format(n['level'], n['id']))
+        print('CLASS: {}{}: '.format(n['lvl'], n['id']))
         print(intersections)
 
-        import jarvis
-        intersections = jarvis.convex_hull([i.tolist() for i in intersections])
-        import centroids
-        center = centroids.calculate_polygon_centroid(intersections + [intersections[0]])
+        if intersections:
+            import jarvis
+            intersections = jarvis.convex_hull([i.tolist() for i in intersections])
+            import centroids
+            center = centroids.calculate_polygon_centroid(intersections + [intersections[0]])
 
 #         center = np.array([0,0])
 #         for inter in intersections:
@@ -174,16 +181,16 @@ def plot_subspace(dt, n, hier=[], path=[]):
 # 
 #         center = 1/len(intersections)*center
 
-        plt.text(center[0], center[1], 'C' + str(n['class']), size=30)
-        print('CLASS: {}{}: '.format(n['level'], n['id']))
-        print(intersections)
+            plt.text(center[0], center[1], 'C' + str(n['cls']), size=30)
+            print('CLASS: {}{}: '.format(n['lvl'], n['id']))
+            print(intersections)
 
 #print(get_intersections([], dt['00']))
 
-plot_subspace(dt, dt['00'])
+plot_subspace(dt, dt['0'])
 
 # for name, n in dt.items():
-#     if n['coef']:
-#         plt.contour(x.ravel(), y.ravel(), n['coef'][0]*x + n['coef'][1]*y, [n['thr']], linewidths=2, colors='k')
+#     if n['coeffs']:
+#         plt.contour(x.ravel(), y.ravel(), n['coeffs'][0]*x + n['coeffs'][1]*y, [n['thr']], linewidths=2, colors='k')
 
 plt.savefig("dt2plot.pdf")
