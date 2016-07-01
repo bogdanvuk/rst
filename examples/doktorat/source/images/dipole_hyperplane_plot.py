@@ -20,7 +20,7 @@ for i in inst_index:
     cls.append(int(ds['cls'][i]))
 
 plt.plot([a[0] for a in inst], [a[1] for a in inst], 'k--', linewidth=2)
-for a, cls, t in zip(inst, cls, ['i', 'j']): 
+for a, cls, t in zip(inst, cls, ['i', 'j']):
     plt.scatter(a[0], a[1], s=300, marker=attrspace_plot.markers[cls-1], facecolors=attrspace_plot.colors[cls-1], edgecolors=attrspace_plot.colors[cls-1], alpha=1)
     plt.text(a[0], a[1] + 0.05, r'$\mathbf{x}^' + t + '$', size=30)
 
@@ -43,7 +43,9 @@ plt.text(dpos[0]-0.01, dpos[1] - 0.1, r'$\delta$', size=30)
 
 dpos = np.add((1-(1-delta)/2)*inst[1], (1-delta)/2*inst[0])
 plt.text(dpos[0] - 0.05, dpos[1] - 0.1, r'$1-\delta$', size=30, multialignment='center')
-print(dpos)
+
+plt.xlabel('$x_1$', fontsize=20)
+plt.ylabel('$x_2$', fontsize=20)
 
 #plt.contour(x.ravel(), y.ravel(), y + 0.0767853*x, [0.712073], linewidth=2)
 #plt.show()

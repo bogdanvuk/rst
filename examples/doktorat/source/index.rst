@@ -125,8 +125,8 @@ Since the process of finding the optimal oblique DT is a hard algorithmic proble
 
 The evolutionary algorithms for inducing DTs by global optimization (the full DT induction) are usualy some kinds of Genetic Algorithms :cite:`papagelis2000ga,llora2004mixed,krketowski2005global`, which in turn operate on a population of candidate solutions. The typical populations used by these algorithms contain tens or even hundereds of individuals. In order to save on needed resources for the implementation, the |algo| algorithm was based on HereBoy :cite:`levi2000hereboy` evolutionary algorithm which operates on a single candidate solution, hence, the |algo| algorithm requires one or even two orders of magnitude less hardware resources for the implementation then the existing evolutionary algorithms. HereBoy is an evolutionary algorithm that combines features from Genetic Algorithms and Simulated Annealing and operates on the bitstring representation of the individual being evolved. The |algo| algorithm (as well as HereBoy algorithm) operates only on a single candidate solution and single result of its mutation, which classifies it also in the class of (1+1)-ES (Evolutionary Strategy). Furthermore, stohastic algorithm that do not use populations of candidate solutions and thus do not employ recombination, can also be classified as in the class of Stochastic Hill Climbing algorithms :cite:`brownlee2011clever`. Further benefit of basing the |algo| algorithm on HereBoy is the simplicity of mutation procedure employed by HereBoy. HereBoy utilizes the simple technic of adaptive random search for mutations, which can be implemented efficently both regarding the time needed for execution and hardware resources needed (having embedded systems as target in mind).
 
-The algorithm description
--------------------------
+The algorithm overview
+----------------------
 
 The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all evolutionary algorithms and comprises main tasks of the individual mutation, fitness evaluation and selection. The DT is induced from the training set. Since the |algo| algorithm performs the supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the evolution from the randomly generated one-node DT (containing only the root) and iteratively tries to improve on it. In each iteration DT is slightly changed and its fitness function is evaluated.
 
@@ -134,28 +134,46 @@ The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the 
 
 .. literalinclude:: code/algorithm.py
     :caption: Overview of the |algo| algorithm
-    :language: none
 
 At the beggining of the |algo| algorithm, the initial individual needs to be generated. Since |algo| has a goal of creating DTs as small as possible, the initial individual will be first created empty and than the root node will be generated and inserted into it.
+
+The algorithm detailed description
+----------------------------------
+
+
 
 The DT node insertion algorithm
 -------------------------------
 
-Each time a node is to be added to the DT, the node's test needs to be initialized. In order to allow for wider search space exploration, the node tests are generated at random, but they still need to be guided by the structure of the training set to speed up the convergence of the evolutianary algorithm towards the optimal solution. One of the approaches for the random initialization of the node test is based on the randomly chosen mixed dipole and is suggested in :cite:`krketowski2005global`. The mixed dipole is defined by two instances from the training set that belong to different classes. As shown in :num:`Figure #fig-dipole-hyperplane`, the procedure consists of placing the hyperplane :math:`H_{ij}(\mathbf{w},\theta)` (corresponding to the node test given by the equation :eq:`oblique_test`) in the attribute space, perpendicular to the line connecting the mixed dipole :math:`(\mathbf{x}^i, \mathbf{x}^j)`. The hyperplane exact position is determined by randomly generated parameter :math:`\delta \in (0,1)`.
+Each time a node is to be added to the DT, the node's test needs to be initialized. In order to allow for wider search space exploration, the node tests are generated at random, but they still need to be guided by the structure of the training set to speed up the convergence of the evolutianary algorithm towards the optimal solution. One of the approaches for the random initialization of the node test is based on the randomly chosen mixed dipole and is suggested in :cite:`krketowski2005global`. The mixed dipole is defined by two instances from the training set that belong to different classes. As shown in :num:`Figure #fig-dipole-hyperplane`, the procedure consists of placing the hyperplane :math:`H_{ij}(\mathbf{w},\theta)` in the attribute space, perpendicular to the line connecting the mixed dipole :math:`(\mathbf{x}^i, \mathbf{x}^j)`. The hyperplane corresponds to the node test given by the equation :eq:`oblique_test`, where |w| is the test coefficient vector and |th| is the test threshold. The example attribute space in :num:`Figure #fig-dipole-hyperplane` has two dimensions, one for each of the attributes :math:`x_1` and :math:`x_2`. The hyperplane exact position is further fixed by randomly generated parameter :math:`\delta \in (0,1)`, which determines whether the hyperplane is placed closer to :math:`\mathbf{x}^i` (for :math:`\delta < 0.5`), or closer to :math:`\mathbf{x}^j` (for :math:`\delta > 0.5`). Mathematically, the equation for the hyperplane generated by the method of the mixed dipole described in this paragraph is obtained in the following way:
+
+.. math::
+    :label: eq-rnd-dipole-hyperplane
+
+    H_{ij}(\mathbf{w},\theta) &= \mathbf{w}\begin{pmatrix}x_1\\x_2\end{pmatrix} - \theta,\\
+    \mathbf{w} &= (\mathbf{x}^i - \mathbf{x}^j),\\
+    \theta &= \delta\mathbf{w}\cdot\mathbf{x}^i + (1-\delta)\mathbf{w}\cdot\mathbf{x}^j
 
 .. _fig-dipole-hyperplane:
 .. plot:: images/dipole_hyperplane_plot.py
     :width: 80%
 
-    Initialization of the node tast based on the randomly chosen dipole :math:`H_{ij}(\mathbf{w},\theta)` is a hyperplane corresponding to the node test, |w| is coefficient vector, and |th| is the threshold.
+    Initialization of the node tast based on the randomly chosen dipole :math:`H_{ij}(\mathbf{w},\theta)` is a hyperplane corresponding to the node test, |w| is coefficient vector, and |th| is the threshold. The attribute space shown in the figure has two dimensions, one for each of the attributes :math:`x_1` and :math:`x_2`.
+
+Fitness evaluation
+------------------
+
+The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree at which the DT is balanced, etc. Hence, in order to solve this multi-objective optimizational problem with the evolutionary approach, a fitness function needs to be defined to effectively collapse it to a single objective optimizational problem. The fitness function needs to take into the account.
+
+Mutation
+--------
+
+Selection
+---------
 
 
-The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree of the DT balance, etc. Hence, in order to solve this multi-objective optimizational problem with the random search approach, a cost function needs to be defined to effectively collapse it to a single objective optimizational problem. The cost function needs to take into the account.
 
-The DT is induced from the training set. Since the algorithm performs supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the random search from the randomly generated one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed and its cost function is evaluated.
-
-
-and let to perform the classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed in this way, it can be used to classify new instances of the problem.
+The DT is induced from the training set. Since the algorithm performs supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the random search from the randomly generated one-node DT and iteratively tries to improve on it. In each iteration DT is slightly changed and its cost function is evaluated. and let to perform the classification of the training set instances. The classification results are then compared with the known classification given in the training set. If the newly mutated DT provides better classification results than its predecessor, it is taken as the new current best individual, i.e. in the next iteration it will become the base for the mutation. This process is repeated for the desired number of iterations, after which the algorithm exits and the best DT individual is returned. Once the DT is formed in this way, it can be used to classify new instances of the problem.
 
 During *max_iter* iterations |algo| algorithm tries to improve upon the current best DT individual, called *dt* in the pseudo-code,  by mutating it. Please note that all algorithms in this paper are described in Python language style and that many details have been omitted for the sake of clarity.
 
