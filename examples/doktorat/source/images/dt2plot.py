@@ -47,28 +47,20 @@
 #               'thr': 0,
 #               'left': '',
 #               'right': ''}
-# 
-# 
+#
+#
 # }
 
 #dt = {"(0,0)": {"lvl": 0, "id": 0,"cls": 0,"left": "(1,0)","right": "(1,1)","thr": -0.01953,"coeffs": [0.31268,-0.35934]},"(1,0)": {"lvl": 1, "id": 0,"cls": 0,"left": "(2,1)","right": "(2,2)","thr": 0.30469,"coeffs": [0.44415,0.11185]},"(2,1)": {"lvl": 2, "id": 1,"cls": 1,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(1,1)": {"lvl": 1, "id": 1,"cls": 0,"left": "(2,2)","right": "(2,3)","thr": -0.16406,"coeffs": [-0.08939,-0.25507]},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,3)": {"lvl": 2, "id": 3,"cls": 3,"left": "","right": "","thr": 0.00000,"coeffs": []}}
 
-import json
-with open('/data/personal/doktorat/prj/efti_pc/dt.js') as data_file:    
-    dt = json.load(data_file)
 
 import matplotlib.pyplot as plt
 import matplotlib
 import attrspace_plot
 import numpy as np
 import math
-
-attr, cls = attrspace_plot.load_arff("../data/vene.csv")
-ds = {'attr': attr, 'cls': cls}
-
-attrspace_plot.plot(ds, (0,1), alpha=0.3)
-
-y,x=np.ogrid[0:1:100j,0:1:100j]
+import json
+import dt2dot
 
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 
@@ -135,11 +127,11 @@ def get_intersections(hier, path, node):
         if inter is not None:
             intersections.append(inter)
 
-    print('{}{}: '.format(node['lvl'], node['id']))
+    #print('{}{}: '.format(node['lvl'], node['id']))
 
     trim_outside_intersections(hier, path, intersections)
 
-    print(intersections)
+    #print(intersections)
     return intersections
 
 def plot_subspace(dt, n, hier=[], path=[]):
@@ -147,10 +139,11 @@ def plot_subspace(dt, n, hier=[], path=[]):
         inter = get_intersections(hier, path, n)
         n['line'] = inter
         if hier is None:
-            plt.contour(x.ravel(), y.ravel(), n['coeffs'][0]*x + n['coeffs'][1]*y, [n['thr']], linewidths=2, colors='k')
+            y,x=np.ogrid[0:1:100j,0:1:100j]
+            plt.contour(x.ravel(), y.ravel(), n['coeffs'][0]*x + n['coeffs'][1]*y, [n['thr']], linewidths=2, colors='k', alpha=0.5)
         elif inter:
-            print(inter)
-            plt.plot([inter[0][0], inter[1][0]], [inter[0][1], inter[1][1]], linewidth=2, color='k')
+            #print(inter)
+            plt.plot([inter[0][0], inter[1][0]], [inter[0][1], inter[1][1]], linewidth=2, linestyle='--', color='k', alpha=0.5)
 
         hier.append(n)
         for ch in ['left', 'right']:
@@ -166,8 +159,8 @@ def plot_subspace(dt, n, hier=[], path=[]):
             intersections.extend(h['line'])
 
         trim_outside_intersections(hier, path, intersections)
-        print('CLASS: {}{}: '.format(n['lvl'], n['id']))
-        print(intersections)
+        #print('CLASS: {}{}: '.format(n['lvl'], n['id']))
+        #print(intersections)
 
         if intersections:
             import jarvis
@@ -178,19 +171,66 @@ def plot_subspace(dt, n, hier=[], path=[]):
 #         center = np.array([0,0])
 #         for inter in intersections:
 #             center = np.add(center, inter)
-# 
+#
 #         center = 1/len(intersections)*center
 
-            plt.text(center[0], center[1], 'C' + str(n['cls']), size=30)
-            print('CLASS: {}{}: '.format(n['lvl'], n['id']))
-            print(intersections)
+            plt.text(center[0]-0.05, center[1], '{}-C{}'.format(n['id'], n['cls']), size=25)
+            #print('CLASS: {}{}: '.format(n['lvl'], n['id']))
+            #print(intersections)
 
 #print(get_intersections([], dt['00']))
 
-plot_subspace(dt, dt['0'])
+def plot(dt, pdffn):
+    plt.figure(0)
+    attr, cls = attrspace_plot.load_arff("../data/vene.csv")
+    ds = {'attr': attr, 'cls': cls}
+    attrspace_plot.plot(ds, (0,1), alpha=0.1)
+
+    plot_subspace(dt, dt['0'])
+    plt.gca().axes.get_xaxis().set_visible(False)
+    plt.gca().axes.get_yaxis().set_visible(False)
+    plt.savefig(pdffn, bbox_inches='tight')
+    plt.close()
+
+import os
+
+json_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts/json'
+pdf_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts'
+_, _, filenames = next(os.walk(json_dir), (None, None, []))
+efti_iters = sorted([int(os.path.splitext(f)[0]) for f in filenames])
+while len(efti_iters) > 8:
+    min_rel_dist = max(efti_iters)
+    rem_suggest = 0
+    for i in range(1, len(efti_iters) - 1):
+        rel_dist = (efti_iters[i+1] - efti_iters[i])/math.log(efti_iters[i])
+        if rel_dist < min_rel_dist:
+            min_rel_dist = rel_dist
+            rem_suggest = i+1
+
+    del efti_iters[rem_suggest]
+
+print(efti_iters)
+for i, ei in enumerate(efti_iters):
+    jsfn = os.path.join(json_dir, '{}.js'.format(ei))
+    pdffn = os.path.join(pdf_dir, 'dt{0:02d}.pdf'.format(i))
+    dotfn = os.path.join(pdf_dir, 'dt{0:02d}.dot'.format(i))
+    dotpdffn = os.path.join(pdf_dir, 'dot{0:02d}.png'.format(i))
+    
+    with open(jsfn) as data_file:
+        dt = json.load(data_file)
+
+    plot(dt, pdffn)
+    
+    s = dt2dot.dt2dot(dt)
+
+    with open(dotfn, 'w') as fout:
+        fout.write(s)
+    
+    from subprocess import call
+    call(["dot", "-Tpng", dotfn, "-o", dotpdffn])
+    call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
+
 
 # for name, n in dt.items():
 #     if n['coeffs']:
 #         plt.contour(x.ravel(), y.ravel(), n['coeffs'][0]*x + n['coeffs'][1]*y, [n['thr']], linewidths=2, colors='k')
-
-plt.savefig("dt2plot.pdf")

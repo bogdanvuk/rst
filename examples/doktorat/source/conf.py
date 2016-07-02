@@ -38,9 +38,10 @@ from sphinxpp import latex_mods
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.sphinxext.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
-          'sphinxpp.plot_directive',
-          'sphinx.ext.autodoc',
-          'sphinx.ext.doctest']
+              'sphinxpp.plot_directive',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.doctest',
+              'sphinxpp.subfig']
 
 numfig = True
 numfig_format = {'figure': 'Figure %s',
@@ -225,6 +226,10 @@ latex_preamble = ur'''
 \usepackage[none]{hyphenat}
 \usepackage{booktabs}
 \usepackage{hyperref}
+
+% for subfigure
+\usepackage{subcaption}
+\captionsetup{labelfont=bf}
 
 \usepackage{fancyhdr}
 \usepackage{array}

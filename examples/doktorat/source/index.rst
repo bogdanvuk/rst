@@ -160,6 +160,170 @@ Each time a node is to be added to the DT, the node's test needs to be initializ
 
     Initialization of the node tast based on the randomly chosen dipole :math:`H_{ij}(\mathbf{w},\theta)` is a hyperplane corresponding to the node test, |w| is coefficient vector, and |th| is the threshold. The attribute space shown in the figure has two dimensions, one for each of the attributes :math:`x_1` and :math:`x_2`.
 
+.. subfigstart::
+
+.. _fig-efti-overview-00:
+
+.. figure:: images/efti_overview_dts/dt00.pdf
+    :alt: Iteration 00
+    :width: 90%
+    :align: center
+
+    Iteration 00
+
+.. _fig-efti-overview-01:
+
+.. figure:: images/efti_overview_dts/dt01.pdf
+    :alt: Iteration 01
+    :width: 90%
+    :align: center
+
+    Iteration 01
+
+.. _fig-efti-overview-02:
+
+.. figure:: images/efti_overview_dts/dt02.pdf
+    :alt: Iteration 02
+    :width: 90%
+    :align: center
+
+    Iteration 02
+
+.. _fig-efti-overview-03:
+
+.. figure:: images/efti_overview_dts/dt03.pdf
+    :alt: Iteration 03
+    :width: 90%
+    :align: center
+
+    Iteration 03
+
+.. _fig-efti-overview-04:
+
+.. figure:: images/efti_overview_dts/dt04.pdf
+    :alt: Iteration 04
+    :width: 90%
+    :align: center
+
+    Iteration 04
+
+.. _fig-efti-overview-05:
+
+.. figure:: images/efti_overview_dts/dt05.pdf
+    :alt: Iteration 05
+    :width: 90%
+    :align: center
+
+    Iteration 05
+
+.. _fig-efti-overview-06:
+
+.. figure:: images/efti_overview_dts/dt06.pdf
+    :alt: Iteration 06
+    :width: 90%
+    :align: center
+
+    Iteration 06
+
+.. _fig-efti-overview-07:
+
+.. figure:: images/efti_overview_dts/dt07.pdf
+    :alt: Iteration 07
+    :width: 90%
+    :align: center
+
+    Iteration 07
+
+.. subfigend::
+    :width: 0.48
+    :alt: Example Model Resolutions
+    :label: fig-efti-overview
+
+    Example of a teddy bear model at different resolutions of the
+    progressive format (1 draw call) and its original format
+
+.. subfigstart::
+
+.. _fig-efti-overview-dot00:
+
+.. figure:: images/efti_overview_dts/dot00.png
+    :alt: Iteration 00
+    :width: 90%
+    :align: center
+
+    Iteration 00
+
+.. _fig-efti-overview-dot01:
+
+.. figure:: images/efti_overview_dts/dot01.png
+    :alt: Iteration 01
+    :width: 90%
+    :align: center
+
+    Iteration 01
+
+.. _fig-efti-overview-dot02:
+
+.. figure:: images/efti_overview_dts/dot02.png
+    :alt: Iteration 02
+    :width: 90%
+    :align: center
+
+    Iteration 02
+
+.. _fig-efti-overview-dot03:
+
+.. figure:: images/efti_overview_dts/dot03.png
+    :alt: Iteration 03
+    :width: 90%
+    :align: center
+
+    Iteration 03
+
+.. _fig-efti-overview-dot04:
+
+.. figure:: images/efti_overview_dts/dot04.png
+    :alt: Iteration 04
+    :width: 90%
+    :align: center
+
+    Iteration 04
+
+.. _fig-efti-overview-dot05:
+
+.. figure:: images/efti_overview_dts/dot05.png
+    :alt: Iteration 05
+    :width: 90%
+    :align: center
+
+    Iteration 05
+
+.. _fig-efti-overview-dot06:
+
+.. figure:: images/efti_overview_dts/dot06.png
+    :alt: Iteration 06
+    :width: 90%
+    :align: center
+
+    Iteration 06
+
+.. _fig-efti-overview-dot07:
+
+.. figure:: images/efti_overview_dts/dot07.png
+    :alt: Iteration 07
+    :width: 90%
+    :align: center
+
+    Iteration 07
+
+.. subfigend::
+    :width: 0.3
+    :alt: Example Model Resolutions
+    :label: fig-efti-overview-dot
+
+    Example of a teddy bear model at different resolutions of the
+    progressive format (1 draw call) and its original format
+
 Fitness evaluation
 ------------------
 

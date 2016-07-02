@@ -38,10 +38,6 @@
 
 #dt = {"(0,0)": {"lvl": 0, "id": 0,"cls": 0,"left": "(1,0)","right": "(1,1)","thr": -0.01953,"coeffs": [0.31268,-0.35934]},"(1,0)": {"lvl": 1, "id": 0,"cls": 0,"left": "(2,1)","right": "(2,2)","thr": 0.30469,"coeffs": [0.44415,0.11185]},"(2,1)": {"lvl": 2, "id": 1,"cls": 1,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(1,1)": {"lvl": 1, "id": 1,"cls": 0,"left": "(2,2)","right": "(2,3)","thr": -0.16406,"coeffs": [-0.08939,-0.25507]},"(2,2)": {"lvl": 2, "id": 2,"cls": 2,"left": "","right": "","thr": 0.00000,"coeffs": []},"(2,3)": {"lvl": 2, "id": 3,"cls": 3,"left": "","right": "","thr": 0.00000,"coeffs": []}}
 
-import json
-with open('/data/personal/doktorat/prj/efti_pc/dt.js') as data_file:    
-    dt = json.load(data_file)
-
 dot_tmplt = """
 digraph foo {{
     edge [dir=none]
@@ -88,10 +84,15 @@ def dt2dot(dt):
 
     return dot_tmplt.format('\n    '.join(node_def), '\n    '.join(hier))
 
+
+import json
+with open('/data/personal/doktorat/prj/efti_pc/dt.js') as data_file:    
+    dt = json.load(data_file)
+    
 s = dt2dot(dt)
 
 with open('proba.dot', 'w') as fout:
     fout.write(s)
     
 from subprocess import call
-call(["dot", "-Tps", "proba.dot", "-o", "proba.pdf"])
+call(["dot", "-Tpng", "proba.dot", "-o", "proba.png"])

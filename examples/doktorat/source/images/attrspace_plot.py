@@ -6,13 +6,13 @@ colors = ['r', 'g', 'b', 'b', 'b']
 
 def load_arff(fn, class_col=-1):
     src = open(fn, 'r')
-    
+
     attr = []
     cls = []
-    
+
     for line in src:
         line = line.strip()
-        
+
         if line:
             if not line[0] in ('@', '%'):
                 entries = line.split(',')
@@ -23,7 +23,7 @@ def load_arff(fn, class_col=-1):
     return attr, cls
 
 def plot(ds, attri, alpha=1):
-    
+
     import numpy as np
 
     class_marker = {}
@@ -58,7 +58,6 @@ def plot(ds, attri, alpha=1):
     print('Ploting: {}, {}'.format(*attri))
     plt.ylim([0, 1])
     plt.xlim([0, 1])
-    plt.title('Attribute combinations: {}, {}'.format(*attri))
 
 def plot2pdf(ds, fn, attri):
     plot(ds, attri)
