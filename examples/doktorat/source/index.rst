@@ -128,14 +128,168 @@ The evolutionary algorithms for inducing DTs by global optimization (the full DT
 The algorithm overview
 ----------------------
 
-The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all evolutionary algorithms and comprises main tasks of the individual mutation, fitness evaluation and selection. The DT is induced from the training set. Since the |algo| algorithm performs the supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the evolution from the randomly generated one-node DT (containing only the root) and iteratively tries to improve on it. In each iteration DT is slightly changed and its fitness function is evaluated.
+The :num:`Algorithm #fig-algorithm-pca` shows the algorithmic framework for the |algo| algorithm, which is similar for all evolutionary algorithms and comprises main tasks of the individual mutation, fitness evaluation and selection. The DT is induced from the training set - the argument *train_set* received by the *efti()* function. Since the |algo| algorithm performs the supervised learning, the training set consists of the problem instances which have the known class membership. The |algo| algorithm starts the evolution from the randomly generated one-node DT (containing only the root) by the *initialize()* function and iteratively tries to improve on it. In each iteration DT is slightly changed by the *mutate()* function and its fitness function is evaluated using *fitness_eval()* function. The |algo| algorithm halts after specified number of iterations, passed as the argument *max_iter* to the *efti()* function.
 
 .. _fig-algorithm-pca:
 
 .. literalinclude:: code/algorithm.py
     :caption: Overview of the |algo| algorithm
 
-At the beggining of the |algo| algorithm, the initial individual needs to be generated. Since |algo| has a goal of creating DTs as small as possible, the initial individual will be first created empty and than the root node will be generated and inserted into it.
+The :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot` show one example evolution of the DT by the |algo| algorithm. The :num:`Figure #fig-efti-overview` shows the DT evolution from the perspective of the attribute space partitioning. Each partition is labeled in the format *i-Cj*, where *i* equals the ID of the leaf that corresponds to the partition, and *j* equals the class number assigned to the leaf. The :num:`Figure #fig-efti-overview-dot` shows the DT evoultion from the perspective of the DT structure. The nodes are drawn using circles and the leaves using squares, and each node and each leaf is assigned a unique ID.
+
+Both figures capture the state of the induced DT in 8 of the critical moments where the fitness of the DT has advanced, within subfigures enumerated from *a - f*. Their subfigures wich share the enumeration correspond to the DT individual in the same iteration, i.e the :num:`Figure #fig-efti-overview-00` corresponds to the :num:`Figure #fig-efti-overview-dot00`, etc. The caption below each of the subfigures, shows the status of the DT individaul in the corresponding iteration:
+
+- iter - the iteration count
+- fit - the fitness of the DT
+- size - the size of the DT: calculated as the number of leaves in the DT
+- acc - the accuracy of the DT on the training set: calculated as the percentage of the instances from the training set that are classified correctly
+
+.. subfigstart::
+
+.. _fig-efti-overview-00:
+
+.. figure:: images/efti_overview_dts/dt00.pdf
+    :width: 80%
+    :align: center
+
+    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+
+.. _fig-efti-overview-01:
+
+.. figure:: images/efti_overview_dts/dt01.pdf
+    :width: 80%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-efti-overview-02:
+
+.. figure:: images/efti_overview_dts/dt02.pdf
+    :width: 80%
+    :align: center
+
+    iter: 003599, fit: 0.914, size: 5, acc: 0.920
+
+.. _fig-efti-overview-03:
+
+.. figure:: images/efti_overview_dts/dt03.pdf
+    :width: 80%
+    :align: center
+
+    iter: 007859, fit: 0.927, size: 4, acc: 0.930
+
+.. _fig-efti-overview-04:
+
+.. figure:: images/efti_overview_dts/dt04.pdf
+    :width: 80%
+    :align: center
+
+    iter: 030268, fit: 0.927, size: 5, acc: 0.933
+
+.. _fig-efti-overview-05:
+
+.. figure:: images/efti_overview_dts/dt05.pdf
+    :width: 80%
+    :align: center
+
+    iter: 177050, fit: 0.927, size: 6, acc: 0.937
+
+.. _fig-efti-overview-06:
+
+.. figure:: images/efti_overview_dts/dt06.pdf
+    :width: 80%
+    :align: center
+
+    iter: 279512, fit: 0.927, size: 7, acc: 0.940
+
+.. _fig-efti-overview-07:
+
+.. figure:: images/efti_overview_dts/dt07.pdf
+    :width: 80%
+    :align: center
+
+    iter: 415517, fit: 0.934, size: 5, acc: 0.940
+
+.. subfigend::
+    :width: 0.48
+    :label: fig-efti-overview
+
+    The figures capture the attribute space partition induced by the DT individual in 8 of the critical moments where the fitness of the DT has advanced. Each partition is labeled in the format *i-Cj*, where *i* equals the ID of the leaf that corresponds to the partition, and *j* equals the class number assigned to the leaf. The caption below each of the subfigures, shows the status of the DT individaul in the corresponding iteration: iter - the iteration count, fit - the fitness of the DT, size - the size of the DT, acc - the accuracy of the DT on the training set.
+
+.. subfigstart::
+
+.. _fig-efti-overview-dot00:
+
+.. figure:: images/efti_overview_dts/dot00.png
+    :width: 100%
+    :align: center
+
+    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+
+.. _fig-efti-overview-dot01:
+
+.. figure:: images/efti_overview_dts/dot01.png
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-efti-overview-dot02:
+
+.. figure:: images/efti_overview_dts/dot02.png
+    :width: 100%
+    :align: center
+
+    iter: 003599, fit: 0.914, size: 5, acc: 0.920
+
+.. _fig-efti-overview-dot03:
+
+.. figure:: images/efti_overview_dts/dot03.png
+    :width: 100%
+    :align: center
+
+    iter: 007859, fit: 0.927, size: 4, acc: 0.930
+
+.. _fig-efti-overview-dot04:
+
+.. figure:: images/efti_overview_dts/dot04.png
+    :width: 100%
+    :align: center
+
+    iter: 030268, fit: 0.927, size: 5, acc: 0.933
+
+.. _fig-efti-overview-dot05:
+
+.. figure:: images/efti_overview_dts/dot05.png
+    :width: 100%
+    :align: center
+
+    iter: 177050, fit: 0.927, size: 6, acc: 0.937
+
+.. _fig-efti-overview-dot06:
+
+.. figure:: images/efti_overview_dts/dot06.png
+    :width: 100%
+    :align: center
+
+    iter: 279512, fit: 0.927, size: 7, acc: 0.940
+
+.. _fig-efti-overview-dot07:
+
+.. figure:: images/efti_overview_dts/dot07.png
+    :width: 100%
+    :align: center
+
+    iter: 415517, fit: 0.934, size: 5, acc: 0.940
+
+.. subfigend::
+    :width: 0.32
+    :label: fig-efti-overview-dot
+
+    The figures capture the structure of the DT individual in 8 of the critical moments where the fitness of the DT has advanced. The nodes are drawn using circles and the leaves using squares, and each node and each leaf is assigned a unique ID. The caption below each of the subfigures, shows the status of the DT individaul in the corresponding iteration: iter - the iteration count, fit - the fitness of the DT, size - the size of the DT, acc - the accuracy of the DT on the training set.
+
+At the beggining of the |algo| algorithm, the initial individual needs to be generated (:num:`Figure #fig-efti-overview-00` and :num:`Figure #fig-efti-overview-dot00`). Since |algo| has a goal of creating DTs as small as possible, the initial individual will be first created empty and than only the root node will be generated and inserted into it. By the iteration 13 (:num:`Figure #fig-efti-overview-01` and :num:`Figure #fig-efti-overview-dot01`), no new nodes were added, but the root node test was modified to produce the increase in the DT accuracy from 0.6 to 0.627.
+
 
 The algorithm detailed description
 ----------------------------------
@@ -160,169 +314,6 @@ Each time a node is to be added to the DT, the node's test needs to be initializ
 
     Initialization of the node tast based on the randomly chosen dipole :math:`H_{ij}(\mathbf{w},\theta)` is a hyperplane corresponding to the node test, |w| is coefficient vector, and |th| is the threshold. The attribute space shown in the figure has two dimensions, one for each of the attributes :math:`x_1` and :math:`x_2`.
 
-.. subfigstart::
-
-.. _fig-efti-overview-00:
-
-.. figure:: images/efti_overview_dts/dt00.pdf
-    :alt: Iteration 00
-    :width: 90%
-    :align: center
-
-    Iteration 00
-
-.. _fig-efti-overview-01:
-
-.. figure:: images/efti_overview_dts/dt01.pdf
-    :alt: Iteration 01
-    :width: 90%
-    :align: center
-
-    Iteration 01
-
-.. _fig-efti-overview-02:
-
-.. figure:: images/efti_overview_dts/dt02.pdf
-    :alt: Iteration 02
-    :width: 90%
-    :align: center
-
-    Iteration 02
-
-.. _fig-efti-overview-03:
-
-.. figure:: images/efti_overview_dts/dt03.pdf
-    :alt: Iteration 03
-    :width: 90%
-    :align: center
-
-    Iteration 03
-
-.. _fig-efti-overview-04:
-
-.. figure:: images/efti_overview_dts/dt04.pdf
-    :alt: Iteration 04
-    :width: 90%
-    :align: center
-
-    Iteration 04
-
-.. _fig-efti-overview-05:
-
-.. figure:: images/efti_overview_dts/dt05.pdf
-    :alt: Iteration 05
-    :width: 90%
-    :align: center
-
-    Iteration 05
-
-.. _fig-efti-overview-06:
-
-.. figure:: images/efti_overview_dts/dt06.pdf
-    :alt: Iteration 06
-    :width: 90%
-    :align: center
-
-    Iteration 06
-
-.. _fig-efti-overview-07:
-
-.. figure:: images/efti_overview_dts/dt07.pdf
-    :alt: Iteration 07
-    :width: 90%
-    :align: center
-
-    Iteration 07
-
-.. subfigend::
-    :width: 0.48
-    :alt: Example Model Resolutions
-    :label: fig-efti-overview
-
-    Example of a teddy bear model at different resolutions of the
-    progressive format (1 draw call) and its original format
-
-.. subfigstart::
-
-.. _fig-efti-overview-dot00:
-
-.. figure:: images/efti_overview_dts/dot00.png
-    :alt: Iteration 00
-    :width: 90%
-    :align: center
-
-    Iteration 00
-
-.. _fig-efti-overview-dot01:
-
-.. figure:: images/efti_overview_dts/dot01.png
-    :alt: Iteration 01
-    :width: 90%
-    :align: center
-
-    Iteration 01
-
-.. _fig-efti-overview-dot02:
-
-.. figure:: images/efti_overview_dts/dot02.png
-    :alt: Iteration 02
-    :width: 90%
-    :align: center
-
-    Iteration 02
-
-.. _fig-efti-overview-dot03:
-
-.. figure:: images/efti_overview_dts/dot03.png
-    :alt: Iteration 03
-    :width: 90%
-    :align: center
-
-    Iteration 03
-
-.. _fig-efti-overview-dot04:
-
-.. figure:: images/efti_overview_dts/dot04.png
-    :alt: Iteration 04
-    :width: 90%
-    :align: center
-
-    Iteration 04
-
-.. _fig-efti-overview-dot05:
-
-.. figure:: images/efti_overview_dts/dot05.png
-    :alt: Iteration 05
-    :width: 90%
-    :align: center
-
-    Iteration 05
-
-.. _fig-efti-overview-dot06:
-
-.. figure:: images/efti_overview_dts/dot06.png
-    :alt: Iteration 06
-    :width: 90%
-    :align: center
-
-    Iteration 06
-
-.. _fig-efti-overview-dot07:
-
-.. figure:: images/efti_overview_dts/dot07.png
-    :alt: Iteration 07
-    :width: 90%
-    :align: center
-
-    Iteration 07
-
-.. subfigend::
-    :width: 0.3
-    :alt: Example Model Resolutions
-    :label: fig-efti-overview-dot
-
-    Example of a teddy bear model at different resolutions of the
-    progressive format (1 draw call) and its original format
 
 Fitness evaluation
 ------------------

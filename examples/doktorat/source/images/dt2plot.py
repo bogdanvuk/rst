@@ -215,20 +215,20 @@ for i, ei in enumerate(efti_iters):
     pdffn = os.path.join(pdf_dir, 'dt{0:02d}.pdf'.format(i))
     dotfn = os.path.join(pdf_dir, 'dt{0:02d}.dot'.format(i))
     dotpdffn = os.path.join(pdf_dir, 'dot{0:02d}.png'.format(i))
-    
+
     with open(jsfn) as data_file:
         dt = json.load(data_file)
 
     plot(dt, pdffn)
-    
+
     s = dt2dot.dt2dot(dt)
 
     with open(dotfn, 'w') as fout:
         fout.write(s)
-    
+
     from subprocess import call
     call(["dot", "-Tpng", dotfn, "-o", dotpdffn])
-    call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
+    #call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
 
 
 # for name, n in dt.items():
