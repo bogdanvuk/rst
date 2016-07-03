@@ -1,29 +1,13 @@
 def find_dt_leaf_for_inst(dt, instance):
 
     cur_node = dt.root
-    classified = False
 
-    path_diverged = False
-    while (not classified):
-        if not path_diverged:
-            if cur_node.is_mutated:
-                sum = instance.update_node_test_sum(cur_node)
-                next_node = cur_node.left if sum < thr else cur_node.right
+    while (not cur_node.is_leaf):
+        p = dot_product(instance.x, cur_node.w)
 
-                if next_node != instance.get_next_node_from_stored_path(cur_node):
-                    instance.update_instance_path(next_node)
-                    path_diverged = True
-
-                cur_node = next_node
-            else:
-                cur_node = instance.get_next_node_from_stored_path(cur_node)
+        if sum < cur_node.thr:
+            cur_node = cur_node.left
         else:
-            sum = instance.calculate_node_test_sum(cur_node)
-            cur_node = cur_node.left if sum < thr else cur_node.right
+            cur_node = cur_node.right
 
-            instance.update_instance_path(cur_node)
-
-        if cur_node.is_leaf:
-            classified = True
-
-    return cur_node.id
+    return cur_node

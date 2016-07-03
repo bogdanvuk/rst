@@ -246,6 +246,7 @@ latex_preamble = ur'''
 \newcommand{\IM}{I_{m}}
 \newcommand{\WDTD}{W_{DTD}}
 \newcommand{\Nl}{N_{l}}
+\newcommand{\Nc}{N_{c}}
 \newcommand{\NlM}{N_{lm}}
 \newcommand{\Tsw}{T_{sw}}
 \newcommand{\Ths}{T_{hs}}
