@@ -260,6 +260,8 @@ latex_preamble = ur'''
 
 \renewcommand{\arraystretch}{1.2}
 \setlength{\tabcolsep}{.4em}
+\setcounter{secnumdepth}{5}
+\errorcontextlines 10000
 
 \lhead{}
 \chead{}

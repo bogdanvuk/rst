@@ -4,11 +4,8 @@ def efti(train_set, ensemble_size):
     res = []
     initialize_result_array(res, ensemble_size)
     
-    create_semaphores(ensemble_size)
-    for t, r, smae_id in zip(task_train_sets, res, range(0,ensemble_size)):
-        create_task(efti_task, t, r, smae_id)
-    
-    create_task(scheduler)
+    for t, r in zip(task_train_sets, res):
+        create_task(efti_task, t, r)
     
     wait_for_all_tasks()
     
