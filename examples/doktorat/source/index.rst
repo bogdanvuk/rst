@@ -51,11 +51,178 @@ PhD Thesis
 Introduction
 ============
 
+Our ever-improving capabilities in collecting the data from the world and constant increase in processing power available to us, have often changed our approaches to problem solving. Scientific field that studies the systems that make use of the abundance of available data and computational power to solve the problems that haven't been satisfactorily solved using other methods is called machine learning. Machine learning :cite:`flach2012machine,murphy2012machine` is a branch of artificial intelligence that studies algorithms and systems that improve their performance with experience, i.e. that can "learn" from the data. 
+
+ and construct systems that make predictions on the data. One of the main features of machine learning systems is the power of generalization, allowing them to perform well on new, unseen data instances, after having experienced a learning data set.
+
 As a branch of the artificial intelligence, the machine learning :cite:`flach2012machine,murphy2012machine` comprises a set of procedures/algorithms for the construction of the systems that adapt their behavior to the input data, i.e. by "learning" from the data. An important feature of the machine learning systems is that they can be built with little knowledge of input data and can perform well on previously unseen data instances (generalization property).
+
+IMage recognition is a multi-class classification task - self-driving
+
+Reinforcement and supervised learning:
+http://datascience.stackexchange.com/questions/11126/supervised-learning-vs-reinforcement-learning-for-a-simple-self-driving-rc-car
+
+- fleet learning technology: Tesla Model
+
+Machine learning, then, is about making computers modify or adapt their
+actions (whether these actions are making predictions, or controlling a robot)
+so that these actions get more accurate, where accuracy is measured by how
+well the chosen actions reflect the correct ones.
+
+Learning is what gives us 
+flexibility in our life; the fact that we can adjust and adapt to new circumstances,
+and learn new tricks, no matter how old a dog we are!
+
+Machine learning examples:
+   - spam mail filter
+   - credit card fraud
+   - Search Engines
+   - 
+
+
+
+Also note that, just as is
+the case with human learning, machine learning is not always directed at improving
+performance on a certain task, but may more generally result in improved knowledge.
+
+We have already seen that a machine learning problem may have several solutions,
+even a problem as simple as the one from Example 1. This raises the question of how
+we choose among these solutions. One way to think about this is to realise that we don’t
+really care that much about performance on training data – we already know which ofPrologue: A machine learning sampler
+
+those e-mails are spam! What we care about is whether future e-mails are going to be
+classified correctly. While this appears to lead into a vicious circle – in order to know
+whether an e-mail is classified correctly I need to know its true class, but as soon as I
+know its true class I don’t need the classifier anymore – it is important to keep in mind
+that good performance on training data is only a means to an end, not a goal in itself.
+In fact, trying too hard to achieve good performance on the training data can easily
+lead to a fascinating but potentially damaging phenomenon called overfitting.
+
+Generalisation is probably the most fundamental concept in machine learning. However, overfitting is not the only possible reason for poor performance on new data.
+It may just be that the training data used by the SpamAssassin programmers to set
+its weights is not representative for the kind of e-mails you get. Luckily, this problem
+does have a solution: use different training data that exhibits the same characteristics,
+if possible actual spam and ham e-mails that you have personally received. achine
+learning is a great technology for adapting the behaviour of software to your own per-
+sonal circumstances, and many spam e-mail filters allow the use of your own training
+data.
+
+tasks are addressed
+by models, whereas learning problems are solved by learning algorithms that produce
+models. While the distinction is widely recognised, terminology may vary: for instance,
+you may find that other authors use the term ‘learning task’ for what we call a learning
+problem. In summary, one could say that machine learning is concerned with using the right
+features to build the right models that achieve the right tasks.
+
+features = attributes
+
+.. _fig-machine-learning-overview:
+
+.. figure:: images/machine_learning_overview.png
+
+    An overview of how machine learning is used to address a given task. A task (red box) requires an appropriate mapping – a model – from data described by features to outputs. Obtaining such a mapping from training data is what constitutes a learning problem (blue box).
+
+MACHINE LEARNING IS ALL ABOUT
+using the right features to build the right models that
+achieve the right tasks – this is the slogan, visualised in Figure 3 on p.11, with which
+we ended the Prologue. In essence, features define a ‘language’ in which we describe
+the relevant objects in our domain, be they e-mails or complex organic molecules. We
+should not normally have to go back to the domain objects themselves once we have
+a suitable feature representation, which is why features play such an important role in
+machine learning. We will take a closer look at them in Section 1.3. A task is an abstract
+representation of a problem we want to solve regarding those domain objects: the most
+common form of these is classifying them into two or more classes, but we shall en-
+counter other tasks throughout the book. Many of these tasks can be represented as a
+mapping from data points to outputs. This mapping or model is itself produced as the
+output of a machine learning algorithm applied to training data; there is a wide variety
+of models to choose from, as we shall see in Section 1.2.
+
+Images are considered as one of the most important medium of conveying information. Understanding images and extracting the information from them such that information can be used for other tasks is an important aspect of Machine Learning. There are enormous applications of the same such as use of images in navigation of robots, in self driving cars, medical diagnosis etc. Image Segmentation is used to seperate different objects in the image such that the segmented objects can be used in further computation and analysis. There are several algorithms available for this purpose and in this post we will use K-Means Clustering which is a very popular Unsupervised Learning Algorithm.
+
+@article{khan2011image,
+  title={Image segmentation and shape analysis for road-sign detection},
+  author={Khan, Jesmin F and Bhuiyan, Sharif MA and Adhami, Reza R},
+  journal={IEEE Transactions on Intelligent Transportation Systems},
+  volume={12},
+  number={1},
+  pages={83--96},
+  year={2011},
+  publisher={IEEE}
+}
 
 In the open literature, a range of machine learning systems have been introduced, including decision trees (DTs) :cite:`rokach2007data,rokach2005top`, support vector machines (SVMs) :cite:`abe2005support` and artificial neural networks (ANNs) :cite:`haykin2009neural`. Data mining is a field where machine learning systems have been widely used :cite:`witten2005data`, among which DTs, ANNs and SVMs are the most popular :cite:`rokach2007data,wu2009top,wang2006data`.
 
 The machine learning systems can be constructed using supervised learning, unsupervised learning or any combination of the two techniques :cite:`flach2012machine,murphy2012machine`.  Supervised learning implies using the desired responses to various input data to construct the system, while unsupervised learning implies constructing the system based on the input data only. When the supervised learning is used, the lifetime of a machine learning system usually comprises two phases: the training (induction or learning) and the deployment. During the training phase, a training set is used to build the system. The training set comprises input data and the desired system responses to that data. Once constructed, the system is ready to be used, where new, previously unseen data, will arrive and the system must provide the responses using the knowledge extracted from the training set.
+
+Supervised learning A training set of examples with the correct responses
+(targets) are provided and, based on this training set, the algorithm
+generalises to respond correctly to all possible inputs. This is also called
+learning from exemplars.
+Unsupervised learning Correct responses are not provided, instead the 
+algorithm tries to identify similarities between the inputs so that inputsIntroduction
+7
+that have something in common are categorised together. The statistical
+approach to unsupervised learning is known as density estimation.
+Reinforcement learning This is somewhere between supervised and 
+unsupervised learning. The algorithm gets told when the answer is wrong,
+but does not get told how to correct it. It has to explore and try out
+different possibilities until it works out how to get the answer right. 
+Reinforcement learning is sometime called learning with a critic because of
+this monitor that scores the answer, but does not suggest improvements.
+
+Sometimes it is more natural to abandon the notion of discrete classes altogether
+and instead predict a real number. Perhaps it might be useful to have an assessment of
+an incoming e-mail’s urgency on a sliding scale. This task is called regression,
+
+Reinforcement learning: A computer program interacts with a dynamic environment in which it must perform a certain goal (such as driving a vehicle), without a teacher explicitly telling it whether it has come close to its goal. Another example is learning to play a game by playing against an opponent.[4]:3
+
+Both classification and regression assume the availability of a training set of exam-
+ples labelled with true classes or function values. Providing the true labels for a data set
+is often labour-intensive and expensive. Can we learn to distinguish spam from ham,
+or work e-mails from private messages, without a labelled training set? The answer is:
+yes, up to a point. The task of grouping data without prior information on the groups is
+called clustering. Learning from unlabelled data is called unsupervised learning and is
+quite distinct from supervised learning, which requires labelled training data. A typical
+clustering algorithm works by assessing the similarity between instances (the things
+we’re trying to cluster, e.g., e-mails) and putting similar instances in the same cluster
+and ‘dissimilar’ instances in different clusters.
+
+There are many other patterns that can be learned from data in an unsupervised
+way. Association rules are a kind of pattern that are popular in marketing applications,
+and the result of such patterns can often be found on online shopping web sites.
+
+This is a good moment to summarise some terminology that we will be using. We
+have already seen the distinction between supervised learning from labelled data and
+unsupervised learning from unlabelled data. We can similarly draw a distinction be-
+tween whether the model output involves the target variable or not: we call it a pre-
+dictive model if it does, and a descriptive model if it does not. This leads to the four
+different machine learning settings summarised in Table 1.1.
+The most common setting is supervised learning of predictive models – in fact,
+this is what people commonly mean when they refer to supervised learning. Typ-
+ical tasks are classification and regression.
+It is also possible to use labelled training data to build a descriptive model that
+is not primarily intended to predict the target variable, but instead identifies,
+say, subsets of the data that behave differently with respect to the target variable.
+This example of supervised learning of a descriptive model is called
+subgroup
+discovery; we will take a closer look at it in Section 6.3.
+Descriptive models can naturally be learned in an unsupervised setting, and we
+have just seen a few examples of that (clustering, association rule discovery and
+matrix decomposition). This is often the implied setting when people talk about
+unsupervised learning.
+A typical example of unsupervised learning of a predictive model occurs when1. The ingredients of machine learning
+18
+Predictive model Descriptive model
+Supervised learning classification, regression subgroup discovery
+Unsupervised learning predictive clustering
+descriptive clustering,
+association rule discovery
+Table 1.1. An overview of different machine learning settings. The rows refer to whether the
+training data is labelled with a target variable, while the columns indicate whether the models
+learned are used to predict a target variable or rather describe the given data.
+we cluster data with the intention of using the clusters to assign class labels to
+new data. We will call this predictive clustering to distinguish it from the previ-
+ous, descriptive form of clustering.
 
 The machine learning systems can perform various tasks, such as classification, regression, clustering, etc. The classification implies categorizing objects given the list of their attributes. Widely used to represent classification models is a DT classifier, which can be depicted in a flowchart-like tree structure. Due to their comprehensible nature, that resembles the human reasoning, DTs have been widely used to represent classification models. Amongst other machine learning algorithms DTs have several advantages, such as the robustness to noise, the ability to deal with redundant or missing attributes, the ability to handle both numerical and categorical data and the facility of understanding the computation process.
 
