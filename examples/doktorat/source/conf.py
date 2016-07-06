@@ -263,6 +263,9 @@ latex_preamble = ur'''
 \setcounter{secnumdepth}{5}
 \errorcontextlines 10000
 
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
 \lhead{}
 \chead{}
 \rhead{\fontsize{8pt}{12pt}\selectfont PhD Thesis \thepage}
