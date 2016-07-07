@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-markers = ['s', 'o', 'x', '^', '*']
-colors = ['r', 'g', 'b', 'b', 'b']
+markers = ['x', 's', 'o', '^', '*']
+colors = ['b', 'g', 'r', 'b', 'b']
 
 
 def load_arff(fn, class_col=-1):

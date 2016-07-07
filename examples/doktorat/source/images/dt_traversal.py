@@ -8,7 +8,7 @@ block.text_font = 'footnotesize'
 
 fig.grid = 12
 node = block(size=p(2,2), shape='circle', nodesep=(2,2))
-leaf = block(size=p(1.8,1.8), nodesep=(2,2))
+leaf = block(size=p(2.8,1.8), nodesep=(1.8,1.8))
 
 def draw_children_con(parent, children):
     fig << path(parent.c(), children[0].c(), shorten=(1.4, 1.4), style=('', '>'))
@@ -41,14 +41,14 @@ draw_node_test_eq(root_ch[0], 2, 'left')
 draw_node_test_eq(root_ch[1], 3, 'right')
 draw_children_con(root, root_ch)
 
-node2_ch = draw_children(root_ch[0], [leaf, leaf], ['$C_{1}$', '$C_{2}$'], 1)
+node2_ch = draw_children(root_ch[0], [leaf, leaf], ['4-$C_{1}$', '5-$C_{2}$'], 1)
 draw_children_con(root_ch[0], node2_ch)
 
-node3_ch = draw_children(root_ch[1], [node, leaf], ['4', '$C_{3}$'], 1)
+node3_ch = draw_children(root_ch[1], [node, leaf], ['6', '7-$C_{3}$'], 1)
 draw_node_test_eq(node3_ch[0], 4, 'right')
 draw_children_con(root_ch[1], node3_ch)
 
-node4_ch = draw_children(node3_ch[0], [leaf, leaf], ['$C_{4}$', '$C_{5}$'], 1)
+node4_ch = draw_children(node3_ch[0], [leaf, leaf], ['8-$C_{4}$', '9-$C_{5}$'], 1)
 draw_children_con(node3_ch[0], node4_ch)
 
 # node5_ch = draw_children(node3_ch[1], [leaf, leaf], ['$C_{5}$', '$C_{6}$'], 1)

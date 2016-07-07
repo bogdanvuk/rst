@@ -174,7 +174,7 @@ def plot_subspace(dt, n, hier=[], path=[]):
 #
 #         center = 1/len(intersections)*center
 
-            plt.text(center[0]-0.05, center[1], '{}-C{}'.format(n['id'], n['cls']), size=25)
+            plt.text(center[0]-0.05, center[1], '{}-C{}'.format(n['id'] + 1, n['cls']), size=25)
             #print('CLASS: {}{}: '.format(n['lvl'], n['id']))
             #print(intersections)
 
@@ -184,7 +184,7 @@ def plot(dt, pdffn, dataset):
     plt.figure(0)
     attr, cls = attrspace_plot.load_arff(dataset)
     ds = {'attr': attr, 'cls': cls}
-    attrspace_plot.plot(ds, (0,1), alpha=0.1)
+    attrspace_plot.plot(ds, (0,1), alpha=0.4)
 
     plot_subspace(dt, dt['0'])
     plt.gca().axes.get_xaxis().set_visible(False)
@@ -234,16 +234,31 @@ def plot_dts_iter():
 
 #plot_dts_iter()
 
-dt = {
-    "0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": 1,"coeffs": [2,0]},
-    "1": {"lvl": 1, "id": 1,"cls": 1,"left": "3","right": "4","thr": -1,"coeffs": [6, 5]},
-    "2": {"lvl": 1, "id": 1,"cls": 1,"left": "5","right": "6","thr": -2,"coeffs": [6, 5]},
-    "2": {"lvl": 1, "id": 2,"cls": 0,"left": "3","right": "4","thr": 0.10742,"coeffs": [0.18750,-0.00058]},
-    "3": {"lvl": 2, "id": 3,"cls": 3,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
-    "4": {"lvl": 2, "id": 4,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}
-}
+# dt = {
+#     "0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": 1,"coeffs": [2,0]},
+#     "1": {"lvl": 1, "id": 1,"cls": 0,"left": "3","right": "4","thr": -1,"coeffs": [6, 5]},
+#     "2": {"lvl": 1, "id": 2,"cls": 0,"left": "5","right": "6","thr": -2,"coeffs": [6, 5]},
+#     "3": {"lvl": 2, "id": 3,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "4": {"lvl": 2, "id": 4,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "5": {"lvl": 2, "id": 5,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "6": {"lvl": 2, "id": 6,"cls": 3,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}
+# }
 
-plot(dt, "dt_oblique_traversal.pdf", "../data/vene.csv")
+# dt = {
+#     "0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": 1,"coeffs": [2,0]},
+#     "1": {"lvl": 1, "id": 1,"cls": 0,"left": "3","right": "4","thr": -3,"coeffs": [8,-10]},
+#     "2": {"lvl": 1, "id": 2,"cls": 0,"left": "5","right": "6","thr": 1,"coeffs": [8,-10]},
+#     "3": {"lvl": 2, "id": 3,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "4": {"lvl": 2, "id": 4,"cls": 0,"left": "7","right": "8","thr": 7,"coeffs": [8,10]},
+#     "5": {"lvl": 2, "id": 5,"cls": 0,"left": "9","right": "10","thr": 11,"coeffs": [8,10]},
+#     "6": {"lvl": 2, "id": 6,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "7": {"lvl": 3, "id": 7,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "8": {"lvl": 3, "id": 8,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "9": {"lvl": 3, "id": 9,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+#     "10": {"lvl": 3, "id": 10,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}
+# }
+
+# plot(dt, "dt_oblique_traversal.pdf", "../data/yingyang.csv")
 
 # for name, n in dt.items():
 #     if n['coeffs']:
