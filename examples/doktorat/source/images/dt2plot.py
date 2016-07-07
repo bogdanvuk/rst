@@ -180,9 +180,9 @@ def plot_subspace(dt, n, hier=[], path=[]):
 
 #print(get_intersections([], dt['00']))
 
-def plot(dt, pdffn):
+def plot(dt, pdffn, dataset):
     plt.figure(0)
-    attr, cls = attrspace_plot.load_arff("../data/vene.csv")
+    attr, cls = attrspace_plot.load_arff(dataset)
     ds = {'attr': attr, 'cls': cls}
     attrspace_plot.plot(ds, (0,1), alpha=0.1)
 
@@ -196,6 +196,7 @@ def plot_dts_iter():
 
     import os
 
+    dataset = "../data/vene.csv"
     json_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts/json'
     pdf_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts'
     _, _, filenames = next(os.walk(json_dir), (None, None, []))
@@ -221,7 +222,7 @@ def plot_dts_iter():
         with open(jsfn) as data_file:
             dt = json.load(data_file)
 
-        plot(dt, pdffn)
+        plot(dt, pdffn, dataset)
 
         s = dt2dot.dt2dot(dt)
 
@@ -230,11 +231,19 @@ def plot_dts_iter():
 
         from subprocess import call
         call(["dot", "-Tpng", dotfn, "-o", dotpdffn])
-        #call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
 
+#plot_dts_iter()
 
-dt = {"0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": -0.09375,"coeffs": [0.24326,-0.36081]},"1": {"lvl": 1, "id": 1,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},"2": {"lvl": 1, "id": 2,"cls": 0,"left": "3","right": "4","thr": 0.10742,"coeffs": [0.18750,-0.00058]},"3": {"lvl": 2, "id": 3,"cls": 3,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},"4": {"lvl": 2, "id": 4,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}}
-plot(dt, '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/')
+dt = {
+    "0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": 1,"coeffs": [2,0]},
+    "1": {"lvl": 1, "id": 1,"cls": 1,"left": "3","right": "4","thr": -1,"coeffs": [6, 5]},
+    "2": {"lvl": 1, "id": 1,"cls": 1,"left": "5","right": "6","thr": -2,"coeffs": [6, 5]},
+    "2": {"lvl": 1, "id": 2,"cls": 0,"left": "3","right": "4","thr": 0.10742,"coeffs": [0.18750,-0.00058]},
+    "3": {"lvl": 2, "id": 3,"cls": 3,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},
+    "4": {"lvl": 2, "id": 4,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}
+}
+
+plot(dt, "dt_oblique_traversal.pdf", "../data/vene.csv")
 
 # for name, n in dt.items():
 #     if n['coeffs']:

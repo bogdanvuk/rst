@@ -100,32 +100,27 @@ Widely used to machine learning model for classification tasks is a DT classifie
 
 In theory, the DTs can have an arbitrary branching factor (n-ary DTs), but the binary DTs (with the branching factor of 2), i.e. the DTs with only two children per node, are used most often for being easier to implement. Furthermore, a tree with an arbitrary branching factor can always be represented by a functionally equivalent binary DT. The :num:`Figure #fig-dt-traversal` shows the process of classification by binary DTs. The DT in the figure consists of 4 nodes represented by circles enumerated from 1 to 4. The DT also has 5 leaves represented by squares, where each of the leaves has been assigned a class (:math:`C_{1}` to :math:`C_{5}` in this example). The classification is performed by letting instances traverse the tree, starting from the root (enumerated as 1), until it reaches a leaf. Depending on the leaf in which the instance finished the traversal, it is classified as the class assigned to that leaf.
 
-Each of the DT nodes is assigned one test (:math:`T_{1}` to :math:`T_{4}` in this example). Once the instance reaches a node during its traversal through the DT, the node test is used to determine through which of the node's children will the traversal continue, based on the instance's attribute values. In case of binary DTs, the node test decision is binary. The final path of the instance through the DT depends on the test results in all the nodes the instance encounters during the traversal.
+Each of the DT nodes is assigned one test (:math:`T_{1}` to :math:`T_{4}` in this example). Once the instance reaches a node during its traversal through the DT, the node test is used to determine through which of the node's children will the traversal continue, based on the instance's attribute values. In case of binary DTs, the node test decision is binary. If the test evaluates to **true** (T), the DT traversal is continued via the left child, otherwise it is continued via the right child. The final path of the instance through the DT depends on the test results in all the nodes the instance encounters during the traversal.
 
-Each machine learning problem needs to have defined domain, which is in turn defined as the set of all domain objects. First, the set of attributes is chosen to uniquely represent the domain objects in form of the attribute vector - |w|. Also, the domain of each attribute needs to be defined, where there are usually two choices:
+Each machine learning problem needs to have defined domain, which is in turn defined as the set of all domain objects. First, the set of attributes is chosen to uniquely represent the domain objects in form of the attribute vector - |x|. Also, the domain of each attribute needs to be defined, where there are usually two choices:
 
 - the domain can be discrete, in which case the attribute is called categorical, or
 - the domain can be a subset of the set real of real numbers, in which case the attribute is called numerical.
 
-The set of all possible attribute vectors forms the |NA| - dimensional attribute space, where |NA| is the number of attributes that are used to describe the instances, i.e. the size of the attribute vector |w|. In the context of the attribute space, each binary DT node test splits the space into two regions, assigning to every node a sub-region of the attribute space. Based on its test, each node splits the region assigned to it by its parent into two sub-regions and assigns them to each of its children. The final result of this process is a clear partition of the attribute space into a number of disjoint regions with a class associated to each one.
+The set of all possible attribute vectors forms the |NA| - dimensional attribute space, where |NA| is the number of attributes that are used to describe the instances, i.e. the size of the attribute vector |x|. In the context of the attribute space, each binary DT node test splits the space into two regions, assigning to every node a sub-region of the attribute space. Based on its test, each node splits the region assigned to it by its parent into two sub-regions and assigns them to each of its children. The final result of this process is a clear partition of the attribute space into a number of disjoint regions with a class associated to each one.
 
 Based on the characteristics of the functions implementing the node tests, the DTs can be categorized into: orthogonal, oblique and nonlinear. The names of the categories were derived from the shape of the hypersurface defined by their tests. Hence, the orthogonal DTs divide the attribute space with the orthogonal hyperplanes, the oblique DTs with oblique hyperplanes, and nonlinear DTs with nonlinear hyperplanes.
 
-
-By letting all the instances of the training set traverse the DT one by one, the complete training set classification is obtained.
-
-As it was already mentioned, the training set
-
-This paper focuses on oblique binary classification DTs. The leaves of the DT represent the classes of the problem. The non-leaves contain the tests which are performed on the problem instances in order to determine their path through the DT until they reach DT leaves. Each instance of the problem is defined by its attribute vector - |x|. The tests performed by oblique DT in each node have the following form:
+This thesis focuses on oblique binary classification DTs. The tests performed by oblique DT in each node are afine and have the following form:
 
 .. math:: \mathbf{w}\cdot \mathbf{x} = \sum_{i=1}^{N_A}w_{i}\cdot x_{i} < \theta,
     :label: oblique_test
 
-where |w| represents the coefficient vector, |NA| equals the size of the attribute and the coefficient vectors and |th| models the afine part of the test. The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT.
+where |w| represents the coefficient vector and |th| (called the threshold) models the afine part of the test. The :num:`Figure #fig-oblique-dt` shows an example of the oblique binary DT.
 
 .. _fig-oblique-dt:
 
-.. figure:: images/oblique_dt_traversal.pdf
+.. bdp:: images/oblique_dt_traversal.py
 
     An example of the oblique binary DT with one possible traversal path shown in red.
 
