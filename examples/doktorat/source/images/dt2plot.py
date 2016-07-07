@@ -192,44 +192,49 @@ def plot(dt, pdffn):
     plt.savefig(pdffn, bbox_inches='tight')
     plt.close()
 
-import os
+def plot_dts_iter():
 
-json_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts/json'
-pdf_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts'
-_, _, filenames = next(os.walk(json_dir), (None, None, []))
-efti_iters = sorted([int(os.path.splitext(f)[0]) for f in filenames])
-while len(efti_iters) > 8:
-    min_rel_dist = max(efti_iters)
-    rem_suggest = 0
-    for i in range(1, len(efti_iters) - 1):
-        rel_dist = (efti_iters[i+1] - efti_iters[i])/math.log(efti_iters[i])
-        if rel_dist < min_rel_dist:
-            min_rel_dist = rel_dist
-            rem_suggest = i+1
+    import os
 
-    del efti_iters[rem_suggest]
+    json_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts/json'
+    pdf_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/efti_overview_dts'
+    _, _, filenames = next(os.walk(json_dir), (None, None, []))
+    efti_iters = sorted([int(os.path.splitext(f)[0]) for f in filenames])
+    while len(efti_iters) > 8:
+        min_rel_dist = max(efti_iters)
+        rem_suggest = 0
+        for i in range(1, len(efti_iters) - 1):
+            rel_dist = (efti_iters[i+1] - efti_iters[i])/math.log(efti_iters[i])
+            if rel_dist < min_rel_dist:
+                min_rel_dist = rel_dist
+                rem_suggest = i+1
 
-print(efti_iters)
-for i, ei in enumerate(efti_iters):
-    jsfn = os.path.join(json_dir, '{}.js'.format(ei))
-    pdffn = os.path.join(pdf_dir, 'dt{0:02d}.pdf'.format(i))
-    dotfn = os.path.join(pdf_dir, 'dt{0:02d}.dot'.format(i))
-    dotpdffn = os.path.join(pdf_dir, 'dot{0:02d}.png'.format(i))
+        del efti_iters[rem_suggest]
 
-    with open(jsfn) as data_file:
-        dt = json.load(data_file)
+    print(efti_iters)
+    for i, ei in enumerate(efti_iters):
+        jsfn = os.path.join(json_dir, '{}.js'.format(ei))
+        pdffn = os.path.join(pdf_dir, 'dt{0:02d}.pdf'.format(i))
+        dotfn = os.path.join(pdf_dir, 'dt{0:02d}.dot'.format(i))
+        dotpdffn = os.path.join(pdf_dir, 'dot{0:02d}.png'.format(i))
 
-    plot(dt, pdffn)
+        with open(jsfn) as data_file:
+            dt = json.load(data_file)
 
-    s = dt2dot.dt2dot(dt)
+        plot(dt, pdffn)
 
-    with open(dotfn, 'w') as fout:
-        fout.write(s)
+        s = dt2dot.dt2dot(dt)
 
-    from subprocess import call
-    call(["dot", "-Tpng", dotfn, "-o", dotpdffn])
-    #call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
+        with open(dotfn, 'w') as fout:
+            fout.write(s)
 
+        from subprocess import call
+        call(["dot", "-Tpng", dotfn, "-o", dotpdffn])
+        #call(["convert", dotpdffn, "-gravity", "bottom", "-background", "rgb(255,255,255)", "-extent", "500x500", dotpdffn])
+
+
+dt = {"0": {"lvl": 0, "id": 0,"cls": 0,"left": "1","right": "2","thr": -0.09375,"coeffs": [0.24326,-0.36081]},"1": {"lvl": 1, "id": 1,"cls": 1,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},"2": {"lvl": 1, "id": 2,"cls": 0,"left": "3","right": "4","thr": 0.10742,"coeffs": [0.18750,-0.00058]},"3": {"lvl": 2, "id": 3,"cls": 3,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []},"4": {"lvl": 2, "id": 4,"cls": 2,"left": "-1","right": "-1","thr": 0.00000,"coeffs": []}}
+plot(dt, '/home/bvukobratovic/projects/rst/examples/doktorat/source/images/')
 
 # for name, n in dt.items():
 #     if n['coeffs']:
