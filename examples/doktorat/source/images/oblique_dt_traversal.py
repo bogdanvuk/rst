@@ -11,10 +11,10 @@ node = block(size=p(2,2), shape='circle', nodesep=(2,2))
 leaf = block(size=p(2.8,1.8), nodesep=(2,2))
 
 def draw_children_con(parent, children):
-    fig << path(parent.c(), children[0].c(), shorten=(1.4, 1.4), style=('', '>'))
+    fig << path(parent.c(), children[0].c(), shorten=(1.4, 1.6), style=('', '>'))
     fig << text("T").align(fig[-1].c(), prev().s(1.0))
 
-    fig << path(parent.c(), children[1].c(), shorten=(1.4, 1.4), style=('', '>'))
+    fig << path(parent.c(), children[1].c(), shorten=(1.4, 1.6), style=('', '>'))
     fig << text("F").align(fig[-1].c(), prev().s())
 
 def draw_children(parent, templ, t, separation):

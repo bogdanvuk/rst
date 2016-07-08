@@ -174,21 +174,24 @@ def plot_subspace(dt, n, hier=[], path=[]):
 #
 #         center = 1/len(intersections)*center
 
-            plt.text(center[0]-0.05, center[1], '{}-C{}'.format(n['id'] + 1, n['cls']), size=25)
+            plt.text(center[0]-0.05, center[1], '{}-$C_{}$'.format(n['id'] + 1, n['cls']), size=25)
             #print('CLASS: {}{}: '.format(n['lvl'], n['id']))
             #print(intersections)
 
 #print(get_intersections([], dt['00']))
 
-def plot(dt, pdffn, dataset):
+def plot(dt, dataset, alpha=0.5):
     plt.figure(0)
     attr, cls = attrspace_plot.load_arff(dataset)
     ds = {'attr': attr, 'cls': cls}
-    attrspace_plot.plot(ds, (0,1), alpha=0.4)
+    attrspace_plot.plot(ds, (0,1), alpha=alpha)
 
     plot_subspace(dt, dt['0'])
     plt.gca().axes.get_xaxis().set_visible(False)
     plt.gca().axes.get_yaxis().set_visible(False)
+
+def plot2pdf(dt, pdffn, dataset):
+    plot(dt, dataset)
     plt.savefig(pdffn, bbox_inches='tight')
     plt.close()
 

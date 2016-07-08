@@ -98,9 +98,9 @@ Widely used to machine learning model for classification tasks is a DT classifie
 
     The classification process by the binary DT.
 
-In theory, the DTs can have an arbitrary branching factor (n-ary DTs), but the binary DTs (with the branching factor of 2), i.e. the DTs with only two children per node, are used most often for being easier to implement. Furthermore, a tree with an arbitrary branching factor can always be represented by a functionally equivalent binary DT. The :num:`Figure #fig-dt-traversal` shows the process of classification by binary DTs. The DT in the figure consists of 4 nodes represented by circles enumerated from 1 to 4. The DT also has 5 leaves represented by squares, where each of the leaves has been assigned a class (:math:`C_{1}` to :math:`C_{5}` in this example). The classification is performed by letting instances traverse the tree, starting from the root (enumerated as 1), until it reaches a leaf. Depending on the leaf in which the instance finished the traversal, it is classified as the class assigned to that leaf.
+In theory, the DTs can have an arbitrary branching factor (n-ary DTs), but the binary DTs (with the branching factor of 2), i.e. the DTs with only two children per node, are used most often for being easier to implement. Furthermore, a tree with an arbitrary branching factor can always be represented by a functionally equivalent binary DT. The :num:`Figure #fig-dt-traversal` shows the process of classification by binary DTs. The DT in the figure consists of 4 nodes represented by circles numbered 1, 2, 3 and 6. The DT also has 5 leaves represented by squares numbered 4, 5, 7, 8 and 9, where each of the leaves has been assigned a class (:math:`C_{1}` to :math:`C_{5}` in this example). The classification is performed by letting instances traverse the tree, starting from the root (enumerated as 1), until it reaches a leaf. Depending on the leaf in which the instance finished the traversal, it is classified as the class assigned to that leaf.
 
-Each of the DT nodes is assigned one test (:math:`T_{1}` to :math:`T_{4}` in this example). Once the instance reaches a node during its traversal through the DT, the node test is used to determine through which of the node's children will the traversal continue, based on the instance's attribute values. In case of binary DTs, the node test decision is binary. If the test evaluates to **true** (T), the DT traversal is continued via the left child, otherwise it is continued via the right child. The final path of the instance through the DT depends on the test results in all the nodes the instance encounters during the traversal.
+Each of the DT nodes is assigned one test (:math:`T_{1}`, :math:`T_{2}, :math:`T_{3} and :math:`T_{6}` in this example). Once the instance reaches a node during its traversal through the DT, the node test is used to determine through which of the node's children will the traversal continue, based on the instance's attribute values. In case of binary DTs, the node test decision is binary. If the test evaluates to **true** (T), the DT traversal is continued via the left child, otherwise it is continued via the right child. The final path of the instance through the DT depends on the test results in all the nodes the instance encounters during the traversal.
 
 Each machine learning problem needs to have defined domain, which is in turn defined as the set of all domain objects. First, the set of attributes is chosen to uniquely represent the domain objects in form of the attribute vector - |x|. Also, the domain of each attribute needs to be defined, where there are usually two choices:
 
@@ -124,14 +124,45 @@ where |w| represents the coefficient vector and |th| (called the threshold) mode
 
     An example of the oblique binary DT with one possible traversal path shown in red.
 
+Each instance starts from the DT root node and traverses the DT in order to be assigned a class. Based on whether the test condition, given by the equation :eq:`oblique_test`, evaluates to **true** or **false**, the DT traversal is continued accordingly, until a leaf is reached when it is classified into the class assigned to that leaf. The dataset being classified by this DT comprises instances belonging to one of the two classes: :math:`C_1` and :math:`C_2`, hence the leaves can be assigned only one of them. One possible traversal path is shown in the :num:`Figure #fig-oblique-dt-traversal` in red, where after the traversal, the instance is classified into the class :math:`C_{1}`.
+
+As it was already said, a different way of looking at the classification process by the DT is by examining the attribute space. The :num:`Figure #fig-oblique-dt-traversal-attrspace` shows the attribute space for the dataset being classified by the DT from the :num:`Figure #fig-oblique-dt-traversal`. As it was already mentioned, the dataset instances can belong to either class :math:`C_1`, marked by Xs, and class :math:`C_2`, marked by squares on the figure. The dashed lines on the figure represent the hyperplanes generated by the node's tests that partition the attribute space into the regions, each corresponding to a leaf of the DT. In the figure, each of the regions is marked with the ID of its corresponding leaf and the class assigned to that leaf.
+
 .. _fig-oblique-dt-traversal-attrspace:
 
-.. figure:: images/oblique_dt_traversal_attrspace.pdf
+.. figure:: images/oblique_dt_traversal_attrspace_0.pdf
     :width: 80%
 
-    An example of the oblique binary DT with one possible traversal path shown in red.
+    The attribute space partition of an example dataset generated by the DT from the :num:`Figure #fig-oblique-dt-traversal`. The instances belong to one of the two different classes: :math:`C_1` marked by Xs and :math:`C_2` marked by squares. The dashed lines on the figure represent the hyperplanes generated by the node's tests that partition the attribute space into the regions, each corresponding to a leaf of the DT. Each of the attribute space regions is marked with the ID of its corresponding leaf and the class assigned to the leaf.
 
-Each instance starts from the DT root node and traverses the DT in order to be assigned a class. If the test condition given by the equation :eq:`oblique_test` is **true**, the DT traversal is continued via the left child, otherwise it is continued via the right child. Depending on the leaf in which the instance finishes after DT traversal, it is classified into the class assigned to that leaf. One possible traversal path is shown in the :num:`Figure #fig-oblique-dt-traversal` in red. After the traversal, the instance will be classified into the class :math:`C_{4}`.
+.. subfigstart::
+
+.. _fig-oblique-dt-traversal-attrspace-1:
+
+.. figure:: images/oblique_dt_traversal_attrspace_1.pdf
+    :align: center
+
+    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+
+.. _fig-oblique-dt-traversal-attrspace-2:
+
+.. figure:: images/oblique_dt_traversal_attrspace_2.pdf
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-oblique-dt-traversal-attrspace-3:
+
+.. figure:: images/oblique_dt_traversal_attrspace_3.pdf
+    :align: center
+
+    iter: 003599, fit: 0.914, size: 5, acc: 0.920
+
+.. subfigend::
+    :width: 0.48
+    :label: fig-oblique-dt-traversal-attrspace
+
+    The figures capture the attribute space partition induced by the DT individual in 8 of the critical moments where the fitness of the DT has advanced. Each partition is labeled in the format *i-Cj*, where *i* equals the ID of the leaf that corresponds to the partition, and *j* equals the class number assigned to the leaf. The caption below each of the subfigures, shows the status of the DT individaul in the corresponding iteration: iter - the iteration count, fit - the fitness of the DT, size - the size of the DT, acc - the accuracy of the DT on the training set.
 
 There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem :cite:`heath1993induction`, therefore most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`. Computationally least demanding approach for the DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most of the DT induction algorithms use this approach. Naturally, this approach suffers from the inability of escaping the local optima. Better results, especially if the DT size is considered, could be obtained by the inducers that work on full DT, with cost of the higher computational complexity :cite:`struharik2014inducing`.
 

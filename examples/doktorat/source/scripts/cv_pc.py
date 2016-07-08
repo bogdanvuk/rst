@@ -8,11 +8,11 @@ import os
 
 algos = ['OC1-AP', 'OC1', 'CART-LC', 'OC1-SA', 'OC1-GA', 'OC1-ES', 'GALE', 'GaTree', 'HB-Lin', 'EFTI']
 
-efti_app = '/home/bvukobratovic/personal/doktorat/prj/efti_pc/Release/efti_pc_div8 --max_iter=500000 --oversize_w=0.04'
+efti_app = '/home/bvukobratovic/personal/doktorat/prj/efti_pc/Release/efti_pc --max_iter=1000000'
 
 def crossvalidation(fname):
     with SerialCmd(fname) as ser_cmd:
-        p = pexpect.spawnu(efti_app, echo=True)
+        p = pexpect.spawnu(efti_app, echo=True, timeout=300)
 
         try:
             while (1):
@@ -91,7 +91,7 @@ def create_rank_table(data, desc, rankjs):
 
 categ_max = {'ausc': 2,'bc': 3,'bcw': 2,'ger': 2,'gls': 7,'hep': 2,'hrts': 2,'ion': 2,'irs': 3,'liv': 2,'lym': 4,'page': 5,'pid': 2,'son': 2,'thy': 4,'veh': 4,'vote': 2,'vow': 11,'w40': 3,'zoo': 7} 
 
-def calc_data_fitness(data, complexity_weight=0.04):
+def calc_data_fitness(data, complexity_weight=0.05):
     fit_data = {}
     for ds in data['accuracy']:
         fit_data[ds] = {}
@@ -102,11 +102,11 @@ def calc_data_fitness(data, complexity_weight=0.04):
                 
     return {'fit': fit_data}            
 
-efti_cvjs = "cv_{0}_pc_div8.js".format(time.strftime("%Y%m%d_%H%M%S"))
-rankjs = "cv_{0}_pc_div8_rank.js".format(time.strftime("%Y%m%d_%H%M%S"))
+#efti_cvjs = "cv_{0}_pc_impurity.js".format(time.strftime("%Y%m%d_%H%M%S"))
+#rankjs = "cv_{0}_pc_impurity_rank.js".format(time.strftime("%Y%m%d_%H%M%S"))
 cv_other_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/scripts/'
-# efti_cvjs = 'cv_20160706_135348_pc.js'
-# rankjs = 'cv_20160706_135348_pc_rank.js'
+efti_cvjs = 'cv_20160708_161726_pc_impurity.js'
+rankjs = 'cv_20160708_161726_pc_impurity_rank.js'
 
 crossvalidation(efti_cvjs)
 data = load_cv_data(cv_other_dir, efti_cvjs)

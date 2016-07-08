@@ -11,10 +11,10 @@ node = block(size=p(2,2), shape='circle', nodesep=(2,2))
 leaf = block(size=p(2.8,1.8), nodesep=(1.8,1.8))
 
 def draw_children_con(parent, children):
-    fig << path(parent.c(), children[0].c(), shorten=(1.4, 1.4), style=('', '>'))
+    fig << path(parent.c(), children[0].c(), shorten=(1.4, 1.6), style=('', '>'))
     fig << text("T").align(fig[-1].c(), prev().s(1.0))
 
-    fig << path(parent.c(), children[1].c(), shorten=(1.4, 1.4), style=('', '>'))
+    fig << path(parent.c(), children[1].c(), shorten=(1.4, 1.6), style=('', '>'))
     fig << text("F").align(fig[-1].c(), prev().s())
 
 def draw_children(parent, templ, t, separation):
@@ -45,7 +45,7 @@ node2_ch = draw_children(root_ch[0], [leaf, leaf], ['4-$C_{1}$', '5-$C_{2}$'], 1
 draw_children_con(root_ch[0], node2_ch)
 
 node3_ch = draw_children(root_ch[1], [node, leaf], ['6', '7-$C_{3}$'], 1)
-draw_node_test_eq(node3_ch[0], 4, 'right')
+draw_node_test_eq(node3_ch[0], 6, 'right')
 draw_children_con(root_ch[1], node3_ch)
 
 node4_ch = draw_children(node3_ch[0], [leaf, leaf], ['8-$C_{4}$', '9-$C_{5}$'], 1)
