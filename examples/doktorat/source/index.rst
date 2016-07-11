@@ -40,6 +40,10 @@
 .. |Tswacc| replace:: :math:`T_{sw\_acc}`
 .. |Thsmut| replace:: :math:`T_{hs\_mut}`
 .. |Thsacc| replace:: :math:`T_{hs\_acc}`
+.. |Ko| replace:: :math:`K_o`
+.. |Km| replace:: :math:`K_m`
+.. |NDTc| replace:: :math:`N_{DTc}`
+
 
 .. role:: raw(raw)
    :format: latex
@@ -197,10 +201,10 @@ In the field of machine learning, as is with most other scientific disciplines, 
 
 Second, with growth and advancements in the field of electronics, wireless communications, networking, cognitive and affective computing and robotics, embedded devices have penetrated deeper into our daily lives. In order for them to seemlesly integrate with our daily routine, they need to comprise some sort of machine learning system for execution of any non-trivial task. Hence, the |algo| algorithm was designed with its implementation for the embedded systems in mind. In other words, the |algo| algorithm was designed to reqire as little hardware resources for implementation as possible in order for it to be easily integrated into an embedded system.
 
-The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems, especially when run on the less powerfull embedded processors. By accelerating the |algo| algorithm in hardware, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process larger amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adaptation, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc. Hence, the |algo| algorithm was designed to be parallel in nature and thus be easily accelerated by an application specific co-processor. Furthermore, some of the world leading semiconductor chip makers have started offering the solutions which consist of a CPU integrated with an FPGA, like Xilinx with its Zynq series and Intel with its new generation Xeon chips. The hardware accelerated implementation of |algo| algorithm can be readily implemented on these devices, with the hardware for the |algo| algorithm acceleration built for the integrated FPGA.
+The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems, especially when run on the less powerfull embedded processors. By accelerating the |algo| algorithm in hardware, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process larger amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adaptation, such as: machine vision :cite:`prince2012computer,challa2011fundamentals,ali2010hardware,tomasi2010fine`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc. Hence, the |algo| algorithm was designed to be parallel in nature and thus be easily accelerated by an application specific co-processor. Furthermore, some of the world leading semiconductor chip makers have started offering the solutions which consist of a CPU integrated with an FPGA, like Xilinx with its Zynq series and Intel with its new generation Xeon chips. The hardware accelerated implementation of |algo| algorithm can be readily implemented on these devices, with the hardware for the |algo| algorithm acceleration built for the integrated FPGA.
 
 General approaches to DT induction
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+..................................
 
 Finding the smallest DT consistent with the training set is NP-hard problem :cite:`murthy1994system`, hence, in general it is solved using some kind of heuristic. The DT is said to be consistent with the training set if and only if it classifies all the training set instances in the same was as given in the training set. There are two general approaches to DT induction using supervised learning: incremental (node-by-node) and full tree induction.
 
@@ -213,7 +217,7 @@ The other approach for the DT inference is the full DT induction. In this approa
 Incremental algorithms use a simpler heuristic and are computationally less demanding than the full DT inducers. However, the algorithms that optimize the DT as a whole, using complete information during the optimization process, generally lead to more compact and possibly more accurate DTs when compared with incremental approaches. Furthermore, the DTs can be induced both using only axis-parallel node tests or using oblique node tests. The advantage of using only axis-parallel tests is in reduced complexity as the task of finding the optimal axis-parallel split of the training set is polynomial in terms of |NA| and |NI|. More precisely, the optimization process needs to explore only :math:`N_A \cdot N_I` distinct possible axis-parallel splits :cite:`murthy1994system`. On the other hand, in order to find the optimal oblique split, total of :math:`2^d \cdot \binom{N_A}{N_I}` posible hyperplanes need to be considered, making it an NP-hard problem. On the other hand, the DTs induced with oblique tests offten have much smaller number of nodes than the ones with axis-parallel tests. Hence, in order to fullfill its goal of inducing smaller DTs than existing solutions, the |algo| algorithm needs to implement oblique full DT induction.
 
 Evolutionary oblique full DT induction
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+......................................
 
 Since the process of finding the optimal oblique DT is a hard algorithmic problem, most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`.
 
@@ -225,19 +229,8 @@ Since the process of finding the optimal oblique DT is a hard algorithmic proble
 
 The evolutionary algorithms for inducing DTs by global optimization (the full DT induction) are usualy some kinds of Genetic Algorithms :cite:`papagelis2000ga,llora2004mixed,krketowski2005global`, which in turn operate on a population of candidate solutions. The typical populations used by these algorithms contain tens or even hundereds of individuals. In order to save on needed resources for the implementation, the |algo| algorithm was based on HereBoy :cite:`levi2000hereboy` evolutionary algorithm which operates on a single candidate solution, hence, the |algo| algorithm requires one or even two orders of magnitude less hardware resources for the implementation then the existing evolutionary algorithms. HereBoy is an evolutionary algorithm that combines features from Genetic Algorithms and Simulated Annealing and operates on the bitstring representation of the individual being evolved. The |algo| algorithm (as well as HereBoy algorithm) operates only on a single candidate solution and single result of its mutation, which classifies it also in the class of (1+1)-ES (Evolutionary Strategy). Furthermore, stohastic algorithm that do not use populations of candidate solutions and thus do not employ recombination, can also be classified as in the class of Stochastic Hill Climbing algorithms :cite:`brownlee2011clever`. Further benefit of basing the |algo| algorithm on HereBoy is the simplicity of mutation procedure employed by HereBoy. HereBoy utilizes the simple technic of adaptive random search for mutations, which can be implemented efficently both regarding the time needed for execution and hardware resources needed (having embedded systems as target in mind).
 
-Rest
-----
-
-There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem :cite:`heath1993induction`, therefore most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`. Computationally least demanding approach for the DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most of the DT induction algorithms use this approach. Naturally, this approach suffers from the inability of escaping the local optima. Better results, especially if the DT size is considered, could be obtained by the inducers that work on full DT, with cost of the higher computational complexity :cite:`struharik2014inducing`.
-
-The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems. This is certainly true for the full DT inference algorithms. By accelerating this task, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process large amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adapting, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
-
-
-.. _fig-evolutionary-dt-algorithm-tree:
-
-.. figure:: images/taxonomy.pdf
-
-    The taxonomy of evolutionary algorithms for DT induction.
+Hardware aided decision tree induction
+--------------------------------------
 
 In order to accelerate the DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools, and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on the hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating the selected machine learning systems.
 
@@ -248,6 +241,24 @@ The hardware acceleration of the machine learning algorithms receives a signific
 This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| is an algorithm for full oblique classification DT induction using EA :cite:`efti`. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with the incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT induction algorithm.
 
 The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as authors are aware, this is the first full DT building algorithm that operates on a single-individual population. This makes the |algo| algorithm particularly interesting to be used in embedded applications, where memory and processing resources are tightly constrained. The |algo| algorithm proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT :cite:`vukobratovic2015evolving`. Being that the EAs are iterative by nature and extensively perform simple computations on the data, the |algo| algorithm should benefit from the hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes |cop| co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper, it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase. |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with a wide variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga` to accelerate the training set classification step that is always present during the fitness evaluation phase.
+
+Induction of decision tree ensembles
+------------------------------------
+
+The ensemble classifier systems can be used to further improve the classification performance :cite:`rokach2010ensemble`. The ensemble classifier combines predictions from several individual classifiers in order to obtain a classifier that outperforms every one of them. The ensemble learning requires creation of a set of individually trained classifiers, typically DTs or ANNs, whose predictions are then combined during the process of classification of previously unseen instances. Although simple, this idea has proved to be effective, producing systems that are more accurate than a single classifier.
+
+In the process of creation of ensemble classifiers, two problems have to be solved: ensuring the diversity of ensemble members and devising a procedure for combining individual member predictions in order to amplify correct decisions and suppress the wrong ones. Some of the most popular methods for ensuring ensemble's diversity are Breiman's bagging :cite:`buhlmann2012bagging`, Shapire's boosting :cite:`buhlmann2012bagging`, AdaBoost :cite:`buhlmann2012bagging`, Wolpert's stacked generalization :cite:`ozay2008performance`, and mixture of experts :cite:`jacobs1991adaptive`. Most commonly used combination rules include : majority voting, weighted majority voting and behavior knowledge spaces :cite:`huang1993behavior`.
+
+The main advantage of ensemble classifier over single classifier systems is the higher accuracy and greater robustness of ensemble classifier systems. However, large amounts of memory are needed to store the ensemble classifier and high computing power is required to calculate the ensemble's output, when compared with the single classifier solutions, leading to much longer ensemble inference and instance classification times. This is because ensemble classifiers typically combine 30 or more individual classifiers :cite:`buhlmann2012bagging` so, if we want to get the same performance as with the single classifier system, 30+ times more memory and computing power would be required. Once more, hardware acceleration of ensemble classifier offers a way of achieving this goal.
+
+Hardware aided induction of decision tree ensembles
+---------------------------------------------------
+
+Concerning the hardware acceleration of ensemble classifier systems, according to our best knowledge, most of the proposed solutions are related to the hardware implementation of ensemble classifiers that were previously inferred in the software. Most of the proposed solutions are concerned with the hardware acceleration of homogeneous ensemble classifiers :cite:`bermak2003compact,osman2009random,van2012accelerating,hussain2012adaptive,struharik2013hardware`. As far as the authors are aware, there is only one proposed solution to the hardware implementation of heterogeneous ensemble classifiers :cite:`shi2008committee`. Please notice, that all these solutions are only capable of implementing ensemble classifiers systems that were previously inferred in software, running on some general purpose processor. Authors are aware of only one paper :cite:`struharik2009evolving`, that proposes an architecture for the hardware evolution of homogeneous ensemble classifier systems based on the DTs. This solution uses the DT inference algorithm that incrementally creates DTs that are members of the ensemble classifier system.
+
+However, in the hardware implementation the main concern is the number of required hardware resources, mainly memory, necessary to implement a DT ensemble classifier. Smaller DTs are preferred because they require less hardware resources for the implementation and lead to ensembles with the smaller hardware footprint. Therefore, algorithms for DT ensemble classifier induction that generate small, but still accurate, DTs are of great interest when the hardware implementation of DT ensemble classifiers is considered. This requirement puts the full DT induction algorithms into focus.
+
+In this paper, a co-processor called |ecop| (DT Ensemble Evolution co-Processor) is presented. It is shown how DTEEP can be used for hardware acceleration of |ealgo|, a full DT ensemble evolutionary induction algorithm based on Bootstrap Aggregation, also known as Bagging. The Bagging algorithm was chosen since it makes the induction of the individual ensemble members completely decoupled from each other, making it very well suited for the parallelization and hence hardware acceleration. The |ealgo| algorithm uses |algo| :cite:`efti` (Evolutionary Full Tree Induction) algorithm that performs the induction of the full oblique classification DTs. The |algo| algorithm was chosen as the ensemble member inducer since it provides smaller DTs with similar or better classification accuracy than the other well-known DT inference algorithms, both incremental and full DTs :cite:`efti`. However, |algo| is more computationally demanding than the incremental inducers, hence |ealgo| could merit greatly from the hardware acceleration, making it more attractive. In this paper, |ecop| co-processor is proposed to accelerate parts of the |ealgo| that are most computationally intensive, with the remaining parts of the algorithm running on the CPU. The |ecop| co-processor architecture benefits also from the fact that the |algo| algorithm evolves the DT using only one individual, in contrast to many other algorithms based on the EA that require populations :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. The architecture can thus be simplified with hardware resources allocated only for a single individual per ensemble member. Furthermore, by using the HW/SW co-design approach, proposed |ecop| co-processor can be used to accelerate DT ensemble inducers based on the Bagging algorithm which rely on a variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT ensemble induction algorithm based on bagging.
 
 |algo| algorithm
 ================
@@ -472,6 +483,8 @@ Fitness evaluation
 
 The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree at which the DT is balanced, etc. Hence, in order to solve this multi-objective optimizational problem with the evolutionary approach, a fitness function needs to be defined to effectively collapse it to a single objective optimizational problem. This can be done in various ways, and here one procedure to do it is given.
 
+.. _fig-fitness-pca:
+
 .. literalinclude:: code/fitness_eval.py
     :caption: The pseudo-code of the fitness evaluation task.
 
@@ -484,6 +497,7 @@ The main task of the optimization procedure is to maximize the accuracy of the D
 .. _fig-accuracy-calc-pca:
 
 .. literalinclude:: code/accuracy_calc.py
+    :language: python3
     :caption: The pseudo-code of the accuracy calculation task.
 
 First, the class distribution is determined, by letting all instances from the training set traverse the DT, i.e. by calling the *find_dt_leaf_for_inst()* function whose pseudo-code is given in the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function determines the instance traversal path, and returns the leaf node in which the instance finished the traversal. The traversal starts at the root node (accessed via *dt.root*), and is performed in the manner depicted in the :num:`Figure #fig-oblique-dt-traversal`, where one possible path is given by the red line. Until a leaf is reached, the node test is performed and a decision to which child to proceed is made based on it. The function *dot_product()*, calculates the scalar product of the node test coefficient vector |w| (stored in *cur_node.w* attribute), and the attribute vector of the instance |x| (stored in *instance.x* variable), and the value returned is compared with the node test threshold |th| (stored in *cur_node.thr* attribute).
@@ -507,18 +521,20 @@ If we were to do a classification run with the current DT individual over the tr
 Oversize
 ;;;;;;;;
 
-The DT oversize is calculated as the relative difference between the number of leaves in the DT and the total number of classes (|Nc|) in the training set (obtained via the *train_set.class_cnt* attribute). In order to be able to classify correctly all training set instances, after the DT induction, the DT needs to have at least one leaf for each class occurring in the training set. Therefore, the DT starts to suffer penalties to the fitness only when the number of the DT leaves exceeds the total number of classes in the training set, given by :eq:`eq-oversize`.
+The DT oversize is calculated as the relative difference between the number of leaves in the DT and the total number of classes (|Nc|) in the training set (obtained via the *train_set.cls_cnt()* function). In order to be able to classify correctly all training set instances, after the DT induction, the DT needs to have at least one leaf for each class occurring in the training set. Therefore, the DT starts to suffer penalties to the fitness only when the number of the DT leaves exceeds the total number of classes in the training set, given by :eq:`eq-oversize`.
 
-.. math:: \frac{\Nl - \Nc}{\Nc}
+.. math:: oversize = \frac{\Nl - \Nc}{\Nc}
     :label: eq-oversize
 
-DT oversize negatively influences the fitness and is calculated as the relative difference between the number of leaves in the DT (|Nl|) and the total number of classes in the training set (|Nc|). This means that once |Nl| becomes bigger than |Nc|, the DT individual starts to suffer penalties to its fitness. The threshold is set to |Nc| since DT needs to have at least one leaf for each of the training set classes in order to have a chance of classifying correctly the instances belonging to each of the training set classes.
+DT oversize negatively influences the fitness as it can be seen from the way fitness is calculated in the :num:`Algorithm #fig-fitness-pca`: *fitness = accuracy \* (1 - Ko*oversize)*. The parameter |Ko| is used to control how much influence oversize will have on overall fitness. In other words, it determines the shape of the collection of Pareto frontiers for the DT individual. Each DT individual can be represented as a point in a 2-D space induced by DT oversize and accuracy measures. A Pareto set is formed for each possible fitness value, where all elements of the set are assigned the same fitness value, even though they have different accuracy and oversize measures.
 
 .. _fig-fit-oversize:
 .. plot:: images/pareto.py
     :width: 90%
 
-    The |ecop| co-processor structure and integration with the host CPU
+    Position of Pareto frontiers for accuracy value of 0.8, when |Nc| equals 5, for |Ko| parameter values of: 0, 0.1 and 0.2.
+
+The :num:`Figure #fig-fit-oversize` shows the position of the Pareto frontier for an example of fitness value of 0.8 and few values of the parameter |Ko|. Also, fot this example, it was taken for |Nc| to be equal 5. It can be seen that if |Ko| is chosen to be 0, the oversize does not influence the fitness which is always equal to the accuracy value. When :math:`K_o > 0`, the |algo| algorithm will be willing to trade accuracy for the DT size. As it can be seen from the figure, the DT individuals of size 2 and accuracy of 0.72 are equally fit for the algorithm as the one of size 10 and almost perfect accuracy of 1.
 
 Selection
 .........
@@ -532,7 +548,7 @@ Evolving a solution is inherently an unpredictable process. Like running a maze 
 .. _fig-escaping-local-maxima:
 
 .. figure:: images/local_maxima.png
-    :width: 100%
+    :width: 60%
     :align: center
 
     Escaping a local maxima
@@ -541,15 +557,12 @@ Evolving a solution is inherently an unpredictable process. Like running a maze 
 
 This concept is well documented in the Simulated Annealing literature. The test probability starts off with high values and reduces over time. This is referred to in the literature as the cooling schedule. The basic idea is to allow the system a lot of freedom at the beginning of the run when the system is in a high state of disorder in order to allow it to search for optimal structures. Then as structures emerge the freedom is reigned in so that the structures aren’t destroyed. Typically cooling schedules are predefined, although it has been shown that adaptive schedules produce better results.
 
-HereBoy employs an adaptive scheme to reduce the search probability. The search probability is defined by Formula 5 which closely resembles the adaptive mutation rate formula. Again, the output is the product of two terms: the maximum search probability (ρ) and a fractional
-term that reduces from 1 to 0 as the process converges (β). The maximum search probability is a user-defined parameter between 0 and 1.
-It defines the maximum chance that a poor performing mutation will be accepted. The fractional term is identical to the one in the adaptive
-mutation rate formula and performs the same function, to reduce the output from the maximum to 0 as the process converges.
+HereBoy employs an adaptive scheme to reduce the search probability. The search probability is defined by Formula 5 which closely resembles the adaptive mutation rate formula. Again, the output is the product of two terms: the maximum search probability (ρ) and a fractional term that reduces from 1 to 0 as the process converges (β). The maximum search probability is a user-defined parameter between 0 and 1. It defines the maximum chance that a poor performing mutation will be accepted. The fractional term is identical to the one in the adaptive mutation rate formula and performs the same function, to reduce the output from the maximum to 0 as the process converges.
 
 .. _fig-adaptive-search-eq:
 
 .. figure:: images/adaptive_search_eq.png
-    :width: 100%
+    :width: 60%
     :align: center
 
     The equations explaining the adaptive search
@@ -561,10 +574,17 @@ Improvements to the |algo| algorithm
 Percentage of missing classes
 .............................
 
-- **The percentage of missing classes** - calculated as the percentage of the classes for which the DT does not have a leaf, to the total number of classes in the training set.
+The percentage of missing classes is calculated as the percentage of the classes for which the DT does not have a leaf, to the total number of classes in the training set (|Nc|):
+
+.. math:: missing = \frac{\Nc - N_{DTc}}{\Nc}
+    :label: eq-missing
+
+where |NDTc| is the number of classes represented in the DT leaves. The fitness calculation is then updated so that the penalties are taken for the missing classes in the DT individual: *fitness = accuracy \* (1 - Ko*oversize) \* (1 - Km*missing)*, where the parameter |Km| is used to control how much influence the number of missing classes will have on overall fitness.
 
 Return to best
 ..............
+
+
 
 Impurity
 ........

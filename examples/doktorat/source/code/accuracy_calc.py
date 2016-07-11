@@ -1,6 +1,8 @@
 def accuracy_calc(dt, train_set):
 
-    distribution = [[0] * train_set.class_num for i in range(len(dt.leaves))]
+    distribution = [[0] * train_set.cls_num()
+                    for i in range(len(dt.leaves))]
+
     for instance in train_set:
         leaf = find_dt_leaf_for_inst(dt, instance)
         distribution[leaf.id][instance.cls] += 1
