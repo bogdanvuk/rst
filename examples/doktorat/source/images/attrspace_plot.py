@@ -59,8 +59,8 @@ def plot(ds, attri, alpha=1):
     plt.ylim([0, 1])
     plt.xlim([0, 1])
 
-def plot2pdf(ds, fn, attri):
-    plot(ds, attri)
+def plot2pdf(ds, fn, attri, alpha=1):
+    plot(ds, attri, alpha)
     plt.savefig(fn)
     plt.clf()
     plt.close()

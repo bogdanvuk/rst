@@ -40,6 +40,10 @@
 .. |Tswacc| replace:: :math:`T_{sw\_acc}`
 .. |Thsmut| replace:: :math:`T_{hs\_mut}`
 .. |Thsacc| replace:: :math:`T_{hs\_acc}`
+.. |Ko| replace:: :math:`K_o`
+.. |Km| replace:: :math:`K_m`
+.. |NDTc| replace:: :math:`N_{DTc}`
+
 
 .. role:: raw(raw)
    :format: latex
@@ -51,9 +55,23 @@ PhD Thesis
 Introduction
 ============
 
-Our ever-improving capabilities in collecting the data from the world and constant increase in processing power available to us, have significantly changed our approaches to problem solving in recent decades. Science has also taken advantage of the ability of computers to store massive amounts of data. Biology has led the way, with the ability to measure gene expression in DNA microar-
-rays producing immense datasets, along with protein transcription data and phylogenetic trees relating species to each other. However, other sciences have not been slow to follow. Astronomy now uses digital telescopes, so that each night the world’s observatories are stor-
-ing incredibly high-resolution images of the night sky; around a terabyte per night. Equally, medical science stores the outcomes of medical tests from measurements as diverse as magnetic resonance imaging (MRI) scans and simple blood tests. The explosion in stored data is well known; the challenge is to do something useful with that data. The Large Hadron Collider at CERN apparently produces about 25 petabytes of data per year.
+This dissertation presents new algorithms for the inudction of oblique binary decision trees and their ensembles using evolutionary strategies, named |algo| and |ealgo| respectively. The research on decision trees is a part of a broather field called machine learning which in turn is a branch of artificial intelligence. Machine learning techniques are usefull for solving problems when:
+
+- There exists a lot of input data on the problem, but no algorithm (or no efficient one) to produce the output based on the input data
+- Either the problem changes with time, or some of its characteristics are not known at the time the solution is being designed, so a solution is needed which can adapt to the new circumstances
+
+Because of ever increasing penetration of the machine learning systems into the embedded world, and even greater potential for that in the future, the presented induction algorithms have been tailored for implementation by the embedded systems in that they use less resources for the operation than existing solutions. One way of reducing the resource consumption is to induce and thus operate on smaller decision trees. Smaller decision trees also represent a more succint solution to the problem, which is always prefered in science (Occam's razor). Hence, the main motivation for this dissertation was to develop the decision tree induction algorithms that:
+
+#. induce smaller DTs than the existing solutions without the loss of accuracy,
+#. can be effitiently used in embedded applications, and
+#. are easily parallelizable and hence accelerated in hardware
+
+For big datasets, which are common in practice, the presented decision tree induction algorithms are very time consuming. Hence, the hardware accelerators for |algo| and |ealgo| algorithms are also proposed, named |cop| and |ecop| co-processors, that significantly reduce their times of execution. Furthermore, the implementations of the proposed induction algorithms that utilize these hardware accelerators are also described.
+
+Machine learning
+----------------
+
+Our ever-improving capabilities in collecting the data from the world and constant increase in processing power available to us, have significantly changed our approaches to problem solving in recent decades. Science has also taken advantage of the ability of computers to store massive amounts of data. Biology has led the way, with the ability to measure gene expression in DNA microarrays producing immense datasets, along with protein transcription data and phylogenetic trees relating species to each other. However, other sciences have not been slow to follow. Astronomy now uses digital telescopes, so that each night the world’s observatories are storing incredibly high-resolution images of the night sky; around a terabyte per night. Equally, medical science stores the outcomes of medical tests from measurements as diverse as magnetic resonance imaging (MRI) scans and simple blood tests. The explosion in stored data is well known; the challenge is to do something useful with that data. The Large Hadron Collider at CERN apparently produces about 25 petabytes of data per year.
 
 The size and complexity of these datasets mean that humans are unable to extract useful information from them. Scientific field that studies the systems that make use of the abundance of available data and computational power to solve problems is called machine learning. Machine learning :cite:`flach2012machine,murphy2012machine` is a branch of artificial intelligence that studies algorithms and systems that improve their performance with experience, i.e. that can "learn" from the data. In other words, machine learning is about making computers modify or adapt their actions (whether these actions are making predictions, or controlling a robot) so that these actions get more accurate, where accuracy is measured by how well the chosen actions reflect the correct ones. Of particular interest are of course the problems that haven't been satisfactorily solved using other methods.
 
@@ -81,14 +99,16 @@ For an example, the classification of ROIs for self-driving vehicles is usually 
 
 When using unsupervised learning, the correct responses to the input data are not provided, instead the algorithm tries to identify similarities between the inputs so that inputs that have something in common are categorised together. The statistical approach to unsupervised learning is known as density estimation. The clustering of image pixels to obtain ROIs for self-driving vehicles is an example of machine learning system that uses unsupervised learning. The system is never trained with the examples of how to map pixel groups to ROIs (since there are too many possible correct mappings), but has to figure out on its own how the pixels should be grouped, based on the attributes they share.
 
-Reinforcement learning is somewhere between supervised and unsupervised learning. The algorithm gets told when the answer is wrong,
-but does not get told how to correct it. It has to explore and try out different possibilities until it works out how to get the answer right. Reinforcement learning is sometime called learning with a critic because of this monitor that scores the answer, but does not suggest improvements. Developing the right driving strategies for self-driving vehicles is usually performed by the machine learning system that uses reinforcement learning. To provide for learning purposes the right combination of the positions of the steering wheel, acceleration and breaking pedals, etc. in each time instant, with dynamic circumstances, would be an impossible task. Hence, in order to develop the correct driving strategies, the machine learning system can be let to drive the vehicle and be given positive or negative feedback during the process based on some general parameters: the driving speed or the distance it holds from the objects for an example.
+Reinforcement learning is somewhere between supervised and unsupervised learning. The algorithm gets told when the answer is wrong, but does not get told how to correct it. It has to explore and try out different possibilities until it works out how to get the answer right. Reinforcement learning is sometime called learning with a critic because of this monitor that scores the answer, but does not suggest improvements. Developing the right driving strategies for self-driving vehicles is usually performed by the machine learning system that uses reinforcement learning. To provide for learning purposes the right combination of the positions of the steering wheel, acceleration and breaking pedals, etc. in each time instant, with dynamic circumstances, would be an impossible task. Hence, in order to develop the correct driving strategies, the machine learning system can be let to drive the vehicle and be given positive or negative feedback during the process based on some general parameters: the driving speed or the distance it holds from the objects for an example.
 
 One of the main features of machine learning systems is the power of generalization, allowing them to perform well on new, unseen data instances, after having experienced a learning procedure. It is of special interest to maintain the power of generalization for the system being trained by the method of supervised learning. A machine learning problem may have multiple solutinos, and if care is not taken, it is possible for induced machine learning system to perform excelently on the training set, but fail when used on new data. This phenomenon is called overfitting, in that the induced machine learning model too many features of the training set, that are not shared by other problem instances, i.e. the model was made to overly fit the training set. Good performance on training data is only a means to an end, not a goal in itself, since it is the performance on the new data that should be maximized. The power of generalization also has the result that the algorithm can deal with noise, which is small inaccuracies in the data that are inherent in measuring any real world process, in that the algorithm must not take the instance attribute values too literaly, but should expect that each of them has some noise superimposed.
 
 The machine learning systems can perform various tasks, such as classification, regression, clustering, etc. The classification implies categorizing problem instances in some number of discrete classes. Sometimes it is more natural to abandon the notion of discrete classes altogether and instead predict a real number, i.e. perform the task which is called regression. The task of grouping data without prior information on the groups is called clustering, which usually uses models induced by the method of unsupervised learning. A typical clustering algorithm works by assessing the similarity between instances (the things we’re trying to cluster, e.g., connected pixels) and putting similar instances in the same cluster and ‘dissimilar’ instances in different clusters. There are many other patterns that can be learned from data in an unsupervised way. Association rules are a kind of pattern that are popular in marketing applications, and the result of such patterns can often be found on online shopping web sites.
 
 In the open literature, a range of machine learning systems have been introduced, including decision trees (DTs) :cite:`rokach2007data,rokach2005top`, support vector machines (SVMs) :cite:`abe2005support` and artificial neural networks (ANNs) :cite:`haykin2009neural`. Data mining is a field where machine learning systems have been widely used :cite:`witten2005data`, among which DTs, ANNs and SVMs are the most popular :cite:`rokach2007data,wu2009top,wang2006data`.
+
+Decision Trees
+--------------
 
 Widely used to machine learning model for classification tasks is a DT classifier. The classification process by the DT can be depicted in a flowchart-like tree structure given in the :num:`Figure #fig-dt-traversal`. Due to their comprehensible nature resembling the human reasoning, DTs have been widely used to represent classification models. Amongst other machine learning algorithms DTs have several advantages, such as the robustness to noise, the ability to deal with redundant or missing attributes, the ability to handle both numerical and categorical data and the facility of understanding the computation process. Furthermore the computational cost of using the DT is quite low: :math:`O(log{N})`, where *N* is the number of DT nodes.
 
@@ -116,7 +136,17 @@ This thesis focuses on oblique binary classification DTs. The tests performed by
 .. math:: \mathbf{w}\cdot \mathbf{x} = \sum_{i=1}^{N_A}w_{i}\cdot x_{i} < \theta,
     :label: oblique_test
 
-where |w| represents the coefficient vector and |th| (called the threshold) models the afine part of the test. The :num:`Figure #fig-oblique-dt-traversal` shows an example of the oblique binary DT.
+where |w| represents the coefficient vector and |th| (called the threshold) models the afine part of the test.
+
+Next, an example describing the classification process by oblique DTs will be given. The :num:`Figure #fig-oblique-dt-traversal-attrspace-only` shows a dataset that will be used for this example, plotted in its attribute space. It was chosen for the instances of the dataset to be conviniently described using only two attributes :math:`x_1` and :math:`x_2`, so that they can be represented in 2-D attribute space. The dataset comprises instances belonging to one of the two classes: :math:`C_1` and :math:`C_2`. Each instance is represented in the figure by either an X (if it belongs to the class :math:`C_1`) or by a square (if it belongs to the class :math:`C_2`), with its position defined by the values of its attributes.
+
+.. _fig-oblique-dt-traversal-attrspace-only:
+.. plot:: images/oblique_dt_traversal_attrspace_only.py
+    :width: 80%
+
+    The dataset used for the demonstration of the classification process by oblique DTs. Instances of the dataset are described using two attributes :math:`x_1` and :math:`x_2`, and can belong to one of the two classes :math:`C_1` and :math:`C_2`. Each instance is represented by either an X (if it belongs to the class :math:`C_1`) or by a square (if it belongs to the class :math:`C_2`), with its position defined by the values of its attributes.
+
+The :num:`Figure #fig-oblique-dt-traversal` shows an example of the oblique binary DT that can be used to classify instances of this dataset. Every DT node test has a form defined by the equation :eq:`oblique_test`. Each DT leaf has one of two classes of the dataset assigned to it. The classification is performed by letting each instance of the dataset traverse the DT, starting from the root node, in order to be assigned a class. During the traversal, at each of the DT nodes, the node's test is evaluated. Based on whether the test condition evaluates to **true** or **false**, the DT traversal is continued accordingly until a leaf is reached, when it is classified into the class assigned to that leaf. One possible traversal path is shown in the :num:`Figure #fig-oblique-dt-traversal` in red, where after the traversal, the instance is classified into the class :math:`C_{1}`.
 
 .. _fig-oblique-dt-traversal:
 
@@ -124,16 +154,16 @@ where |w| represents the coefficient vector and |th| (called the threshold) mode
 
     An example of the oblique binary DT with one possible traversal path shown in red.
 
-Each instance starts from the DT root node and traverses the DT in order to be assigned a class. Based on whether the test condition, given by the equation :eq:`oblique_test`, evaluates to **true** or **false**, the DT traversal is continued accordingly, until a leaf is reached when it is classified into the class assigned to that leaf. The dataset being classified by this DT comprises instances belonging to one of the two classes: :math:`C_1` and :math:`C_2`, hence the leaves can be assigned only one of them. One possible traversal path is shown in the :num:`Figure #fig-oblique-dt-traversal` in red, where after the traversal, the instance is classified into the class :math:`C_{1}`.
+As it was already said, a different way of looking at the classification process by the DT is by examining what happens in the attribute space. The structure of the attribute space regions is defined by the DT node tests, resulting in one region assigned to each node and each leaf of the DT as shown in the :num:`Figure #fig-oblique-dt-attrspace`. The dashed lines on the figure represent the 2-D hyperplanes generated by the node's tests that partition the attribute space. The regions of the final partition are the ones assigned to the DT leaves, and each of them is marked with the ID of its corresponding leaf and the class assigned to that leaf.
 
-As it was already said, a different way of looking at the classification process by the DT is by examining the attribute space. The :num:`Figure #fig-oblique-dt-traversal-attrspace` shows the attribute space for the dataset being classified by the DT from the :num:`Figure #fig-oblique-dt-traversal`. As it was already mentioned, the dataset instances can belong to either class :math:`C_1`, marked by Xs, and class :math:`C_2`, marked by squares on the figure. The dashed lines on the figure represent the hyperplanes generated by the node's tests that partition the attribute space into the regions, each corresponding to a leaf of the DT. In the figure, each of the regions is marked with the ID of its corresponding leaf and the class assigned to that leaf.
-
-.. _fig-oblique-dt-traversal-attrspace:
+.. _fig-oblique-dt-attrspace:
 
 .. figure:: images/oblique_dt_traversal_attrspace_0.pdf
     :width: 80%
 
     The attribute space partition of an example dataset generated by the DT from the :num:`Figure #fig-oblique-dt-traversal`. The instances belong to one of the two different classes: :math:`C_1` marked by Xs and :math:`C_2` marked by squares. The dashed lines on the figure represent the hyperplanes generated by the node's tests that partition the attribute space into the regions, each corresponding to a leaf of the DT. Each of the attribute space regions is marked with the ID of its corresponding leaf and the class assigned to the leaf.
+
+In order to find out in which region the instance resides, and thus to which class it belongs, we need to let the instance traverse the DT. The :num:`Figure #fig-oblique-dt-traversal-attrspace` shows this process for the example traversal path shown in the :num:`Figure #fig-oblique-dt-traversal`. At the begining, when the classification of an instance is started at the root, all the regions are valid candidates. After the root node test is evaluated, the location of the instance can be narrowed down to the regions either to the left or to the right of the hyperplane :math:`\mathbf{w_1}\cdot \mathbf{x} - \theta = 0`, generated by the root node test. For this example instance, the root node test evaluated to **true**, the instance continues to the node 2, and the location of the instance is narrowed down to the region assigned to the node 2 and shown in the :num:`Figure #fig-oblique-dt-traversal-attrspace-1`. Then, the test of the node 2 is evaluated for the instance, and it turns out to be **false**, hence the instance continues to the node 5 and the number of possible regions is reduced again to the ones marked in the :num:`Figure #fig-oblique-dt-traversal-attrspace-2`, i.e. to the part of the attribute space assigned to the node 5. Finally, the node 5 test is evaluated to **true**, the instance hits the leaf node 8 and it is finaly located in the region marked in the :num:`Figure #fig-oblique-dt-traversal-attrspace-3` and assigned the :math:`C_1` class.
 
 .. subfigstart::
 
@@ -142,71 +172,39 @@ As it was already said, a different way of looking at the classification process
 .. figure:: images/oblique_dt_traversal_attrspace_1.pdf
     :align: center
 
-    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+    Region of the attribute space assigned to the node 2 of the DT from the :num:`Figure #fig-oblique-dt-traversal`.
 
 .. _fig-oblique-dt-traversal-attrspace-2:
 
 .. figure:: images/oblique_dt_traversal_attrspace_2.pdf
     :align: center
 
-    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+    Region of the attribute space assigned to the node 5 of the DT from the :num:`Figure #fig-oblique-dt-traversal`.
 
 .. _fig-oblique-dt-traversal-attrspace-3:
 
 .. figure:: images/oblique_dt_traversal_attrspace_3.pdf
     :align: center
 
-    iter: 003599, fit: 0.914, size: 5, acc: 0.920
+    Region of the attribute space assigned to the node 8 of the DT from the :num:`Figure #fig-oblique-dt-traversal`.
 
 .. subfigend::
     :width: 0.48
     :label: fig-oblique-dt-traversal-attrspace
 
-    The figures capture the attribute space partition induced by the DT individual in 8 of the critical moments where the fitness of the DT has advanced. Each partition is labeled in the format *i-Cj*, where *i* equals the ID of the leaf that corresponds to the partition, and *j* equals the class number assigned to the leaf. The caption below each of the subfigures, shows the status of the DT individaul in the corresponding iteration: iter - the iteration count, fit - the fitness of the DT, size - the size of the DT, acc - the accuracy of the DT on the training set.
+    The figure shows the attribute space regions assigned to the nodes and leafs an example instance visits during its traversal along the line shown in the :num:`Figure #fig-oblique-dt-traversal`.
 
-There are two general approaches to DT induction: incremental (node-by-node) and full tree induction. Furthermore, the process of finding the optimal oblique DT is a hard algorithmic problem :cite:`heath1993induction`, therefore most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`. Computationally least demanding approach for the DT induction is a greedy top-down recursive partitioning strategy for the tree growth, hence most of the DT induction algorithms use this approach. Naturally, this approach suffers from the inability of escaping the local optima. Better results, especially if the DT size is considered, could be obtained by the inducers that work on full DT, with cost of the higher computational complexity :cite:`struharik2014inducing`.
-
-The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems. This is certainly true for the full DT inference algorithms. By accelerating this task, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process large amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adapting, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc.
-
-
-.. _fig-evolutionary-dt-algorithm-tree:
-
-.. figure:: images/taxonomy.pdf
-
-    The taxonomy of evolutionary algorithms for DT induction.
-
-In order to accelerate the DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools, and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on the hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating the selected machine learning systems.
-
-Proposed co-processor is used for the acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
-
-The hardware acceleration of the machine learning algorithms receives a significant attention in the scientific community. A wide range of solutions have been suggested in the open literature for various predictive models. The authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for the acceleration of both learning and deployment phases have been proposed. The architectures for the hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while the architectures for the acceleration of previously created SVMs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. The research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However, in the field of hardware acceleration of the DTs, the majority of the papers focus on the acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction phase is scarcely covered. The authors are currently aware of only two papers on the topic of hardware acceleration of the DT induction algorithms :cite:`struharik2009evolving,chrysos2013hc`. However, both of these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` the incremental DT induction algorithm, where EA is used to calculate the optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` a HW/SW approach was used to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm.
-
-This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| is an algorithm for full oblique classification DT induction using EA :cite:`efti`. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with the incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT induction algorithm.
-
-The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as authors are aware, this is the first full DT building algorithm that operates on a single-individual population. This makes the |algo| algorithm particularly interesting to be used in embedded applications, where memory and processing resources are tightly constrained. The |algo| algorithm proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT :cite:`vukobratovic2015evolving`. Being that the EAs are iterative by nature and extensively perform simple computations on the data, the |algo| algorithm should benefit from the hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes |cop| co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper, it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase. |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with a wide variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga` to accelerate the training set classification step that is always present during the fitness evaluation phase.
-
-|algo| algorithm
-================
-
-This section describes an evolutionary algorithm for oblique full DT induction using supervised learning - the |algo|. The main motivation for creating |algo| was to develop an algorithm that:
-
-1. can induce smaller DTs than the existing solutions without the loss of accuracy, and
-2. can be effitiently used in embedded applications.
+Decision tree induction
+-----------------------
 
 In the field of machine learning, as is with most other scientific disciplines, simpler models are prefered over the more complex ones as stated in the principle of Occam's razor :cite:`gauch2003scientific`. This principle, in terms of information theory was proposed in :cite:`rissanen1985minimum` and called the Minimum Description Length (MDL). In essence it says that the shortest description of something, i.e., the most compressed one, is the best description. The preference for simplicity in the scientific method is based on the falsifiability criterion. For each accepted model of a phenomenon, there is extremely large number of possible alternatives with an increasing level of  complexity, because aspects in which the model fails to correctly describe the phenomenon can always be masked with ad hoc hypotheses to prevent the model from being falsified. Therefore, simpler theories are preferable to more complex ones because they are more testable. Hence, there is an obvious benefit for having the algorithm that induces smaller DTs, since smaller DT corresponds to simpler description of the phenomenon being modeled by it.
 
 Second, with growth and advancements in the field of electronics, wireless communications, networking, cognitive and affective computing and robotics, embedded devices have penetrated deeper into our daily lives. In order for them to seemlesly integrate with our daily routine, they need to comprise some sort of machine learning system for execution of any non-trivial task. Hence, the |algo| algorithm was designed with its implementation for the embedded systems in mind. In other words, the |algo| algorithm was designed to reqire as little hardware resources for implementation as possible in order for it to be easily integrated into an embedded system.
 
-The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems, especially when run on the less powerfull embedded processors. By accelerating the |algo| algorithm in hardware, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process larger amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adaptation, such as: machine vision :cite:`prince2012computer,challa2011fundamentals`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc. Hence, the |algo| algorithm was designed to be parallel in nature and thus be easily accelerated by an application specific co-processor. Furthermore, some of the world leading semiconductor chip makers have started offering the solutions which consist of a CPU integrated with an FPGA, like Xilinx with its Zynq series and Intel with its new generation Xeon chips. The hardware accelerated implementation of |algo| algorithm can be readily implemented on these devices, with the hardware for the |algo| algorithm acceleration built for the integrated FPGA.
-
-To summarize, the main traits of the |algo| algorithm need to be:
-
-- Suitability for the implementation on embedded systems, i.e. low hardware resource requirements,
-- Ease of parallelization and acceleration in hardware, and
-- Induction of smaller DTs than the existing solutions
+The DT induction phase can be very computationally demanding and can last for hours or even days for practical problems, especially when run on the less powerfull embedded processors. By accelerating the |algo| algorithm in hardware, the machine learning systems could be trained faster, allowing for shorter design cycles, or could process larger amounts of data, which is of particular interest if the DTs are used in the data mining applications :cite:`witten2005data`. This might also allow the DT learning systems to be rebuilt in real-time, for the applications that require such rapid adaptation, such as: machine vision :cite:`prince2012computer,challa2011fundamentals,ali2010hardware,tomasi2010fine`, bioinformatics :cite:`lesk2013introduction,baldi2001bioinformatics`, web mining :cite:`liu2007web,russell2013mining`, text mining :cite:`weiss2010fundamentals,aggarwal2012mining`, etc. Hence, the |algo| algorithm was designed to be parallel in nature and thus be easily accelerated by an application specific co-processor. Furthermore, some of the world leading semiconductor chip makers have started offering the solutions which consist of a CPU integrated with an FPGA, like Xilinx with its Zynq series and Intel with its new generation Xeon chips. The hardware accelerated implementation of |algo| algorithm can be readily implemented on these devices, with the hardware for the |algo| algorithm acceleration built for the integrated FPGA.
 
 General approaches to DT induction
-----------------------------------
+..................................
 
 Finding the smallest DT consistent with the training set is NP-hard problem :cite:`murthy1994system`, hence, in general it is solved using some kind of heuristic. The DT is said to be consistent with the training set if and only if it classifies all the training set instances in the same was as given in the training set. There are two general approaches to DT induction using supervised learning: incremental (node-by-node) and full tree induction.
 
@@ -219,7 +217,7 @@ The other approach for the DT inference is the full DT induction. In this approa
 Incremental algorithms use a simpler heuristic and are computationally less demanding than the full DT inducers. However, the algorithms that optimize the DT as a whole, using complete information during the optimization process, generally lead to more compact and possibly more accurate DTs when compared with incremental approaches. Furthermore, the DTs can be induced both using only axis-parallel node tests or using oblique node tests. The advantage of using only axis-parallel tests is in reduced complexity as the task of finding the optimal axis-parallel split of the training set is polynomial in terms of |NA| and |NI|. More precisely, the optimization process needs to explore only :math:`N_A \cdot N_I` distinct possible axis-parallel splits :cite:`murthy1994system`. On the other hand, in order to find the optimal oblique split, total of :math:`2^d \cdot \binom{N_A}{N_I}` posible hyperplanes need to be considered, making it an NP-hard problem. On the other hand, the DTs induced with oblique tests offten have much smaller number of nodes than the ones with axis-parallel tests. Hence, in order to fullfill its goal of inducing smaller DTs than existing solutions, the |algo| algorithm needs to implement oblique full DT induction.
 
 Evolutionary oblique full DT induction
---------------------------------------
+......................................
 
 Since the process of finding the optimal oblique DT is a hard algorithmic problem, most of the oblique DT induction algorithms use some kind of heuristic for the optimization process, which is often some sort of evolutionary algorithm (EA). The :num:`Figure #fig-evolutionary-dt-algorithm-tree` shows the taxonomy of EAs for the DT induction as presented in :cite:`barros2012survey`.
 
@@ -230,6 +228,46 @@ Since the process of finding the optimal oblique DT is a hard algorithmic proble
     The taxonomy of evolutionary algorithms for DT induction.
 
 The evolutionary algorithms for inducing DTs by global optimization (the full DT induction) are usualy some kinds of Genetic Algorithms :cite:`papagelis2000ga,llora2004mixed,krketowski2005global`, which in turn operate on a population of candidate solutions. The typical populations used by these algorithms contain tens or even hundereds of individuals. In order to save on needed resources for the implementation, the |algo| algorithm was based on HereBoy :cite:`levi2000hereboy` evolutionary algorithm which operates on a single candidate solution, hence, the |algo| algorithm requires one or even two orders of magnitude less hardware resources for the implementation then the existing evolutionary algorithms. HereBoy is an evolutionary algorithm that combines features from Genetic Algorithms and Simulated Annealing and operates on the bitstring representation of the individual being evolved. The |algo| algorithm (as well as HereBoy algorithm) operates only on a single candidate solution and single result of its mutation, which classifies it also in the class of (1+1)-ES (Evolutionary Strategy). Furthermore, stohastic algorithm that do not use populations of candidate solutions and thus do not employ recombination, can also be classified as in the class of Stochastic Hill Climbing algorithms :cite:`brownlee2011clever`. Further benefit of basing the |algo| algorithm on HereBoy is the simplicity of mutation procedure employed by HereBoy. HereBoy utilizes the simple technic of adaptive random search for mutations, which can be implemented efficently both regarding the time needed for execution and hardware resources needed (having embedded systems as target in mind).
+
+Hardware aided decision tree induction
+--------------------------------------
+
+In order to accelerate the DT induction phase, two general approaches can be used. First approach focuses on developing new algorithmic frameworks or new software tools, and is the dominant way of meeting this requirement :cite:`bekkerman2011scaling,choudhary2011accelerating`. Second approach focuses on the hardware acceleration of machine learning algorithms, by developing new hardware architectures optimized for accelerating the selected machine learning systems.
+
+Proposed co-processor is used for the acceleration of a new DT induction algorithm, called |algo|. |algo| (Evolutionary Full Tree Induction) is an algorithm for full oblique classification DT induction using EA. In the remaining of the paper, the proposed co-processor will be called |cop| (Evolutionary Full Tree Induction co-Processor).
+
+The hardware acceleration of the machine learning algorithms receives a significant attention in the scientific community. A wide range of solutions have been suggested in the open literature for various predictive models. The authors are aware of the work that has been done on accelerating SVMs and ANNs, where hardware architectures for the acceleration of both learning and deployment phases have been proposed. The architectures for the hardware acceleration of SVM learning algorithms have been proposed in :cite:`anguita2003digital`, while the architectures for the acceleration of previously created SVMs have been proposed in :cite:`papadonikolakis2012novel,anguita2011fpga,mahmoodi2011fpga,vranjkovic2011new`. The research in the hardware acceleration of ANNs has been particularly intensive. Numerous hardware architectures for the acceleration of already learned ANNs have been proposed :cite:`savich2012scalable,vainbrand2011scalable,echanobe2014fpga`. Also, a large number of hardware architectures capable of implementing ANN learning algorithms in hardware have been proposed :cite:`misra2010artificial,omondi2006fpga,madokoro2013hardware`. However, in the field of hardware acceleration of the DTs, the majority of the papers focus on the acceleration of already created DTs :cite:`struharik2009intellectual,li2011low,saqib2015pipelined`. Hardware acceleration of DT induction phase is scarcely covered. The authors are currently aware of only two papers on the topic of hardware acceleration of the DT induction algorithms :cite:`struharik2009evolving,chrysos2013hc`. However, both of these results focus on accelerating greedy top-down DT induction approaches. In :cite:`struharik2009evolving` the incremental DT induction algorithm, where EA is used to calculate the optimal coefficient vector one node at a time, is completely accelerated in hardware. In :cite:`chrysos2013hc` a HW/SW approach was used to accelerate the computationally most demanding part of the well known CART incremental DT induction algorithm.
+
+This paper is concerned with the hardware acceleration of a novel full DT evolutionary induction algorithm, called |algo|. |algo| is an algorithm for full oblique classification DT induction using EA :cite:`efti`. As mentioned earlier, full DT induction algorithms typically build better DTs (smaller and more accurate) when compared with the incremental DT induction algorithms. However, full DT induction algorithms are more computationally demanding, requiring much more time to build a DT. This is one of the reasons why incremental DT induction algorithms are currently dominating the DT field. Developing a hardware accelerator for full DT induction algorithm should significantly decrease the DT inference time, and therefore make it more attractive. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT induction algorithm.
+
+The |algo| algorithm was chosen to be accelerated by hardware, since it does not use the population of individuals as most of EA-based DT algorithms do :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as authors are aware, this is the first full DT building algorithm that operates on a single-individual population. This makes the |algo| algorithm particularly interesting to be used in embedded applications, where memory and processing resources are tightly constrained. The |algo| algorithm proved to provide smaller DTs with similar or better classification accuracy than other well-known DT inference algorithms, both incremental and full DT :cite:`vukobratovic2015evolving`. Being that the EAs are iterative by nature and extensively perform simple computations on the data, the |algo| algorithm should benefit from the hardware acceleration, as would any other DT induction algorithm based on the EAs. This paper proposes |cop| co-processor to accelerate only the most computationally intensive part of the |algo| algorithm, leaving the remaining parts of the algorithm in software. In the paper, it is shown that the most critical part of the |algo| algorithm is the training set classification step from the fitness evaluation phase. |cop| has been designed to accelerate this step in hardware. Another advantage of this HW/SW co-design approach is that the proposed |cop| co-processor can be used with a wide variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga` to accelerate the training set classification step that is always present during the fitness evaluation phase.
+
+Induction of decision tree ensembles
+------------------------------------
+
+The ensemble classifier systems can be used to further improve the classification performance :cite:`rokach2010ensemble`. The ensemble classifier combines predictions from several individual classifiers in order to obtain a classifier that outperforms every one of them. The ensemble learning requires creation of a set of individually trained classifiers, typically DTs or ANNs, whose predictions are then combined during the process of classification of previously unseen instances. Although simple, this idea has proved to be effective, producing systems that are more accurate than a single classifier.
+
+In the process of creation of ensemble classifiers, two problems have to be solved: ensuring the diversity of ensemble members and devising a procedure for combining individual member predictions in order to amplify correct decisions and suppress the wrong ones. Some of the most popular methods for ensuring ensemble's diversity are Breiman's bagging :cite:`buhlmann2012bagging`, Shapire's boosting :cite:`buhlmann2012bagging`, AdaBoost :cite:`buhlmann2012bagging`, Wolpert's stacked generalization :cite:`ozay2008performance`, and mixture of experts :cite:`jacobs1991adaptive`. Most commonly used combination rules include : majority voting, weighted majority voting and behavior knowledge spaces :cite:`huang1993behavior`.
+
+The main advantage of ensemble classifier over single classifier systems is the higher accuracy and greater robustness of ensemble classifier systems. However, large amounts of memory are needed to store the ensemble classifier and high computing power is required to calculate the ensemble's output, when compared with the single classifier solutions, leading to much longer ensemble inference and instance classification times. This is because ensemble classifiers typically combine 30 or more individual classifiers :cite:`buhlmann2012bagging` so, if we want to get the same performance as with the single classifier system, 30+ times more memory and computing power would be required. Once more, hardware acceleration of ensemble classifier offers a way of achieving this goal.
+
+Hardware aided induction of decision tree ensembles
+---------------------------------------------------
+
+Concerning the hardware acceleration of ensemble classifier systems, according to our best knowledge, most of the proposed solutions are related to the hardware implementation of ensemble classifiers that were previously inferred in the software. Most of the proposed solutions are concerned with the hardware acceleration of homogeneous ensemble classifiers :cite:`bermak2003compact,osman2009random,van2012accelerating,hussain2012adaptive,struharik2013hardware`. As far as the authors are aware, there is only one proposed solution to the hardware implementation of heterogeneous ensemble classifiers :cite:`shi2008committee`. Please notice, that all these solutions are only capable of implementing ensemble classifiers systems that were previously inferred in software, running on some general purpose processor. Authors are aware of only one paper :cite:`struharik2009evolving`, that proposes an architecture for the hardware evolution of homogeneous ensemble classifier systems based on the DTs. This solution uses the DT inference algorithm that incrementally creates DTs that are members of the ensemble classifier system.
+
+However, in the hardware implementation the main concern is the number of required hardware resources, mainly memory, necessary to implement a DT ensemble classifier. Smaller DTs are preferred because they require less hardware resources for the implementation and lead to ensembles with the smaller hardware footprint. Therefore, algorithms for DT ensemble classifier induction that generate small, but still accurate, DTs are of great interest when the hardware implementation of DT ensemble classifiers is considered. This requirement puts the full DT induction algorithms into focus.
+
+In this paper, a co-processor called |ecop| (DT Ensemble Evolution co-Processor) is presented. It is shown how DTEEP can be used for hardware acceleration of |ealgo|, a full DT ensemble evolutionary induction algorithm based on Bootstrap Aggregation, also known as Bagging. The Bagging algorithm was chosen since it makes the induction of the individual ensemble members completely decoupled from each other, making it very well suited for the parallelization and hence hardware acceleration. The |ealgo| algorithm uses |algo| :cite:`efti` (Evolutionary Full Tree Induction) algorithm that performs the induction of the full oblique classification DTs. The |algo| algorithm was chosen as the ensemble member inducer since it provides smaller DTs with similar or better classification accuracy than the other well-known DT inference algorithms, both incremental and full DTs :cite:`efti`. However, |algo| is more computationally demanding than the incremental inducers, hence |ealgo| could merit greatly from the hardware acceleration, making it more attractive. In this paper, |ecop| co-processor is proposed to accelerate parts of the |ealgo| that are most computationally intensive, with the remaining parts of the algorithm running on the CPU. The |ecop| co-processor architecture benefits also from the fact that the |algo| algorithm evolves the DT using only one individual, in contrast to many other algorithms based on the EA that require populations :cite:`bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. The architecture can thus be simplified with hardware resources allocated only for a single individual per ensemble member. Furthermore, by using the HW/SW co-design approach, proposed |ecop| co-processor can be used to accelerate DT ensemble inducers based on the Bagging algorithm which rely on a variety of other EA-based DT induction algorithms :cite:`barros2012survey,bot2000application,krketowski2005global,llora2004mixed,papagelis2000ga`. As far as the authors are aware, this is the first paper concerned with the hardware acceleration of full DT ensemble induction algorithm based on bagging.
+
+|algo| algorithm
+================
+
+This section describes an evolutionary algorithm for oblique full DT induction using supervised learning - the |algo|. The main motivation for creating |algo| was to develop an algorithm that:
+
+- Suitability for the implementation on embedded systems, i.e. low hardware resource requirements,
+- Ease of parallelization and acceleration in hardware, and
+- Induction of smaller DTs than the existing solutions
 
 The algorithm overview
 ----------------------
@@ -445,6 +483,8 @@ Fitness evaluation
 
 The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree at which the DT is balanced, etc. Hence, in order to solve this multi-objective optimizational problem with the evolutionary approach, a fitness function needs to be defined to effectively collapse it to a single objective optimizational problem. This can be done in various ways, and here one procedure to do it is given.
 
+.. _fig-fitness-pca:
+
 .. literalinclude:: code/fitness_eval.py
     :caption: The pseudo-code of the fitness evaluation task.
 
@@ -457,6 +497,7 @@ The main task of the optimization procedure is to maximize the accuracy of the D
 .. _fig-accuracy-calc-pca:
 
 .. literalinclude:: code/accuracy_calc.py
+    :language: python3
     :caption: The pseudo-code of the accuracy calculation task.
 
 First, the class distribution is determined, by letting all instances from the training set traverse the DT, i.e. by calling the *find_dt_leaf_for_inst()* function whose pseudo-code is given in the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. This function determines the instance traversal path, and returns the leaf node in which the instance finished the traversal. The traversal starts at the root node (accessed via *dt.root*), and is performed in the manner depicted in the :num:`Figure #fig-oblique-dt-traversal`, where one possible path is given by the red line. Until a leaf is reached, the node test is performed and a decision to which child to proceed is made based on it. The function *dot_product()*, calculates the scalar product of the node test coefficient vector |w| (stored in *cur_node.w* attribute), and the attribute vector of the instance |x| (stored in *instance.x* variable), and the value returned is compared with the node test threshold |th| (stored in *cur_node.thr* attribute).
@@ -480,12 +521,20 @@ If we were to do a classification run with the current DT individual over the tr
 Oversize
 ;;;;;;;;
 
-The DT oversize is calculated as the relative difference between the number of leaves in the DT and the total number of classes (|Nc|) in the training set (obtained via the *train_set.class_cnt* attribute). In order to be able to classify correctly all training set instances, after the DT induction, the DT needs to have at least one leaf for each class occurring in the training set. Therefore, the DT starts to suffer penalties to the fitness only when the number of the DT leaves exceeds the total number of classes in the training set, given by :eq:`eq-oversize`.
+The DT oversize is calculated as the relative difference between the number of leaves in the DT and the total number of classes (|Nc|) in the training set (obtained via the *train_set.cls_cnt()* function). In order to be able to classify correctly all training set instances, after the DT induction, the DT needs to have at least one leaf for each class occurring in the training set. Therefore, the DT starts to suffer penalties to the fitness only when the number of the DT leaves exceeds the total number of classes in the training set, given by :eq:`eq-oversize`.
 
-.. math:: K_O\frac{\Nl - \Nc}{\Nc}
+.. math:: oversize = \frac{\Nl - \Nc}{\Nc}
     :label: eq-oversize
 
-DT oversize negatively influences the fitness and is calculated as the relative difference between the number of leaves in the DT (|Nl|) and the total number of classes in the training set (|Nc|). This means that once |Nl| becomes bigger than |Nc|, the DT individual starts to suffer penalties to its fitness. The threshold is set to |Nc| since DT needs to have at least one leaf for each of the training set classes in order to have a chance of classifying correctly the instances belonging to each of the training set classes.
+DT oversize negatively influences the fitness as it can be seen from the way fitness is calculated in the :num:`Algorithm #fig-fitness-pca`: *fitness = accuracy \* (1 - Ko*oversize)*. The parameter |Ko| is used to control how much influence oversize will have on overall fitness. In other words, it determines the shape of the collection of Pareto frontiers for the DT individual. Each DT individual can be represented as a point in a 2-D space induced by DT oversize and accuracy measures. A Pareto set is formed for each possible fitness value, where all elements of the set are assigned the same fitness value, even though they have different accuracy and oversize measures.
+
+.. _fig-fit-oversize:
+.. plot:: images/pareto.py
+    :width: 90%
+
+    Position of Pareto frontiers for accuracy value of 0.8, when |Nc| equals 5, for |Ko| parameter values of: 0, 0.1 and 0.2.
+
+The :num:`Figure #fig-fit-oversize` shows the position of the Pareto frontier for an example of fitness value of 0.8 and few values of the parameter |Ko|. Also, fot this example, it was taken for |Nc| to be equal 5. It can be seen that if |Ko| is chosen to be 0, the oversize does not influence the fitness which is always equal to the accuracy value. When :math:`K_o > 0`, the |algo| algorithm will be willing to trade accuracy for the DT size. As it can be seen from the figure, the DT individuals of size 2 and accuracy of 0.72 are equally fit for the algorithm as the one of size 10 and almost perfect accuracy of 1.
 
 Selection
 .........
@@ -499,7 +548,7 @@ Evolving a solution is inherently an unpredictable process. Like running a maze 
 .. _fig-escaping-local-maxima:
 
 .. figure:: images/local_maxima.png
-    :width: 100%
+    :width: 60%
     :align: center
 
     Escaping a local maxima
@@ -508,15 +557,12 @@ Evolving a solution is inherently an unpredictable process. Like running a maze 
 
 This concept is well documented in the Simulated Annealing literature. The test probability starts off with high values and reduces over time. This is referred to in the literature as the cooling schedule. The basic idea is to allow the system a lot of freedom at the beginning of the run when the system is in a high state of disorder in order to allow it to search for optimal structures. Then as structures emerge the freedom is reigned in so that the structures aren’t destroyed. Typically cooling schedules are predefined, although it has been shown that adaptive schedules produce better results.
 
-HereBoy employs an adaptive scheme to reduce the search probability. The search probability is defined by Formula 5 which closely resembles the adaptive mutation rate formula. Again, the output is the product of two terms: the maximum search probability (ρ) and a fractional
-term that reduces from 1 to 0 as the process converges (β). The maximum search probability is a user-defined parameter between 0 and 1.
-It defines the maximum chance that a poor performing mutation will be accepted. The fractional term is identical to the one in the adaptive
-mutation rate formula and performs the same function, to reduce the output from the maximum to 0 as the process converges.
+HereBoy employs an adaptive scheme to reduce the search probability. The search probability is defined by Formula 5 which closely resembles the adaptive mutation rate formula. Again, the output is the product of two terms: the maximum search probability (ρ) and a fractional term that reduces from 1 to 0 as the process converges (β). The maximum search probability is a user-defined parameter between 0 and 1. It defines the maximum chance that a poor performing mutation will be accepted. The fractional term is identical to the one in the adaptive mutation rate formula and performs the same function, to reduce the output from the maximum to 0 as the process converges.
 
 .. _fig-adaptive-search-eq:
 
 .. figure:: images/adaptive_search_eq.png
-    :width: 100%
+    :width: 60%
     :align: center
 
     The equations explaining the adaptive search
@@ -528,10 +574,17 @@ Improvements to the |algo| algorithm
 Percentage of missing classes
 .............................
 
-- **The percentage of missing classes** - calculated as the percentage of the classes for which the DT does not have a leaf, to the total number of classes in the training set.
+The percentage of missing classes is calculated as the percentage of the classes for which the DT does not have a leaf, to the total number of classes in the training set (|Nc|):
+
+.. math:: missing = \frac{\Nc - N_{DTc}}{\Nc}
+    :label: eq-missing
+
+where |NDTc| is the number of classes represented in the DT leaves. The fitness calculation is then updated so that the penalties are taken for the missing classes in the DT individual: *fitness = accuracy \* (1 - Ko*oversize) \* (1 - Km*missing)*, where the parameter |Km| is used to control how much influence the number of missing classes will have on overall fitness.
 
 Return to best
 ..............
+
+
 
 Impurity
 ........
