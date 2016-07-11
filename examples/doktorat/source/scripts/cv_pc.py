@@ -102,11 +102,11 @@ def calc_data_fitness(data, complexity_weight=0.05):
                 
     return {'fit': fit_data}            
 
-#efti_cvjs = "cv_{0}_pc_impurity.js".format(time.strftime("%Y%m%d_%H%M%S"))
-#rankjs = "cv_{0}_pc_impurity_rank.js".format(time.strftime("%Y%m%d_%H%M%S"))
+efti_cvjs = "cv_{0}_pc_impurity.js".format(time.strftime("%Y%m%d_%H%M%S"))
+rankjs = "cv_{0}_pc_impurity_rank.js".format(time.strftime("%Y%m%d_%H%M%S"))
 cv_other_dir = '/home/bvukobratovic/projects/rst/examples/doktorat/source/scripts/'
-efti_cvjs = 'cv_20160708_161726_pc_impurity.js'
-rankjs = 'cv_20160708_161726_pc_impurity_rank.js'
+#efti_cvjs = 'cv_20160708_161726_pc_impurity.js'
+#rankjs = 'cv_20160708_161726_pc_impurity_rank.js'
 
 crossvalidation(efti_cvjs)
 data = load_cv_data(cv_other_dir, efti_cvjs)
