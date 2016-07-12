@@ -260,7 +260,7 @@ latex_preamble = ur'''
 
 \renewcommand{\arraystretch}{1.2}
 \setlength{\tabcolsep}{.4em}
-\setcounter{secnumdepth}{5}
+\setcounter{secnumdepth}{4}
 \errorcontextlines 10000
 
 \let\oldsection\section

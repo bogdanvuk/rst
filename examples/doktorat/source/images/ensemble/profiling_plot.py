@@ -19,7 +19,7 @@ def to_percent(y, position):
         return s + '%'
 
 #gmon_csv_path = '/home/bvukobratovic/projects/rst/examples/paper/source/data/profiling'
-gmon_csv_path = '../data/profiling'
+gmon_csv_path = '../../data/profiling'
 
 files = sorted([ f for f in listdir(gmon_csv_path)
                 if isfile(join(gmon_csv_path,f)) and path.splitext(f)[1] == '.csv' ], key=str.lower)

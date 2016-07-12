@@ -102,7 +102,7 @@ def calc_data_fitness(data, complexity_weight=0.05):
 
 if __name__ == "__main__":
 
-   efti_app = '/home/projects/efti/Release/efti ' + ' '.join(sys.argv[1:])
+   efti_app = '/data/projects/efti/Release/efti ' + ' '.join(sys.argv[1:])
 
    efti_cvjs = "cv_{0}_pc_impurity.js".format(time.strftime("%Y%m%d_%H%M%S"))
    rankjs = "cv_{0}_pc_impurity_rank.js".format(time.strftime("%Y%m%d_%H%M%S"))
