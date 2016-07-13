@@ -29,6 +29,7 @@ fig << inst_net
 fig << text('Instance').alignx(root.c(), prev().s(0.5)).aligny(root.c() - p(0, 3), prev().s())
 fig << block('Demultiplexer', size=p(18,2)).alignx(root.c(), prev().c()).aligny(root['left']['left']['left'].s() + p(0,1), prev().n())
 fig << block('Class', opacity=0).below(fig['Demulti']).alignx(fig['Demulti'].c(), prev().c())
+fig << bus(fig['Demulti'].s(0.5), fig['Class'].n(0.5), style=('', bus_cap))
 
 demux_path = path(style=('', '>'), shorten=(0, 0.2))
 
@@ -38,4 +39,4 @@ fig << demux_path(root['left']['aright'][1] + p(-0.8, -1), Precty(fig['Demulti']
 fig << demux_path(root['right']['aright'][1] + p(-0.8, -1), Precty(fig['Demulti'].n()))
 fig << demux_path(root['right']['aleft'][1] + p(0.8, -1), Precty(fig['Demulti'].n()))
 #print(root['left']['left']['aleft'][1])
-render_fig(fig)
+#render_fig(fig)

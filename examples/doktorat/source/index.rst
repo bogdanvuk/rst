@@ -949,8 +949,22 @@ First attempt in developping a hardware implementation of this procedure might b
 .. bdp:: images/dt_class_arch_ex1.py
     :width: 60%
 
-    The |cop| co-processor structure and integration with the host CPU
+    The DT classification hardware implementation using one hardware module per DT node
 
+The instance that is to be classified is sent to each of the hardware DT nodes where the node test is evaluated. All the DT classes are made available on the inputs of the Demultiplexer (:num:`Figure #fig-dt-class-arch-ex1`). Depending on the classification result, one of the classes will be passed by the Demultiplexer to the output of the classifier. Starting from the root, the node tests' are evalulated sequentially along the classification path of the instance, and based on their results  the correct class for the output by the Demultiplexer is selected.
+
+The hardware architecture proposed in :cite:`lopez2006decision` has two major drawbacks, one regarding the amount of hardware resources needed and the other regarding the time needed to perform the classification. First, the architecture needs one hardware module per DT node, which in turn requires a significant amount of resources in order to be able to perform the dot product calculation of the node test (equation :eq:`oblique_test`). Second, the time needed to perform the classification is proportional to the depth of the DT and to the time needed to perform the node test calculation. In other words, this architecture does not scale well with the size of the DT.
+
+One possible way of decreasing the classification time using this architecture is to perform all the node tests in parallel. This is akin to what has been suggested in :cite:`bermak2003compact`, where an equivalence between decision trees and threshold networks is used to devise a hardware architecture for decision tree classification, where all of the node tests are performed in parallel. Once all of the node tests have been evaluated, their results can be combined using a boolean function in order to determine in which node the instance finished the classification, and hence to which class it should be classified into. This way, the time needed to perform the classification equals the time needed to evaluate one node test, plus the time needed to evaluate the output boolean function. Still, the issue with number of node hardware modules remains.
+
+The architecture that remedies both resource and timing problems and was adapted for the |cop| co-processor, is proposed in :cite:`struharik2009intellectual` and called *SMPL* (Single Module Per Layer). Instead of implementing each DT node in hardware separately, this architecture requires only one universal node per DT level, which implements all the DT nodes at this level. The idea behind this solution lies in the fact that a single instance never visits two nodes on the same DT level during its traversal. Furthermore, the travesal is always
+
+.. _fig-smpl-dt:
+
+.. bdp:: images/smpl_dt.py
+    :width: 100%
+
+    iter: 279512, fit: 0.927, size: 7, acc: 0.940
 
 Overview
 --------
