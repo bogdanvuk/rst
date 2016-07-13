@@ -942,7 +942,15 @@ Architectures for hardware implementation of DT accuracy calculation
 
 The accuracy of a DT is calculated by letting the DT classify the instances of a training set. The results of the DT classification are then compared with the known classification of the training set and the accuracy is calculated as a number of the correct classifications to the total number of instances in the training set. A sequential algorithm for performing this task is employed by the |algo| algorithm and is described in the :num:`Section #accuracy-calculation`.
 
-First attempt in developping a hardware implementation of this procedure might be to implement every DT node as a separate hardware module, and connect the modules in the form of the DT. The hardware architecture based on this idea is proposed in :cite:`lopez2006decision`.
+First attempt in developping a hardware implementation of this procedure might be to implement every DT node as a separate hardware module, and connect the modules in the form of the DT. The hardware architecture based on this idea is proposed in :cite:`lopez2006decision`, and shown in the :num:`Figure #fig-dt-class-arch-ex1`.
+
+.. _fig-dt-class-arch-ex1:
+
+.. bdp:: images/dt_class_arch_ex1.py
+    :width: 60%
+
+    The |cop| co-processor structure and integration with the host CPU
+
 
 Overview
 --------

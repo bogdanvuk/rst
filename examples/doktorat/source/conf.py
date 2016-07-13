@@ -23,6 +23,7 @@ import shlex
 # sys.path.append(os.path.join(CURDIR, 'extensions'))
 
 from sphinxpp import latex_mods
+sys.path.append('./source/images')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
