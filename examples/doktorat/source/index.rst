@@ -483,7 +483,7 @@ Fitness evaluation
 
 The DT can be optimized with respect to various parameters, where the DT accuracy and its size are usually the most important. However, there are many more parameters of interest, like the number of training set classes not represented in the DT, the purity of the DT leaves, the deegree at which the DT is balanced, etc. Hence, in order to solve this multi-objective optimizational problem with the evolutionary approach, a fitness function needs to be defined to effectively collapse it to a single objective optimizational problem. This can be done in various ways, and here one procedure to do it is given.
 
-.. _fig-fitness-pca:
+.. _fig-fitness-eval-pca:
 
 .. literalinclude:: code/fitness_eval.py
     :caption: The pseudo-code of the fitness evaluation task.
@@ -526,7 +526,7 @@ The DT oversize is calculated as the relative difference between the number of l
 .. math:: oversize = \frac{\Nl - \Nc}{\Nc}
     :label: eq-oversize
 
-DT oversize negatively influences the fitness as it can be seen from the way fitness is calculated in the :num:`Algorithm #fig-fitness-pca`: *fitness = accuracy \* (1 - Ko*oversize)*. The parameter |Ko| is used to control how much influence oversize will have on overall fitness. In other words, it determines the shape of the collection of Pareto frontiers for the DT individual. Each DT individual can be represented as a point in a 2-D space induced by DT oversize and accuracy measures. A Pareto set is formed for each possible fitness value, where all elements of the set are assigned the same fitness value, even though they have different accuracy and oversize measures.
+DT oversize negatively influences the fitness as it can be seen from the way fitness is calculated in the :num:`Algorithm #fig-fitness-eval-pca`: *fitness = accuracy \* (1 - Ko*oversize)*. The parameter |Ko| is used to control how much influence oversize will have on overall fitness. In other words, it determines the shape of the collection of Pareto frontiers for the DT individual. Each DT individual can be represented as a point in a 2-D space induced by DT oversize and accuracy measures. A Pareto set is formed for each possible fitness value, where all elements of the set are assigned the same fitness value, even though they have different accuracy and oversize measures.
 
 .. _fig-fit-oversize:
 .. plot:: images/pareto.py
@@ -683,6 +683,9 @@ Software implementations
 PC implementation
 .................
 
+- deljenje hits/inst_cnt nije potrebno, jer je uvek isti inst_cnt
+- deljenje sa Nc nije potrebno
+
 ARM implementation
 ..................
 
@@ -781,6 +784,8 @@ Co-processor for the DT induction - the |cop|
 =============================================
 
 In this section, the |cop| co-processor is presented...
+
+.. _profiling-results:
 
 Profiling results
 -----------------
@@ -957,19 +962,27 @@ The hardware architecture proposed in :cite:`lopez2006decision` has two major dr
 
 One possible way of decreasing the classification time using this architecture is to perform all the node tests in parallel. This is akin to what has been suggested in :cite:`bermak2003compact`, where an equivalence between decision trees and threshold networks is used to devise a hardware architecture for decision tree classification, where all of the node tests are performed in parallel. Once all of the node tests have been evaluated, their results can be combined using a boolean function in order to determine in which node the instance finished the classification, and hence to which class it should be classified into. This way, the time needed to perform the classification equals the time needed to evaluate one node test, plus the time needed to evaluate the output boolean function. Still, the issue with number of node hardware modules remains.
 
-The architecture that remedies both resource and timing problems and was adapted for the |cop| co-processor, is proposed in :cite:`struharik2009intellectual` and called *SMPL* (Single Module Per Layer). Instead of implementing each DT node in hardware separately, this architecture requires only one universal node per DT level, which implements all the DT nodes at this level. The idea behind this solution lies in the fact that a single instance never visits two nodes on the same DT level during its traversal. Furthermore, the travesal is always
+The architecture that remedies both resource and timing problems and was adapted for the |cop| co-processor, is proposed in :cite:`struharik2009intellectual` and called *SMPL* (Single Module Per Layer). Instead of implementing each DT node in hardware separately, this architecture requires only one universal node per DT level, which is associated to all the DT nodes at that level and is able to evaluate all the test assigned to these nodes. The idea behind this solution lies in the fact that a single instance never visits two nodes on the same DT level during its traversal.
 
 .. _fig-smpl-dt:
 
 .. bdp:: images/smpl_dt.py
     :width: 100%
 
-    iter: 279512, fit: 0.927, size: 7, acc: 0.940
+    The idea behind *SMPL* (Single Module Per Layer) architecture. There is one universal hardware module (Universal nodes :math:`L_1 - L_3`) per DT level that implements all the DT nodes on the level.
+
+The :num:`Figure #fig-smpl-dt` shows the structure of the *SMPL* architecture implementation for the same example DT used in :num:`Figure #fig-dt-class-arch-ex1`. The architecture implementation consists of three universal nodes :math:`L_1` through :math:`L_3`, one for each of the DT levels that contain nonleaf nodes. The instance starts its traversal of the DT by being input to the :math:`L_1` module, which implements the root DT node in every *SMPL* architecture implementation. The universal node :math:`L_1` evaluates the root node test and passes the instance along with the test results to the :math:`L_2` module, which is akin to the instance continuing its traversal to the level 2 of the DT. Based on the root node test results received from :math:`L_1`, the :math:`L_2` module knows to which root child the instance has been passed (either node ID 2 or 3), and thus the appropriate level 2 node test is evaluated. Then the universal node :math:`L_2` passes the instance and the test results to its successor and this process is continued until one of the unicersal nodes detects that the instance has arrived to a leaf node, i.e. it has been classified. Thereafter, the information about the class is passed onwards and following universal nodes perform no test evaluations on this instance. Finally, the last module of the *SMPL* architecture outputs the class of the instance.
+
+The *SMPL* is a pipelined architecture, hence the instances can be effectively classified in parallel on all universal nodes, with the small cost of an initial pipeline latency. The node test evaluation results calculated by an universal node, that are to be made available to the next universal node in pipeline, are stored in the register available between every two nodes (blocks named *reg* in the :num:`Figure #fig-smpl-dt`). That way, once the node test is evaluated for an instance and stored in the output register, the universal node is free to start processing the following instance from the dataset, while the next universal node in pipeline consumes the stored results from the register.
+
+The |cop| co-processor classification module is based on *SMPL* architecture as it requires significantly less hardware resources for the implementation then architectures :cite:`lopez2006decision` and :cite:`bermak2003compact`. In order to evalate oblique DT node tests, the addition, multiplication and comparison operations are needed. Hence, the *SMPL* architecture requires notably less adders, multipliers and comparators then architectures proposed in :cite:`lopez2006decision` and :cite:`bermak2003compact`. However, the memory resources requirements for storing the node test coefficients and leaf classes are identical between all three given architectures.
 
 Overview
 --------
 
-In this section, the |cop| co-processor is presented, that performs the task of determining the accuracy of the DT individual for the fitness evaluation task of the DT induction (more precisely it calculates the number of classification hits - the *hits* variable of the :num:`Algorithm #fig-fitness-eval-pca`), it provides the information about the leaf impurity (the variable *impurity*) and about which training set classes were not assigned to any DT leaf and which have (the variable *dt_classes*). The co-processor is connected to the host CPU via the AXI4 AMBA bus, which can be used by the software to completely control the |cop| operation:
+In this section, an overview of the |cop| co-processor is given. As it was discussed in the section :num:`Section #profiling-results`, the |cop| is designed to accelerate the most time consuming task of the evolutionary DT induction algorithms, which is the task of determining the accuracy of the DT individual, which is in turn needed for the fitness evaluation of the DT (the :num:`Algorithm #fig-fitness-eval-pca`). More precisely, the |cop| co-processor calculates the number of successfull classifications, i.e. the number of classifications hits - the *hits* variable of the :num:`Algorithm #fig-accuracy-calc-pca`.
+
+The |cop| co-processor is designed as an IP core and embedded to the SoC through the interconnect interface AXI4 AMBA bus. The ARM Advanced Microcontroller Bus Architecture (AMBA) is an open-standard, on-chip interconnect specification for the connection and management of functional blocks in system-on-a-chip (SoC) designs. Today, AMBA is widely used on a range of ASIC and SoC parts including applications processors used in modern portable mobile devices like smartphones. Via the AXI4 bus, the software running on the CPU can completely control the |cop| operation:
 
 - Download of the training set
 - Download of the DT description, including the structural organization and the coefficient values for all node tests present in the DT
@@ -990,7 +1003,6 @@ The major components of the |cop| co-processor and their connections are depicte
 - **DT Memory Array** - The array of memories used for storing the DT description, composed of sub-modules :math:`L_{1}` through :math:`L_{D^{M}}`. Each Classifier pipeline stage requires its own memory that holds the description of all nodes at the DT level it is associated with. Each DT Memory sub-module is further divided into two parts: the CM (Coefficient Memory - memory for the node test coefficients) and the SM (Structural Memory - memory for the DT structural information).
 - **Accuracy Calculator** - Based on the classification data received from the Classifier, calculates the accuracy and the impurity of the DT and keeps track of which training set classes were found as dominant for at least one DT leaf. For each instance of the training set, the Classifier supplies the ID of the leaf in which the instance finished the DT traversal. Based on this information, the Accuracy Calculator updates the distribution matrix, calculates the results, which are then forwarded to the Control Unit, ready to be read by the user.
 - **Control Unit** - Acts as a bridge between the AXI4 interface and the internal protocols. It also controls the accuracy evaluation process.
-
 
 Hardware description
 --------------------
@@ -1410,10 +1422,6 @@ Node test coefficient is mutated by switching the value of one of its bits at ra
 Topology mutations represent even larger steps in the search space and are thus employed even less often, only every few iterations. Parameter |rho| defines the probability a single node will be either removed from the DT individual or added to it. In case a new node is to be added, first one leaf node is selected at random to be replaced by the new non-leaf node. Next, the test coefficients for the new node are calculated using the *initialize()* function described above and two leaf nodes are generated as its children. This way, a new test is introduced into the DT where instances of different classes might separate, take different paths through the DT and eventually finish being classified as different, thus increasing the DT accuracy and its fitness.
 
 On the other hand, when node is to be removed, it is selected at random from all non-leaf DT nodes. The selected non-leaf node is deleted along with the whole sub-tree of nodes rooted at it. The removal of the node is done in the hope of removing an unnecessary test and making the DT smaller, since the size of the DT, besides the accuracy, influences the DT fitness as well.
-
-.. _fig-fitness-eval-pca:
-.. literalinclude:: code/fitness_eval.py
-    :caption: The pseudo-code of the fitness evaluation task.
 
 After the DT individual is mutated, its fitness is calculated using the algorithm given in the :num:`Algorithm #fig-fitness-eval-pca` as weighted sum of two values: DT accuracy and DT oversize. The input parameter *dt* is the current DT individual and *train_set* is the associated training set. DT oversize negatively influences the fitness and is calculated as the relative difference between the number of leaves in the DT (|Nl|) and the total number of classes in the training set (|Nc|). This means that once |Nl| becomes bigger than |Nc|, the DT individual starts to suffer penalties to its fitness. The threshold is set to |Nc| since DT needs to have at least one leaf for each of the training set classes in order to have a chance of classifying correctly the instances belonging to each of the training set classes. DT accuracy influences positively the fitness and is calculated by letting the DT individual classify all the training set instances and is described in more details in the next paragraphs. The fitness evaluation task performs the following:
 

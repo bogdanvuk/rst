@@ -25,19 +25,24 @@ fig << text("Level 2").alignx(startx, cur().e(0.5)).aligny(root['left'].w(0.5), 
 fig << lvl_path([startx, lvly[2]], poffx(endx-startx))
 fig << text("Level 3").alignx(startx, cur().e(0.5)).aligny(root['left']['left'].w(0.5), cur().c())
 
-fig << block('L1 Universal node').alignx(endx - 10, cur().n()).aligny(root.c(), cur().c())
-fig << block('L2 Universal node').alignx(fig['L1*'].p).aligny(root['left'].c(), cur().c())
-fig << block('L3 Universal node').alignx(fig['L1*'].p).aligny(root['left']['left'].c(), cur().c())
+fig << block('$L_1$ Universal node').alignx(endx - 10, cur().n()).aligny(root.c(), cur().c())
+fig << block('$L_2$ Universal node').alignx(fig['*L_1*'].p).aligny(root['left'].c(), cur().c())
+fig << block('$L_3$ Universal node').alignx(fig['*L_1*'].p).aligny(root['left']['left'].c(), cur().c())
 
 for i,y in enumerate(lvly):
-    fig['reg{}'.format(i+1)] = block('reg').alignx(fig['L1*'].c(), cur().c()).aligny(y, cur().c())
+    fig['reg{}'.format(i+1)] = block('reg').alignx(fig['*L_1*'].c(), cur().c()).aligny(y, cur().c())
 
 for i in range(len(lvly)):
     #print(fig['L{}*'.format(i+1)].s(0.5))
-    fig << bus(fig['L{}*'.format(i+1)].s(0.5), poffy(0.6), style=('', bus_cap))
+    fig << bus(fig['*L_{}*'.format(i+1)].s(0.5), poffy(0.6), style=('', bus_cap))
     fig << bus(fig['reg{}'.format(i+1)].s(0.5), poffy(0.6), style=('', bus_cap))
 
-fig << text('Class').below(fig['reg3'],1).alignx(fig['L1*'].c(), cur().c())
+fig << text('Class').below(fig['reg3'],1).alignx(fig['*L_1*'].c(), cur().c())
 
 fig << root
-render_fig(fig)
+
+for base in [fig['*L_1*'], root]:
+    fig << text('Instance').aligny(base.c() - p(0,3),cur().c()).alignx(base.c(), cur().c())
+    fig << bus(base.n(0.5), fig[-1].s(0.5), style=(bus_cap, ''), shorten=p(0.2, 0.1))
+
+#render_fig(fig)
