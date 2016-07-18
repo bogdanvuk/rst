@@ -26,6 +26,7 @@
 .. |ChRi| replace:: :math:`ChR_{i}`
 .. |LfRi| replace:: :math:`LfR_{i}`
 .. |smae| replace:: *SMAE*
+.. |NTE| replace:: *NTE*
 .. |SM| replace:: :math:`S_m`
 .. |NIass| replace:: :math:`N_{Iass}`
 .. |AM| replace:: :math:`A_{m}`
@@ -511,10 +512,17 @@ Next step in the accuracy calculation process (the first for loop in the :num:`A
 
 The classes of all the instances from the training set are known and accessed for each instance via the attribute *instance.cls* (within the *accuracy_calc()* function). Based on the leaf nodes' IDs, returned by the *find_dt_leaf_for_inst()* function and the instances class, the distribution matrix is updated. The :math:`d_{i,j}` element of the distribution matrix contains the number of instances of the class *j* that finished in the leaf node with the ID *i* after the DT traversal. After all the instances from the training set traverse the DT, this matrix contains the distribution of classes among the leaf nodes.
 
-The second for loop of the *accuracy_calc()* function finds the dominant class for each leaf node. The dominant class for a leaf node is the class having the largest percentage of instances finishing the traversal in that leaf node. Formally, the dominant class *k* of the leaf node with the ID *i* is:
+The second for loop of the *accuracy_calc()* function finds the dominant class for each leaf node. The dominant class for a leaf node is the class having the largest percentage of instances finishing the traversal in that leaf node. Formally, the dominant class :math:`k_i` of the leaf node with the ID *i* is:
 
-.. math:: k | (d_{i,k} = \max_{j}(d_{i,j}))
+.. math:: k_i | (d_{i,k} = \max_{j}(d_{i,j}))
     :label: dominant_class
+
+.. _fig-distribution-matrix:
+
+.. bdp:: images/distribution_matrix.py
+    :width: 80%
+
+    The distribution matrix
 
 If we were to do a classification run with the current DT individual over the training set, the maximum accuracy would be attained if all leaf nodes were assigned their corresponding dominant classe. Thus, each instance which finishes in a certain leaf node, that is of the node's dominant class, is added to the number of classification hits (the *hits* variable of the :num:`Algorithm #fig-accuracy-calc-pca`), otherwise it is qualified as a missclassification. The accuracy of the DT is hence the percentage of the instances whose classifications were declared as hits: *accuracy* = *hits* / len(*train_set*).
 
@@ -942,6 +950,8 @@ The execution times shown for the functions represent only self times, i.e. the 
 
 Hence, the |algo| algorithm has obvious computational bottleneck in the fitness evaluation task, which takes 99.0% of the computational time on average, which makes it an undoubtful candidate for the hardware acceleration. Since the DT mutation task takes insignificant amount of time to perform, it was decided to be left in software. Further advantage of leaving the mutation task in software, is the ease of changing and experimenting with this task. Many other evolutionary algorithms for optimizing the DT structure can then be implemented in software and make use of the hardware accelerated fitness evaluation task, like: Genetic Algorithms (GA), Genetic Programming (GP), Simulated Annealing (SA), etc. This fact significantly expands the potential field of use for the proposed EFTIP co-processor core.
 
+.. _classifier-arch-overview:
+
 Architectures for hardware implementation of DT accuracy calculation
 --------------------------------------------------------------------
 
@@ -998,7 +1008,7 @@ The |cop| co-processor is designed as an IP core and embedded to the SoC through
 
 The major components of the |cop| co-processor and their connections are depicted in the :num:`Figure #fig-system-bd`:
 
-- **Classifier** - Performs the DT traversal for each training set instance, i.e. implements the *find_dt_leaf_for_inst()* function from the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined using a number of Node Test Evaluator modules (NTEs), with each NTE performing the DT node test calculations for one DT level. The parameter |DM| is the number of pipeline stages and thus the maximum supported depth of the induced DT. For each instance in the training set, the Classifier outputs the ID assigned to the leaf in which the instance finished the traversal (please refer to the *fitness_eval()* function from the :num:`Algorithm #fig-fitness-eval-pca`).
+- **Classifier** - Performs the DT traversal for each training set instance, i.e. implements the *find_dt_leaf_for_inst()* function from the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The classification process is pipelined using a number of Node Test Evaluator modules (*NTEs*), with each NTE performing the DT node test calculations for one DT level. The parameter |DM| is the number of pipeline stages and thus the maximum supported depth of the induced DT. For each instance in the training set, the Classifier outputs the ID assigned to the leaf in which the instance finished the traversal (please refer to the *fitness_eval()* function from the :num:`Algorithm #fig-fitness-eval-pca`).
 - **Training Set Memory** - The memory for storing all training set instances that should be processed by the |cop| co-processor.
 - **DT Memory Array** - The array of memories used for storing the DT description, composed of sub-modules :math:`L_{1}` through :math:`L_{D^{M}}`. Each Classifier pipeline stage requires its own memory that holds the description of all nodes at the DT level it is associated with. Each DT Memory sub-module is further divided into two parts: the CM (Coefficient Memory - memory for the node test coefficients) and the SM (Structural Memory - memory for the DT structural information).
 - **Accuracy Calculator** - Based on the classification data received from the Classifier, calculates the accuracy and the impurity of the DT and keeps track of which training set classes were found as dominant for at least one DT leaf. For each instance of the training set, the Classifier supplies the ID of the leaf in which the instance finished the DT traversal. Based on this information, the Accuracy Calculator updates the distribution matrix, calculates the results, which are then forwarded to the Control Unit, ready to be read by the user.
@@ -1010,15 +1020,15 @@ Hardware description
 Classifier
 ..........
 
-The classifier module performs the classification of an arbitrary set of instances on an arbitrary binary oblique DT. The Classifier was implemented by modifying the design described in :cite:`struharik2009intellectual`. The original architecture from :cite:`struharik2009intellectual` was designed to perform the classification using already induced DTs, hence it was adapted so that it could be used with the |algo| algorithm for the DT induction as well, and is shown in the :num:`Figure #fig-dt-classifier-bd`.
+The classifier module performs the classification of an arbitrary set of instances on an arbitrary binary oblique DT. As it was already discussed in the :num:`Section #classifier-arch-overview`, the Classifier module was implemented by modifying the *SMPL* architecture described in :cite:`struharik2009intellectual`. The original architecture from :cite:`struharik2009intellectual` was designed to perform the classification using already induced DTs, hence it was adapted so that it could be used with the |algo| algorithm for the DT induction as well. The :num:`Figure #fig-dt-classifier-bd` shows the Classifier module as being composed from |NTE| modules connected to form an array. The |NTE| modules correspond to the universal nodes of the *SMPL* architecture.
 
 .. _fig-dt-classifier-bd:
 
-.. figure:: images/classifier.pdf
+.. bdp:: images/classifier.py
 
-    The Classifier architecture.
+    The architecture of the Classifier module consisting of the |NTE| modules connected in an array.
 
-The Classifier performs the DT traversal for each instance, i.e. implements the *find_dt_leaf_for_inst()* function from the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The traversal of an instance starts at the root node of the DT and continues until a leaf is reached. Please notice that during each traversal, only one node per DT level is visited, so there is only one node test performed per DT level at any time. Hence, this process is suitable for pipelining, with one stage per DT level. The Classifier module therefore consists of a chain of NTEs whose number, |DM|, determines the maximum depth of the DT that can be induced by the current hardware instance of the |cop| co-processor. The |DM| value can be specified by the user during the design phase of the |cop| co-processor.
+The Classifier performs the DT traversal for each instance, i.e. implements the *find_dt_leaf_for_inst()* function from the :num:`Algorithm #fig-find-dt-leaf-for-inst-pca`. The traversal of an instance starts at the root node of the DT and continues until a leaf is reached. Please notice that during each traversal, only one node per DT level is visited, so there is only one node test performed per DT level at any time. Hence, this process is suitable for pipelining, with one stage per DT level. The Classifier module therefore consists of a chain of *NTEs* whose number, |DM|, determines the maximum depth of the DT that can be induced by the current hardware instance of the |cop| co-processor. The |DM| value can be specified by the user during the design phase of the |cop| co-processor.
 
 Each NTE can perform the node test calculation for any DT node of the corresponding DT level. The :math:`NTE_1` always processes the root DT node, however, which nodes are processed by other stages, depends on the path of the traversal for each individual instance. Every stage has one sub-module of the DT Memory Array associated to it, that holds the descriptions of all the nodes at that DT level.
 

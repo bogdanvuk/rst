@@ -1,25 +1,29 @@
-from bdp.node import *
+from bdp import *
+
+bus_cap = cap(length=0.8, width=1.3, inset=0, type='Stealth')
+bus_cap_small = bus_cap(length=0.4, width=0.6)
+bus = path(style=(bus_cap, bus_cap), line_width=0.7, double=True, border_width=0.1)
+bus_small = bus(style=(bus_cap_small, bus_cap_small), line_width=0.3, border_width=0.06)
+bus_text = text(font="\\scriptsize", margin=p(0,0.5))
 
 def make_nte(name, pos):
     nte = block(size=p(10,14), p=pos)
-    pin_text = text(font='small', margin=(0.2, 0), text_align='left')
-    pin_text(r"Instance \\ Input").align(nte.w(2), prev().w(0.5))()
-#     pin_text(r"Leaf ID \\ Input").align(nte.w(5), prev().w(0.5))()
-    pin_text(r"Node ID \\ Input").align(nte.w(5), prev().w(0.5))()
-    
-    pin_text(r"Instance \\ Output").align(nte.e(2), prev().e(0.5))()
-#     pin_text(r"Leaf ID \\ Output").align(nte.e(5), prev().e(0.5))()
-    pin_text(r"Node ID \\ Output").align(nte.e(5), prev().e(0.5))()
-    
-    pin_text(r"CM addr").align(nte.w(8), prev().w(0.5))()
-    pin_text(r"CM data").align(nte.w(9), prev().w(0.5))()
+    pin_text = block(text_font='\\footnotesize', text_margin=p(0.2, 0), alignment='cw', border=False)
+    fig << pin_text(r"Instance \\ Input").align(nte.w(2), prev().w(0.5))
+    fig << pin_text(r"Node ID \\ Input").align(nte.w(5), prev().w(0.5))
 
-    pin_text(r"SM addr").align(nte.w(11), prev().w(0.5))()
-    pin_text(r"SM data").align(nte.w(12), prev().w(0.5))()
-    
-    nte()
-    text("NTE" + name).align(nte.n(0), prev().s(0))()
-    
+    fig << pin_text(r"Instance \\ Output").align(nte.e(2), prev().e(0.5))
+    fig << pin_text(r"Node ID \\ Output").align(nte.e(5), prev().e(0.5))
+
+    fig << pin_text(r"CM addr").align(nte.w(8), prev().w(0.5))
+    fig << pin_text(r"CM data").align(nte.w(9), prev().w(0.5))
+
+    fig << pin_text(r"SM addr").align(nte.w(11), prev().w(0.5))
+    fig << pin_text(r"SM data").align(nte.w(12), prev().w(0.5))
+
+    fig << nte
+    fig << text("NTE" + name).align(nte.n(0), prev().s(0))
+
     return nte
 
 nte = []
@@ -27,63 +31,35 @@ nte.append(make_nte('$_{1}$', p(0, 0)))
 nte.append(make_nte('$_{2}$', p(15, 0)))
 nte.append(make_nte('$_{D^{M}}$', p(37, 0)))
 
-bus = path(double=True, thick=False)
-bus_text = text(font="tiny", margin=p(0,0))
+# bus = path(double=True, thick=False)
+# bus_text = text(font="tiny", margin=p(0,0))
 
-bus([nte[0].e(2), nte[1].w(2)], style='->')()
-path([nte[0].e(5), nte[1].w(5)], style='->')()
-# path([nte[0].e(8), nte[1].w(8)], style='->')()
+fig << bus(nte[0].e(2), nte[1].w(2), style=('', bus_cap))
+fig << bus(nte[0].e(5), nte[1].w(5), style=('', bus_cap))
 
-bus([nte[1].e(2), nte[1].e(2) + (3,0)], style='->')()
-path([nte[1].e(5), nte[1].e(5) + (3,0)], style='->')()
-# path([nte[1].e(8), nte[1].e(8) + (3,0)], style='->')()
+fig << bus(nte[1].e(2), nte[1].e(2) + (3,0), style=('', bus_cap))
+fig << bus(nte[1].e(5), nte[1].e(5) + (3,0), style=('', bus_cap))
 
-bus([nte[2].w(2) - (3,0), nte[2].w(2)], style='->')()
-path([nte[2].w(5) - (3,0), nte[2].w(5)], style='->')()
-path([nte[2].w(8) - (3,0), nte[2].w(8)], style='->')()
+fig << bus(nte[2].w(2) - (3,0), nte[2].w(2), style=('', bus_cap))
+fig << bus(nte[2].w(5) - (3,0), nte[2].w(5), style=('', bus_cap))
 
-text("$\cdot\cdot\cdot$", font="huge").align(mid(nte[1].c(), nte[2].c()), prev().c())()
+fig << text("$\cdot\cdot\cdot$", font="\\huge").align(mid(nte[1].c(), nte[2].c()), prev().c())
 
-bus([nte[0].w(2) - (6, 0), nte[0].w(2)], style='->')()
-path([nte[0].w(5) - (2, 0), nte[0].w(5)], style='->')()
-text("0").align(prev(1)[0], prev().e(0.5))()
-path([nte[0].w(8) - (2, 0), nte[0].w(8)], style='->')()
-text("0").align(prev(1)[0], prev().e(0.5))()
+fig << bus(nte[0].w(2) - (6, 0), nte[0].w(2), style=('', bus_cap))
+fig << bus(nte[0].w(5) - (2, 0), nte[0].w(5), style=('', bus_cap))
+fig << text("0").align(fig[-1][0], prev().e(0.5))
+#fig << path([nte[0].w(8) - (2, 0), nte[0].w(8), style='->')
+# text("0").align(prev(1)[0], prev().e(0.5))()
 
 for i in range(3):
-    bus([nte[i].w(8) + (-4, 9), nte[i].w(8)], def_routing='|-', style='->')()
-    bus([nte[i].w(9) + (-3, 8), nte[i].w(9)], def_routing='|-', style='<-')()
-    bus([nte[i].w(11) + (-2, 6), nte[i].w(11)], def_routing='|-', style='->')()
-    bus([nte[i].w(12) + (-1, 5), nte[i].w(12)], def_routing='|-', style='<-')()
+    fig << bus_small(nte[i].w(8) + (-4, 9), nte[i].w(8), routedef='|-', style=('', bus_cap_small))
+    fig << bus_small(nte[i].w(9) + (-3, 8), nte[i].w(9), routedef='|-', style=(bus_cap_small, ''))
+    fig << bus_small(nte[i].w(11) + (-2, 6), nte[i].w(11), routedef='|-', style=('', bus_cap_small))
+    fig << bus_small(nte[i].w(12) + (-1, 5), nte[i].w(12), routedef='|-', style=(bus_cap_small, ''))
 
-bus([nte[2].e(2), nte[2].e(2) + (3, 0)], style='->')()
-path([nte[2].e(5), nte[2].e(5) + (3, 0)], style='->')()
-# path([nte[2].e(8), nte[2].e(8) + (1, 0)])()
-text("x", margin=(0,0)).align(prev(1)[1] - (0.5, 0), prev().w(0.5))()
+fig << bus(nte[2].e(2), nte[2].e(2) + (3, 0), style=('', bus_cap))
+fig << bus(nte[2].e(5), nte[2].e(5) + (3, 0), style=('', bus_cap))
 
-block("Classifier", nte[2].s(1.0) - nte[0].n() + (7,6), text_align="nw", text_font='Large', dotted=True, margin=(1, 0.4)).align(nte[0].n() - (5, 4), prev().n())()
+fig << block("Classifier", nte[2].s(1.0) - nte[0].n() + (7,6), alignment="nw", text_font='\\Large', dotted=True, text_margin=(1, 0.4)).align(nte[0].n() - (5, 4), prev().n())
 
-
-# block.size = p(8, 4)
-# block.node_sep = (4,2)
-#  
-# qu_l0 = block("Instance queue $L_{0}$")()
-# eval_l0 = block("Node test evaluation $L_{0}$").below(qu_l0)()
-#  
-# qu_l1 = block("Instance queue $L_{1}$").right(qu_l0)()
-# eval_l1 = block("Node test evaluation $L_{1}$").right(eval_l0)()
-#  
-# qu_lD = block("Instance queue $L_{D}$").right(qu_l1, 2)()
-# eval_lD = block("Node test evaluation $L_{D}$").right(eval_l1, 2)()
-#  
-# text("$\cdot\cdot\cdot$", font="huge").align(mid(qu_l1.c(), qu_lD.c()), prev().c())()
-# text("$\cdot\cdot\cdot$", font="huge").align(mid(eval_l1.c(), eval_lD.c()), prev().c())()
-# 
-# bus = path(double=True)
-# wire = path(ultra_thick=True)
-# bus_text = text(font="scriptsize")
-# 
-# wire([qu_l0.w(1) - (3,0), qu_l0.w(1)])()
-# bus_text("Instance attributes \\\\ vector $\mathbf{A}$", text_align='right').align(prev(1)[0], prev().e(0.5))()
-# wire([qu_l0.w(3) - (3,0), qu_l0.w(3)])()
-# bus_text("Instance class \\\\ $C$", text_align='right').align(prev(1)[0], prev().e(0.5))()
+#render_fig(fig)
