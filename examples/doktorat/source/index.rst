@@ -1073,7 +1073,7 @@ The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architectu
 
 .. _fig-dt-test-eval-bd:
 
-.. figure:: images/evaluator.pdf
+.. bdp:: images/nte.py
 
     The NTE (Node Test Evaluator) block architecture
 
