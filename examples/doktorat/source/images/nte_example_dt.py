@@ -17,7 +17,7 @@ def coef2hex(val):
 def draw_coeffs(node, bdp_node, pos='right'):
     if node['c']:
         w = [coef2hex(w*32768) for w in node['w']]
-        w.append(coef2hex(node['thr']*32768/(1 << 6)))
+        w.append(coef2hex(node['thr']*32768/(1 << 1)))
         t = r"$w = [{}, {}], \theta={}$".format(*w)
         print(t)
         fig << getattr(text(t), pos)(bdp_node)

@@ -258,6 +258,7 @@ latex_preamble = ur'''
 \newcommand{\DM}{D^{M}}
 \newcommand{\NAM}{N^{M}_{A}}
 \newcommand{\NIM}{N^{M}_{I}}
+\newcommand{\NPADD}{\left\lceil ld(\NAM) \right\rceil}
 
 \renewcommand{\arraystretch}{1.2}
 \setlength{\tabcolsep}{.4em}

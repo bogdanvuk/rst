@@ -46,6 +46,7 @@
 .. |NDTc| replace:: :math:`N_{DTc}`
 .. |SM| replace:: *SM*
 .. |CM| replace:: *CM*
+.. |NPADD| replace:: :math:`\NPADD`
 
 .. role:: raw(raw)
    :format: latex
@@ -64,9 +65,9 @@ This dissertation presents new algorithms for the inudction of oblique binary de
 
 Because of ever increasing penetration of the machine learning systems into the embedded world, and even greater potential for that in the future, the presented induction algorithms have been tailored for implementation by the embedded systems in that they use less resources for the operation than existing solutions. One way of reducing the resource consumption is to induce and thus operate on smaller decision trees. Smaller decision trees also represent a more succint solution to the problem, which is always prefered in science (Occam's razor). Hence, the main motivation for this dissertation was to develop the decision tree induction algorithms that:
 
-#. induce smaller DTs than the existing solutions without the loss of accuracy,
-#. can be effitiently used in embedded applications, and
-#. are easily parallelizable and hence accelerated in hardware
+1. induce smaller DTs than the existing solutions without the loss of accuracy,
+2. can be effitiently used in embedded applications, and
+3. are easily parallelizable and hence accelerated in hardware
 
 For big datasets, which are common in practice, the presented decision tree induction algorithms are very time consuming. Hence, the hardware accelerators for |algo| and |ealgo| algorithms are also proposed, named |cop| and |ecop| co-processors, that significantly reduce their times of execution. Furthermore, the implementations of the proposed induction algorithms that utilize these hardware accelerators are also described.
 
@@ -1087,23 +1088,25 @@ On the other hand, when the value received at the *Node ID Input* of an |NTE| co
 
 The main parameter that needs to be specified by the user during the design phase of the |cop| is the maximum supported number of attributes per instance - |NAM|, i.e. the maximum supported sizes of the vectors |w| and |x|. This parameter affects the size and latency of the |NTE| module as it will be explained in the text that follows.
 
-The |NTE| module's main task is the dot product calculation of the vectors |w| and |x|. By using only two input multipliers and adders, this computation is parallelized and pipelined as much as possible as discussed in the :num:`Section #the-dot-product-parallelism`. The multiplications are all performed in parallel, for all |NAM| coefficient and attribute pairs. Since, usually, two input adders are used in hardware design, and the |NAM|-ary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil ld(\NAM)  \right \rceil` deep. In order to acheive higher operating frequency of the implemented |cop| co-processor, the dot product calculation datapath is broken in stages, with one stage per calculation step, that comprises multiplications or additions that can be performed in parallel. Hence, the outputs of each of the adders and multipliers are registered to form the pipeline. The value of the sum output by each adder is 1 bit larger than the value of its operands, hence the registers increase in size by 1 bit per pipeline stage. After the final addition, the value of the sum is truncated to the width of |RA| bits, i.e. to the size of the value of the threshold |th|. The total number of pipeline stages needed (|NP|), equals the depth of the adder tree, plus the multiplication stage and one additional stage at the beginning needed for the fetching of vector |w| from the DT Memory:
+The |NTE| module's main task is the dot product calculation of the vectors |w| and |x|. By using only two input multipliers and adders, this computation is parallelized and pipelined as much as possible as discussed in the :num:`Section #the-dot-product-parallelism`. The multiplications are all performed in parallel, for all |NAM| coefficient and attribute pairs. Since, usually, two input adders are used in hardware design, and the |NAM|-ary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil ld(\NAM)  \right \rceil` deep. In order to acheive higher operating frequency of the implemented |cop| co-processor, the dot product calculation datapath is broken in stages, with one stage per calculation step, that comprises multiplications or additions that can be performed in parallel. Hence, the outputs of each of the adders and multipliers are registered to form the pipeline.
 
-.. math:: N_{P}=\left \lceil ld(\NAM) + 2 \right \rceil
+One more important parameter, besides |NAM|, that needs to be specified by the user during the design phase of the |cop| is |RA| - the number of bits used for the signed fixed point representation of the elements of the vectors |w| and |x| in the |cop| co-processor. Hence, the elements of |w| and |x| are considered to be in Q0.(:math:`R_A-1`) format. For an example, if 16 bits are used for the representation of the vector elements, they are considered to be in Q0.15 format. After the multiplication stage, the products will thus be in Q0.(:math:`2R_A-2`) signed fixed point format. The value of the sum output by each adder is 1 bit larger than the value of its operands, hence the registers increase in size by 1 integer bit per pipeline stage. After the final addition the sum representation will have reached the size of: :math:`2R_A-1+\NPADD` bits in Q(|NPADD|).(:math:`2R_A-2`) format. Finally, the value of the finall sum is truncated to the width of |RA| bits in format Q(|NPADD|).(:math:`R_A-1-\NPADD`), which are hence the representation size and format of the node test threshold |th|.
+
+The |NTE| architecture displayed in the :num:`Figure #fig-dt-test-eval-bd` is partitioned in |NP| pipeline stages by the vertical dotted lines and each part is labeled by the stage ID: Stage 1, Stage 2, ... Stage |NP|. The total number of pipeline stages needed (|NP|), equals the depth of the adder tree, plus the multiplication stage and the decision stage in the end where node test results are intepreted:
+
+.. math:: N_{P}=\NPADD + 2
 	:label: np
-
-The |NTE| architecture displayed in the :num:`Figure #fig-dt-test-eval-bd` is partitioned in the pipeline stages by the vertical dotted lines and each part is labeled by the stage ID: Stage 1, Stage 2, ... Stage :math:`N_p`.
 
 The |NTE| module also supports the datasets with less than |NAM| number of instance attributes, :math:`\NA < \NAM`. In this case, the surpluss coefficients :math:`w_{\NA+1}, w_{\NA+2}, ... w_{\NAM}` should be all set to zero, in order not to affect the calculation of the sum.
 
 The Instance Queue and the Node Queue delay lines are necessary due to the pipelining. Each |NTE| performs calculations only for a single DT level, hence once the calculations is finished the instance needs to be transferred to the next |NTE| module in the Classifier chain. This transfer needs to correlate in time with the output of the node test evaluation results via the *Node ID output* port. Hence, the Instance Queue has to have the length equal to |NP|, since it needs to delay the output of the instance to the next |NTE| module for |NP| clock cycles.
 
-The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_p-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
+The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_P-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
 
 |NTE| operation example
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-Once again, lets use the example decision tree whose induction by the |algo| algorithm was discussed in :num:`Section #the-algorithm-overview` and shown in :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot`. The
+Once again, lets use the example DT whose induction by the |algo| algorithm was discussed in :num:`Section #the-algorithm-overview` and shown in :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot`. Since the training set used to induce the example DT (shown in the :num:`Figure #fig-efti-overview`) is described by two attributes, :math:`N_A=2`, the minimum value that can be chosen for |NAM| is :math:`\NAM=N_A=2`. For the sake of simplicity, in this example, |NAM| will be set to this minimum value of 2. The value of |RA| can be chosen freely, and here it will be set to 16. Based on these two parameters, the others can be calculated: |NPADD| = 1, |NP| = 3, |w| and |x| elements format is Q0.15, and |th| format is Q1.14.
 
 .. _fig-nte-example-dt:
 
@@ -1227,7 +1230,7 @@ The |cop| co-processor is implemented as an IP core with many customization para
         DT Memory Array sub-module width, :raw:`\newline`
         NTE adder tree size.
       - The maximum number of attributes training set can have
-    * - :math:`R_A`
+    * - |RA|
       - Determines: Training Set Memory width, :raw:`\newline`
         DT Memory Array sub-module width, :raw:`\newline`
         NTE adder tree size.
