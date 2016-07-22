@@ -1052,6 +1052,9 @@ For each instance, received at the Classifier input, the first NTE block process
 
 All subsequent stages operate in a similar manner, except that in addition, they also receive the calculation results from their predecessor stage. Somewhere along the NTE chain, all instances will have finished into some leaf. This information is output from the Classifier module via the *Node ID Output* port of the last |NTE| in the chain to the Accuracy Calculator module (together with the corresponding instance description via the *Instance Output* port) in order to update the distribution matrix and calculate the final number of classification hits.
 
+The dot product parallelism
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 To evaluate a DT node test, each |NTE| needs to evaluate the dot product between node test coefficient vector |w| and instance attribute vector |x|, which is at the same time by far the most complex operation of the |NTE| module. By extracting the parallelism from the dot product operation, additional speedup could be gained. The :num:`Figure #fig-node-test-parallelism` shows which parts of the dot product calculation can be performed in parallel on an example where :math:`N_A=7`. If we are only allowed to perform binary addition (which is usually the case when the addition is performed by hardware), the calculation could be performed in 4 steps, with all the operations that could be executed in parallel in each step circled with dashed line. In Step 1 all the multiplications could be performed in parallel, while in later steps the |NA|-ary addition is broken down into the sequence of binary addition operations, where some of them could be executed in parallel in each of the remaining steps to obtain the final dot product result value.
 
 .. _fig-node-test-parallelism:
@@ -1064,12 +1067,17 @@ To evaluate a DT node test, each |NTE| needs to evaluate the dot product between
 To take advantage of this parallelism of the dot product calculation, the |NTE| module could be again pipelined internally for the maximal throughput. Each of the steps (:num:`Figure #fig-node-test-parallelism`) of the dot product calculation could be mapped into one internal pipeline stage. The number of stages needed for the dot product pipeline equals 1 for the multiplication step, plus
 :math:`\left \lceil ld(\NA)  \right \rceil` for |NA|-ary addition to be performed via binary addition operations. Finally, there is no additional overhead that could come from the need of pipeline flushing, since for this application of the DT accuracy calculation, the instances enter the pipeline in predefined order, one by one, until whole dataset is classified.
 
-The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the NTE module. If the value received at the *Node ID Input* contains a non-leaf node ID, the following is performed:
+Node Test Evaluator - NTE
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-1. the node coefficients |w| are fetched from the CM part of the DT Memory Array sub-module, by using the value received from the *Node ID Input* port to calculate the address and pass it via the *CM addr* port,
-2. the node test calculation is performed according to the equation :eq:`oblique-test`, and
-3. the information about the node's children is retrieved from the SM part of the DT Memory Array sub-module, by using the *Node ID* value,
-4. the decision on where to proceed with the DT traversal is made, and the result is output to the next NTE via the *Node ID Output* port, along with the training set instance.
+The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the |NTE| module. When the value received at the *Node ID Input* of an |NTE| contains a non-leaf node ID, it selects the node whose test is to be evaluated, among all the nodes at the DT level associated with the |NTE| module, for the current dataset instance received at the same time with the node ID. Thus, the following is performed:
+
+1. the test coefficients vector |w| of the selected node is fetched from the CM part of the DT Memory Array sub-module via the *Coefficient Memory Interface*. The selected node's ID is used to calculate the address of the node's coefficient vector in the CM memory, which is communicated via the *CM addr* port,
+2. the node test calculation is performed according to the equation :eq:`oblique-test` on the vector |w| and the attribute vector |x| of the current instance,
+3. the current node's test threshold (|th|) and the information about the current node's children is retrieved from the SM part of the DT Memory Array sub-module, again using the current node ID to calculate the address where this information is stored in the SM memory,
+4. the decision on where to proceed with the DT traversal is made, and the result is output to the next NTE via the *Node ID Output* port, along with the current dataset instance.
+
+On the other hand, when the value received at the *Node ID Input* of an |NTE| contains a leaf node ID, this signals the |NTE| that the corresponding instance has already been classified, hence the dot product calculation is not performed (more precisely, in order to simplify the design it is still performed, but the results are discarded). The received node ID value is simply output verbatim via the "Node ID Output" port along with the corresponding dataset instance.
 
 .. _fig-dt-test-eval-bd:
 
@@ -1077,20 +1085,32 @@ The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architectu
 
     The NTE (Node Test Evaluator) block architecture
 
-The NTE module's main task is the calculation of the sum of products given by the equation :eq:`oblique-test`. The maximum supported number of attributes per instance - |NAM|, is the value which can be specified by the user, during the design phase of the |cop|. If the instances have less than |NAM| number of attributes, the surplus attributes should be set to zero, in order not to affect the calculation of the sum.
+The main parameter that needs to be specified by the user during the design phase of the |cop| is the maximum supported number of attributes per instance - |NAM|, i.e. the maximum supported sizes of the vectors |w| and |x|. This parameter affects the size and latency of the |NTE| module as it will be explained in the text that follows.
 
-By using only two input multipliers and adders, this computation is parallelized and pipelined as much as possible. The multiplications are performed in parallel, for all |NAM| coefficient and attribute pairs. Since, usually, two input adders are used in hardware design, and the |NAM|-ary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil ld(\NAM)  \right \rceil` deep. The output of each of the adders is registered to form the pipeline. The value of the sum output by each adder is 1 bit larger than the value of its operands, hence the registers increase in size, by 1 bit per pipeline stage. After the final addition, the value of the sum is truncated to the width of |RA| bits, i.e. to the size of the threshold value. The total number of pipeline stages needed (|NP|), equals to the depth of the adder tree, plus a DT Memory fetch and the multiplication stage:
+The |NTE| module's main task is the dot product calculation of the vectors |w| and |x|. By using only two input multipliers and adders, this computation is parallelized and pipelined as much as possible as discussed in the :num:`Section #the-dot-product-parallelism`. The multiplications are all performed in parallel, for all |NAM| coefficient and attribute pairs. Since, usually, two input adders are used in hardware design, and the |NAM|-ary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil ld(\NAM)  \right \rceil` deep. In order to acheive higher operating frequency of the implemented |cop| co-processor, the dot product calculation datapath is broken in stages, with one stage per calculation step, that comprises multiplications or additions that can be performed in parallel. Hence, the outputs of each of the adders and multipliers are registered to form the pipeline. The value of the sum output by each adder is 1 bit larger than the value of its operands, hence the registers increase in size by 1 bit per pipeline stage. After the final addition, the value of the sum is truncated to the width of |RA| bits, i.e. to the size of the value of the threshold |th|. The total number of pipeline stages needed (|NP|), equals the depth of the adder tree, plus the multiplication stage and one additional stage at the beginning needed for the fetching of vector |w| from the DT Memory:
 
-.. math:: N_{P}=\left \lceil log_{2}(\NAM) + 2 \right \rceil
+.. math:: N_{P}=\left \lceil ld(\NAM) + 2 \right \rceil
 	:label: np
 
-The Instance Queue and the Node Queue delay lines are necessary due to the pipelining. The instance Queue delays the output of the instance to the next NTE module until all calculations of the current NTE module are finished.
+The |NTE| architecture displayed in the :num:`Figure #fig-dt-test-eval-bd` is partitioned in the pipeline stages by the vertical dotted lines and each part is labeled by the stage ID: Stage 1, Stage 2, ... Stage :math:`N_p`.
 
-The Node Queue is necessary for preserving the *Node ID* value (which is the value received from the *Node ID Input* port). This value will be used to calculate the address of the node's structural description, stored in the SM part of the DT Memory Array sub-module, that will be passed via the *SM addr* port. For each node, three values are stored in the SM memory: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - *thr*. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made.
+The |NTE| module also supports the datasets with less than |NAM| number of instance attributes, :math:`\NA < \NAM`. In this case, the surpluss coefficients :math:`w_{\NA+1}, w_{\NA+2}, ... w_{\NAM}` should be all set to zero, in order not to affect the calculation of the sum.
 
-At the last pipeline stage, the result of the calculation is compared with the node test threshold, to determine if the traversal will continue to the left or to the right child, whose ID will be output to the *Node ID Output* port.
+The Instance Queue and the Node Queue delay lines are necessary due to the pipelining. Each |NTE| performs calculations only for a single DT level, hence once the calculations is finished the instance needs to be transferred to the next |NTE| module in the Classifier chain. This transfer needs to correlate in time with the output of the node test evaluation results via the *Node ID output* port. Hence, the Instance Queue has to have the length equal to |NP|, since it needs to delay the output of the instance to the next |NTE| module for |NP| clock cycles.
 
-However, if the value received at the *Node ID Input* port contains a leaf node ID, this value will simply be passed forward to the *Node ID Output* port, disregarding the result of the node test calculation. Since leaf ID's MSB value is always 1 and non-leaf node ID's MSB value is always 0, this information can be used to select the correct value to be passed to the *Node ID Output* port, using the MUX2 multiplexer from the :num:`Figure #fig-dt-test-eval-bd`.
+The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_p-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
+
+|NTE| operation example
+;;;;;;;;;;;;;;;;;;;;;;;
+
+Once again, lets use the example decision tree whose induction by the |algo| algorithm was discussed in :num:`Section #the-algorithm-overview` and shown in :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot`. The
+
+.. _fig-nte-example-dt:
+
+.. bdp:: images/nte_example_dt.py
+    :width: 100%
+
+    Caption
 
 Training Set Memory
 ...................

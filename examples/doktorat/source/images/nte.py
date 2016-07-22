@@ -12,7 +12,7 @@ bus_cap = cap(length=0.4, width=0.6, inset=0, type='Stealth')
 bus = path(color="black!40", style=('', bus_cap), line_width=0.3, border_width=0.06, double=True)
 bus_text = text(font="\\footnotesize", margin=p(0.4,0.2))
 
-nte = block("NTE", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(4,3), p(3,1)])
+nte = block("Node Test Evaluator - NTE", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(4,6), p(3,1)])
 
 def make_external(pos, direction='o'):
     if direction == 'o':
@@ -134,15 +134,12 @@ for i,t in enumerate(node_fifo_text):
 
 nte += node_fifo
 
-for n, i in list(zip(node_fifo, inst_fifo)):
-    fig << path(inst_fifo[i].s(), node_fifo[n].n(), dotted=True)
-
 struct_mem_intf = block(r"Structural Memory Interface", size=p(6,6)).align(struct_mem_reg.c() - (4,0), prev().e(0.5))
 nte += struct_mem_intf
 fig << bus(node_fifo[-2].n(0.5), node_fifo[-2].n(0.5) - (0,1), struct_mem_intf.s(0.5), routedef='-|')
 fig << bus_text("Node ID", margin=(1, 0.5)).align(fig[-1][2], prev().s())
 fig << bus(struct_mem_intf.e(1), struct_mem_reg.w(1))
-fig << bus_text("$thr$").align(fig[-1][0], prev().s())
+fig << bus_text(r"$\theta$").align(fig[-1][0], prev().s())
 fig << bus(struct_mem_intf.e(3), struct_mem_reg.w(3))
 fig << bus_text(r"$ChL$").align(fig[-1][0], prev().s())
 fig << bus(struct_mem_intf.e(5), struct_mem_reg.w(5))
@@ -184,7 +181,7 @@ fig << node_id_net
 comp = block("$\geq$", p(3,3), text_font="\\large").right(add[-1], 4).aligny(add[-1].c(), prev().w(1))
 nte += comp
 fig << bus(final_add_reg.e(0.5), comp.w(1), shorten=p(0.3, 0.2))
-fig << bus_text("$\sum_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
+fig << text("$\sum\limits_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
 
 mux_tmpl = block("MUX1", p(3,3), text_margin=p(0,1), alignment='nc')
 
@@ -207,8 +204,8 @@ fig << bus(mux.n(0.5), poffy(-1), mux2.s(1), routedef='-|')
 fig << bus(node_fifo[-1].e(0.5), mux2.s(2), routedef='-|')
 fig << bus_text(r"Node ID").align(fig[-1][0], prev().s())
 
-fig << path((mux2.s(2)[0], node_fifo[-1].e(0.5)[1]), (mux2.e(0.5)[0] + 1, node_fifo[-1].e(0.5)[1]),mux2.e(0.5), routedef='|-', style=('','>'), shorten=p(0.2, 0))
-fig << bus_text(r"[MSB]").alignx(mux2.s(2), prev().s()).aligny(node_fifo[-1].e(0.5), cur().n())
+fig << path((mux2.s(2)[0], node_fifo[-1].e(0.5)[1]), (mux2.e(0.5)[0] + 2, node_fifo[-1].e(0.5)[1]),mux2.e(0.5), routedef='|-', style=('','>'), shorten=p(0.2, 0))
+fig << bus_text(r"[MSB]").alignx(mux2.s(2), prev().s()).aligny(node_fifo[-1].e(0.5), cur().s())
 
 fig << bus(mux2.n(0.5), p(nte.e()[0] + 2, mux2.n()[1] -2), routedef='|-')
 fig << bus_text("Node ID Output").aligny(fig[-1][1], cur().s()).alignx(nte.e(), cur().s(1.0))
@@ -216,5 +213,22 @@ fig << bus_text("Node ID Output").aligny(fig[-1][1], cur().s()).alignx(nte.e(), 
 fig << bus(inst_fifo[-1].e(0.5), p(nte.e()[0] + 2, inst_fifo[-1].c()[1]))
 fig << bus_text("Instance Output").aligny(fig[-1][1], prev().s()).alignx(nte.e(), prev().s(1.0))
 
+stages = [
+    r'Stage \\ 1',
+    r'Stage \\ 2',
+    r'$\cdot\cdot\cdot$',
+    r'Stage \\ $N_p - 1$',
+    r'Stage \\ $N_p$'
+]
+
+for stage_id, (n, i, s) in enumerate(zip(node_fifo, inst_fifo, stages)):
+    fig << path(inst_fifo[i].n() - p(0, 4), node_fifo[n].n(), dotted=True)
+    if stage_id == len(inst_fifo) - 1:
+        fig << block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(mid(inst_fifo[i].n(), nte.e()), cur().c())
+    else:
+        fig << block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(inst_fifo[i].c(), cur().c())
+
+fig << path(inst_fifo[0].n() - p(0, 2), poffx(nte.e() - inst_fifo[0].n()), dotted=True)
+
 fig << nte
-render_fig(fig)
+#render_fig(fig)
