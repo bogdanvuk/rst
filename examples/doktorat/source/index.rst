@@ -19,6 +19,7 @@
 .. |Nc| replace:: :math:`N_{c}`
 .. |NP| replace:: :math:`N_{P}`
 .. |RA| replace:: :math:`R_{A}`
+.. |RN| replace:: :math:`R_{N}`
 .. |alpha| replace:: :math:`{\alpha}`
 .. |rho| replace:: :math:`{\rho}`
 .. |ChLi| replace:: :math:`ChL_{i}`
@@ -1071,7 +1072,7 @@ To take advantage of this parallelism of the dot product calculation, the |NTE| 
 Node Test Evaluator - NTE
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the |NTE| module. When the value received at the *Node ID Input* of an |NTE| contains a non-leaf node ID, it selects the node whose test is to be evaluated, among all the nodes at the DT level associated with the |NTE| module, for the current dataset instance received at the same time with the node ID. Thus, the following is performed:
+The block diagram in the :num:`Figure #fig-dt-test-eval-bd` shows the architecture of the |NTE| module. When the value received at the *Node ID Input* of an |NTE| contains a non-leaf node ID, it selects the node whose test is to be evaluated, among all the nodes at the DT level associated with the |NTE| module, for the current dataset instance received at the same time with the node ID. Please notice, that |NTE| expects the ID of a node within its associated level (in other words, the ID needs to be unique only within the level), and not the global node ID, which is unique accross the whole DT. Hence, for each DT level, the node numbering starts from 0. On the other hand, the non-leaf node IDs need to be global, i.e. unique accross the whole DT, since one of them will be output from the Classifier as a classification result. The following is thus performed by the Classifier:
 
 1. the test coefficients vector |w| of the selected node is fetched from the CM part of the DT Memory Array sub-module via the *Coefficient Memory Interface*. The selected node's ID is used to calculate the address of the node's coefficient vector in the CM memory, which is communicated via the *CM addr* port,
 2. the node test calculation is performed according to the equation :eq:`oblique-test` on the vector |w| and the attribute vector |x| of the current instance,
@@ -1092,6 +1093,8 @@ The |NTE| module's main task is the dot product calculation of the vectors |w| a
 
 One more important parameter, besides |NAM|, that needs to be specified by the user during the design phase of the |cop| is |RA| - the number of bits used for the signed fixed point representation of the elements of the vectors |w| and |x| in the |cop| co-processor. Hence, the elements of |w| and |x| are considered to be in Q0.(:math:`R_A-1`) format. For an example, if 16 bits are used for the representation of the vector elements, they are considered to be in Q0.15 format. After the multiplication stage, the products will thus be in Q0.(:math:`2R_A-2`) signed fixed point format. The value of the sum output by each adder is 1 bit larger than the value of its operands, hence the registers increase in size by 1 integer bit per pipeline stage. After the final addition the sum representation will have reached the size of: :math:`2R_A-1+\NPADD` bits in Q(|NPADD|).(:math:`2R_A-2`) format. Finally, the value of the finall sum is truncated to the width of |RA| bits in format Q(|NPADD|).(:math:`R_A-1-\NPADD`), which are hence the representation size and format of the node test threshold |th|.
 
+The necessary number of bits used to encode the non-leaf node and leaf IDs - |RN|, can be calculated based on the parameter |DM|. Since the non-leaf node IDs are unique only accross one DT level, of which the last level can have the largest number of nodes, and the |DM| parameter limits the number of levels the induced DT can have, there is a maximum of :math:`2^{D^M-1}` different non-leaf node IDs to be encoded for the selected value of the parameter |DM|. On the other hand, the leaf IDs need to be globaly unique, hence there needs to be one leaf ID available for each leaf in the DT. The number of leaves is also related to the parameter |DM|: :math:`2^{D^M}`. Additionaly, the MSB of the ID representation needs is reserved for differentiating between the leaf and non-leaf node IDs. Finally, the total number of bits for encoding IDs should be :math:`R_N \ge D^M+1`.
+
 The |NTE| architecture displayed in the :num:`Figure #fig-dt-test-eval-bd` is partitioned in |NP| pipeline stages by the vertical dotted lines and each part is labeled by the stage ID: Stage 1, Stage 2, ... Stage |NP|. The total number of pipeline stages needed (|NP|), equals the depth of the adder tree, plus the multiplication stage and the decision stage in the end where node test results are intepreted:
 
 .. math:: N_{P}=\NPADD + 2
@@ -1103,17 +1106,24 @@ The Instance Queue and the Node Queue delay lines are necessary due to the pipel
 
 The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_P-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
 
-|NTE| operation example
-;;;;;;;;;;;;;;;;;;;;;;;
+The Classifier operation example
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Once again, lets use the example DT whose induction by the |algo| algorithm was discussed in :num:`Section #the-algorithm-overview` and shown in :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot`. Since the training set used to induce the example DT (shown in the :num:`Figure #fig-efti-overview`) is described by two attributes, :math:`N_A=2`, the minimum value that can be chosen for |NAM| is :math:`\NAM=N_A=2`. For the sake of simplicity, in this example, |NAM| will be set to this minimum value of 2. The value of |RA| can be chosen freely, and here it will be set to 16. Based on these two parameters, the others can be calculated: |NPADD| = 1, |NP| = 3, |w| and |x| elements format is Q0.15, and |th| format is Q1.14.
+Once again, lets use the example DT whose induction by the |algo| algorithm was discussed in :num:`Section #the-algorithm-overview` and shown in :num:`Figure #fig-efti-overview` and :num:`Figure #fig-efti-overview-dot`. First, the parameters of the Classifier module need to be selected. Since the training set used to induce the example DT (shown in the :num:`Figure #fig-efti-overview`) is described by two attributes, :math:`N_A=2`, the minimum value that can be chosen for |NAM| is :math:`\NAM=N_A=2`. For the sake of simplicity, in this example, |NAM| will be set to this minimum value of 2. The value of |RA| can be chosen freely, and here it will be set to 16, which will provide high enough representation precision to obtain correct classification results. The example DT is 3 levels deep, hence |DM| parameter needs to be set to at least that value. Even though the Classifier would provide correct results even if it contained more levels than that, for the sake of simplicity |DM| will be set 3. Although, it would suffice to select :math:`R_N=D^M + 1=4`, |RN| will be set to 8 for visually clearer leaf ID representation.
+
+Once more, the parameters were set to the following values: :math:`D^M=3`, :math:`\NAM=2`, :math:`R_A=16` and :math:`R_N=8`. Based on these settings, the other parameters can be calculated: |NPADD| = 1, |NP| = 3, |w| and |x| elements format is Q0.15, and |th| format is Q1.14.
+
+The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| displayed for all nodes, first in decimal format and then in the fixed point representation immediately below. Please notice that
 
 .. _fig-nte-example-dt:
 
 .. bdp:: images/nte_example_dt.py
     :width: 100%
 
-    Caption
+    The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
+
+First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example the instance :math:`\mathbf{x}=[0.4534,0.4234]` will be used. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`NTE_1`
+
 
 Training Set Memory
 ...................
