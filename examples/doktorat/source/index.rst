@@ -1102,6 +1102,8 @@ The |NTE| architecture displayed in the :num:`Figure #fig-dt-test-eval-bd` is pa
 
 The |NTE| module also supports the datasets with less than |NAM| number of instance attributes, :math:`\NA < \NAM`. In this case, the surpluss coefficients :math:`w_{\NA+1}, w_{\NA+2}, ... w_{\NAM}` should be all set to zero, in order not to affect the calculation of the sum.
 
+Treba ovde ispricati da vise instanci moze biti napunjeno u pipeline i da se zbog toga oznake na Queue-ovima na razlicitim stagevima nazivaju kao na slici.
+
 The Instance Queue and the Node Queue delay lines are necessary due to the pipelining. Each |NTE| performs calculations only for a single DT level, hence once the calculations is finished the instance needs to be transferred to the next |NTE| module in the Classifier chain. This transfer needs to correlate in time with the output of the node test evaluation results via the *Node ID output* port. Hence, the Instance Queue has to have the length equal to |NP|, since it needs to delay the output of the instance to the next |NTE| module for |NP| clock cycles.
 
 The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_P-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
@@ -1122,7 +1124,7 @@ The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| dis
 
     The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
 
-First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example the instance :math:`\mathbf{x}=[0.4534,0.4234]` will be used. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`NTE_1`
+First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example the instance :math:`\mathbf{x}=[0.4534,0.4234]` will be used. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`, with the selected node ID 0, since the root node is the only possible choice for the first DT level.
 
 
 Training Set Memory
