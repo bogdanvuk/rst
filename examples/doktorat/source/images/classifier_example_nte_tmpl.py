@@ -12,6 +12,7 @@ bus = path(color="black!40", style=('', bus_cap), line_width=0.3, border_width=0
 bus_text = text(font="\\footnotesize", margin=p(0.4,0.2))
 
 nte = block("Node Test Evaluator - NTE", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(4,6), p(3,1)])
+ports = group()
 
 def make_external(pos, direction='o'):
     if direction == 'o':
@@ -31,13 +32,13 @@ inst_fifo_text = [
 inst_fifo = fifo_blk("Instance Queue")
 for i,t in enumerate(inst_fifo_text):
     if i == 0:
-        inst_fifo += fifo_item(t, size=p(11,3))
+        inst_fifo += fifo_item(t, size=p(10,3))
     else:
         inst_fifo += fifo_item(t).right(inst_fifo[-1])
 
 nte += inst_fifo
 
-inp_coef_tmpl = block(size=p(3,2), border=False, alignment="ce", nodesep=(1, 0.5), text_margin=p(0,0))
+inp_coef_tmpl = block(size=p(1.5,2), border=False, alignment="ce", nodesep=(1, 0.5), text_margin=p(0,0))
 
 inp_coef_text = [
     "$w_{1}$",
@@ -64,8 +65,8 @@ nte += w_net
 mul = group()
 for i in range(len(inp_coefs)//2):
     mul += mul_block().aligny(mid(inp_coefs[2*i].p, inp_coefs[2*i+1].p)).alignx(inst_fifo[0].e() - p(2.5,0), cur().c())
-    fig << path(inp_coefs[2*i].c(), mul[i].c(), shorten=(2, 1.5), style=('','>'), thick=True)
-    fig << path(inp_coefs[2*i+1].c(), mul[i].c(), shorten=(2, 1.5), style=('','>'), thick=True)
+    fig << path(inp_coefs[2*i].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
+    fig << path(inp_coefs[2*i+1].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
 
 nte += mul
 
@@ -100,7 +101,7 @@ node_fifo_text = [
 node_fifo = fifo_blk("Node Queue")
 for i,t in enumerate(node_fifo_text):
     if i == 0:
-        node_fifo += fifo_item(t, size=p(11,3)).below(struct_mem_reg, 3).alignx(inst_fifo[0].p)
+        node_fifo += fifo_item(t, size=p(10,3)).below(struct_mem_reg, 3).alignx(inst_fifo[0].p)
     else:
         node_fifo += fifo_item(t).right(node_fifo[-1])
 
@@ -120,18 +121,18 @@ fig << bus_text(r"$ChR$").align(fig[-1][0], prev().s())
 mem_intf = block(r"Coefficient Memory Interface", size=p(6,6)).align(mid(mul[0].c(), mul[-1].c()) - (11,0), prev().e(0.5))
 nte += mem_intf
 
-fig << make_external(inst_fifo[0].w(0.5), direction='i')
-fig << bus_text(r"Instance \\ Input").aligny(fig[-1][-1], cur().s()).alignx(nte.w())
+ports['inst_inp_bus'] = make_external(inst_fifo[0].w(0.5), direction='i')
+ports += bus_text(r"Instance \\ Input").aligny(ports['inst_inp_bus'][-1], cur().s()).alignx(nte.w())
 
 fig << make_external(struct_mem_intf.w(2))
-fig << bus_text("SM addr").alignx(nte.w()).aligny(struct_mem_intf.w(2), prev().s())
+ports += bus_text("SM addr").alignx(nte.w()).aligny(struct_mem_intf.w(2), prev().s())
 fig << make_external(struct_mem_intf.w(4), direction='i')
-fig << bus_text(r"SM data").alignx(nte.w()).aligny(struct_mem_intf.w(4), prev().s())
+ports += bus_text(r"SM data").alignx(nte.w()).aligny(struct_mem_intf.w(4), prev().s())
 
-fig << make_external(mem_intf.w(2))
-fig << bus_text(r"CM addr", margin=(0.3, 0.4)).alignx(nte.w()).aligny(mem_intf.w(2), cur().s())
-fig << make_external(mem_intf.w(5), direction='i')
-fig << bus_text(r"CM data", margin=(0.3, 0.4)).alignx(nte.w()).aligny(mem_intf.w(5), cur().s())
+ports['cm_addr'] = make_external(mem_intf.w(2))
+ports += bus_text(r"CM addr").alignx(nte.w()).aligny(mem_intf.w(2), cur().s())
+ports['cm_data'] = make_external(mem_intf.w(5), direction='i')
+ports += bus_text(r"CM data").alignx(nte.w()).aligny(mem_intf.w(5), cur().s())
 
 mem_intf_net = net()
 coef_net = net()
@@ -141,19 +142,19 @@ for i in range(len(inp_coefs)//2):
     nte += block(size=p(0.5, 1.2)).alignx(inst_fifo[0].n(), cur().c()).aligny(inp_coefs[2*i].w(0.5), cur().c())
 
 fig << coef_net
-fig << mem_intf_net
+nte['mem_intf_net'] = mem_intf_net
 
 node_id_net = net()
 node_id_net += make_external(node_fifo[0].w(0.5), direction='i')
-fig << bus_text(r"Node ID Input").aligny(node_id_net[0][-1], prev().s()).alignx(nte.w())
+ports += bus_text(r"Node ID Input").aligny(node_id_net[0][-1], prev().s()).alignx(nte.w())
 node_id_net += bus(node_id_net[0][-1], mem_intf.s(4), routedef='-|')
 
-fig << node_id_net
+ports['node_id_net'] = node_id_net
 
 comp = block("$\geq$", p(3,3), text_font="\\large").right(add[-1], 4).aligny(add[-1].c(), prev().w(1))
 nte += comp
 fig << bus(final_add_reg.e(0.5), comp.w(1), shorten=p(0.3, 0.2))
-fig << text("$\sum\limits_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
+#fig << text("$\sum\limits_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
 
 mux_tmpl = block("MUX1", p(3,3), text_margin=p(0,1), alignment='nc')
 

@@ -1124,7 +1124,14 @@ The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| dis
 
     The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
 
-First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example the instance :math:`\mathbf{x}=[0.4534,0.4234]` will be used. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`, with the selected node ID 0, since the root node is the only possible choice for the first DT level.
+First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be used, which encoded to Q0.15 becomes :math:`\mathbf{x}=[41FF,19FF]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`, with the selected node ID 0, since the root node is the only possible choice for the first DT level. The phase in which
+
+.. _fig-classifier-example-nte1-pre:
+
+.. bdp:: images/classifier_example_nte1_pre.py
+    :width: 100%
+
+    The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
 
 
 Training Set Memory
