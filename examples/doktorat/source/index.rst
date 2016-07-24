@@ -1124,14 +1124,39 @@ The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| dis
 
     The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
 
-First it will be shown how a single instance gets classified by the example DT using the Classifier module. For an example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be used, which encoded to Q0.15 becomes :math:`\mathbf{x}=[41FF,19FF]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`, with the selected node ID 0, since the root node is the only possible choice for the first DT level. The phase in which
+It will be shown now, how a single instance gets classified by the example DT using the Classifier module. For this example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be classified, which encoded to Q0.15 becomes :math:`\mathbf{x}=[41FF,19FF]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`. The :math:`\textrm{NTE}_1` module always has the node ID 0 selected, since the root node is the only possible choice for the first DT level.
 
 .. _fig-classifier-example-nte1-pre:
 
 .. bdp:: images/classifier_example_nte1_pre.py
     :width: 100%
 
-    The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
+    The preparation for the first pipeline stage, where the loading of the coefficient vector for the selected node from the CM memory is performed. All the blocks and the signal paths active in this phase are marked in the figure.
+
+Before the first pipeline stage, the coefficient vector needs to be loaded from memory for the selected node. The read from CM memory is performed asynchronously, and the coefficients are readied to be registered in order to be used in the first pipeline stage, that performs the multiplication operation. The instance attribute vector is led to the Instance Queue and the selected node ID to the Node Queue.  All blocks and signal paths active in this phase are marked in the figure :num:`Figure #fig-classifier-example-nte1-pre`. Next, in the first pipline stage, the elementwise multiplication between vectors |w| and |x| is performed. The instance and the selected node ID are now stored in the first elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage1` shows all the blocks and the signal paths active in the first pipeline stage. The vector |w| and |x| element values are shown in the figure, as well as the multiplication results which are in Q0.30 fixed point format as it was already described.
+
+.. _fig-classifier-example-stage1:
+
+.. bdp:: images/classifier_example_nte1_stage1.py
+    :width: 100%
+
+    The first pipeline stage, where the elementwise multiplication between vectors |w| and |x| is performed. All the blocks and the signal paths active in this stage are marked in the figure.
+
+Next, in the second pipline stage, the addition of the elementwise products is performed. Since there the |NAM| paremeter was set to support only two instance attributes, the addition can be performed within the single pipeline stage. If a higher value was selected for the |NAM| parameter, multiple stages would be needed in order to calculate the sum. The instance and the selected node ID are now stored in the second elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage2` shows all the blocks and the signal paths active in the second pipeline stage. The vector elementwise products are shown in the figure, as well as the addition result which is in Q1.30 fixed point format.
+
+.. _fig-classifier-example-stage2:
+
+.. bdp:: images/classifier_example_nte1_stage2.py
+    :width: 100%
+
+    The second pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
+
+.. _fig-classifier-example-stage3:
+
+.. bdp:: images/classifier_example_nte1_stage3.py
+    :width: 100%
+
+    The second pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
 
 
 Training Set Memory

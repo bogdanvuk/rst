@@ -141,9 +141,9 @@ fig << bus_text("Node ID", margin=(1, 0.5)).align(fig[-1][2], prev().s())
 fig << bus(struct_mem_intf.e(1), struct_mem_reg.w(1))
 fig << bus_text(r"$\theta$").align(fig[-1][0], prev().s())
 fig << bus(struct_mem_intf.e(3), struct_mem_reg.w(3))
-fig << bus_text(r"$ChL$").align(fig[-1][0], prev().s())
-fig << bus(struct_mem_intf.e(5), struct_mem_reg.w(5))
 fig << bus_text(r"$ChR$").align(fig[-1][0], prev().s())
+fig << bus(struct_mem_intf.e(5), struct_mem_reg.w(5))
+fig << bus_text(r"$ChL$").align(fig[-1][0], prev().s())
 
 mem_intf = block(r"Coefficient Memory Interface", size=p(6,6)).align(mid(mul[0].c(), mul[-1].c()) - (11,0), prev().e(0.5))
 nte += mem_intf

@@ -1,5 +1,8 @@
-from classifier_example_nte_tmpl import nte, ports, fig
 from bdp import *
+from classifier_example_nte_tmpl import nte, ports, fig
+import copy
+nte = copy.deepcopy(nte)
+ports = copy.deepcopy(ports)
 
 fig << '\definecolor{emphcolor}{RGB}{135,206,235}\n'
 nte.text_t = "NTE$_1$"
