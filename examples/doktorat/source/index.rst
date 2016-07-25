@@ -22,6 +22,8 @@
 .. |RN| replace:: :math:`R_{N}`
 .. |alpha| replace:: :math:`{\alpha}`
 .. |rho| replace:: :math:`{\rho}`
+.. |ChL| replace:: :math:`ChL`
+.. |ChR| replace:: :math:`ChR`
 .. |ChLi| replace:: :math:`ChL_{i}`
 .. |LfLi| replace:: :math:`LfL_{i}`
 .. |ChRi| replace:: :math:`ChR_{i}`
@@ -1106,7 +1108,7 @@ Treba ovde ispricati da vise instanci moze biti napunjeno u pipeline i da se zbo
 
 The Instance Queue and the Node Queue delay lines are necessary due to the pipelining. Each |NTE| performs calculations only for a single DT level, hence once the calculations is finished the instance needs to be transferred to the next |NTE| module in the Classifier chain. This transfer needs to correlate in time with the output of the node test evaluation results via the *Node ID output* port. Hence, the Instance Queue has to have the length equal to |NP|, since it needs to delay the output of the instance to the next |NTE| module for |NP| clock cycles.
 
-The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_P-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - :math:`ChL`, the ID of the right child - :math:`ChR` and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either :math:`ChL` or :math:`ChR`, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
+The Node Queue is necessary for preserving the selected node's ID (the signal *Node ID* in the :num:`Figure #fig-dt-test-eval-bd`). In the pipeline Stage :math:`N_P-1`, this ID will be used to calculate the address of the node's structural description in the SM part of the DT Memory Array sub-module, comprising three values: the ID of the left child - |ChL|, the ID of the right child - |ChR| and the node test threshold value - |th|. These values are needed in the last pipeline stage, where a decision on how to continue the traversal will be made. The comparator compares the dot product sum value and |th|, and based on the result signals the MUX1 to select either |ChL| or |ChR|, i.e. to decide where the traversal will continue. However, if the selected node ID is a leaf ID, the node test evaluation results should be discarded since the instance has already been classified. This decision is made by the MUX2, based on the MSB value of the selected node ID. As it was already mentioned the MSB value of the leaf IDs is always 1, while the MSB value of the non-leaf node IDs is always 0. Hence, if the selected node ID is a leaf ID, it is passed verbatim to the *Node ID Output* port, otherwise the output of the MUX1 multiplexer is passed. Also, since the selected node ID value is used in the last pipeline stage, the Node Queue also has to have the length equal to |NP|.
 
 The Classifier operation example
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1124,7 +1126,7 @@ The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| dis
 
     The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
 
-It will be shown now, how a single instance gets classified by the example DT using the Classifier module. For this example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be classified, which encoded to Q0.15 becomes :math:`\mathbf{x}=[41FF,19FF]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`. The :math:`\textrm{NTE}_1` module always has the node ID 0 selected, since the root node is the only possible choice for the first DT level.
+It will be shown now, how a single instance gets classified by the example DT using the Classifier module. For this example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be classified, which encoded to Q0.15 becomes :math:`\mathbf{x}=[\mathtt{41FF},\mathtt{19FF}]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`. The :math:`\textrm{NTE}_1` module always has the node ID 0 selected, since the root node is the only possible choice for the first DT level.
 
 .. _fig-classifier-example-nte1-pre:
 
@@ -1133,31 +1135,41 @@ It will be shown now, how a single instance gets classified by the example DT us
 
     The preparation for the first pipeline stage, where the loading of the coefficient vector for the selected node from the CM memory is performed. All the blocks and the signal paths active in this phase are marked in the figure.
 
-Before the first pipeline stage, the coefficient vector needs to be loaded from memory for the selected node. The read from CM memory is performed asynchronously, and the coefficients are readied to be registered in order to be used in the first pipeline stage, that performs the multiplication operation. The instance attribute vector is led to the Instance Queue and the selected node ID to the Node Queue.  All blocks and signal paths active in this phase are marked in the figure :num:`Figure #fig-classifier-example-nte1-pre`. Next, in the first pipline stage, the elementwise multiplication between vectors |w| and |x| is performed. The instance and the selected node ID are now stored in the first elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage1` shows all the blocks and the signal paths active in the first pipeline stage. The vector |w| and |x| element values are shown in the figure, as well as the multiplication results which are in Q0.30 fixed point format as it was already described.
+Before the first pipeline stage, the coefficient vector needs to be loaded from memory for the selected node. The read from CM memory is performed asynchronously, and the coefficients are readied to be registered in order to be used in the first pipeline stage, that performs the multiplication operation. The instance attribute vector is led to the Instance Queue and the selected node ID to the Node Queue.  All blocks and signal paths active in this phase are marked in the figure :num:`Figure #fig-classifier-example-nte1-pre`. Next, in the first pipline stage, the elementwise multiplication between vectors |w| and |x| is performed. The instance and the selected node ID are now stored in the first elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage1` shows all the blocks and the signal paths active in the first pipeline stage. The vector |w| and |x| element values are shown in the figure, as well as the multiplication results which are in Q0.30 fixed point format as it was already described. Please notice, that |NTE| preforms signed additions and multiplications, hence the sign extension is needed for all operands, but this is not shown in the following figures.
 
-.. _fig-classifier-example-stage1:
+.. _fig-classifier-example-nte1-stage1:
 
 .. bdp:: images/classifier_example_nte1_stage1.py
     :width: 100%
 
     The first pipeline stage, where the elementwise multiplication between vectors |w| and |x| is performed. All the blocks and the signal paths active in this stage are marked in the figure.
 
-Next, in the second pipline stage, the addition of the elementwise products is performed. Since there the |NAM| paremeter was set to support only two instance attributes, the addition can be performed within the single pipeline stage. If a higher value was selected for the |NAM| parameter, multiple stages would be needed in order to calculate the sum. The instance and the selected node ID are now stored in the second elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage2` shows all the blocks and the signal paths active in the second pipeline stage. The vector elementwise products are shown in the figure, as well as the addition result which is in Q1.30 fixed point format.
+Next, in the pipeline stage 2, the addition of the elementwise products is performed. Since there the |NAM| paremeter was set to support only two instance attributes, the addition can be performed within the single pipeline stage. If a higher value was selected for the |NAM| parameter, multiple stages would be needed in order to calculate the dot product sum. The instance and the selected node ID are now stored in the second elements of the Instance and Node queues respectively. The :num:`Figure #fig-classifier-example-nte1-stage2` shows all the blocks and the signal paths active in the second pipeline stage. The vector elementwise products are shown in the figure, as well as the addition result, that is also the dot product result, which is in Q1.30 fixed point format. Additionally, the information needed for the final decision on where the traversal will continue is fetched from the SM and prepared for the last pipeline stage. The fetched values for |th|, |ChL| and |ChR| for this example are shown in the figure.
 
-.. _fig-classifier-example-stage2:
+.. _fig-classifier-example-nte1-stage2:
 
 .. bdp:: images/classifier_example_nte1_stage2.py
     :width: 100%
 
-    The second pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
+    The second pipeline stage, where the final evaluation of the node test is performed and the decision on where the traversal will continue is made. All the blocks and the signal paths active in this stage are marked in the figure.
 
-.. _fig-classifier-example-stage3:
+Finally, in the pipeline stage 3, the dot product calculation results are compared to the value of |th|, to determine that the node test yielded the value **true**. Based on that the ID of the left child - 0, |ChL|, will be output by MUX1, which will be also passed by MUX2 to the *Node ID Output*, since the instance was not already classified (the MSB of the current node ID is 0). Hence, the DT traversal for this instance will continue via node with ID 0 on the second DT level, which will be performed by the :math:`NTE_2` module. The :num:`Figure #fig-classifier-example-nte1-stage3` shows all the blocks and the signal paths active in the pipeline stage 3.
+
+.. _fig-classifier-example-nte1-stage3:
 
 .. bdp:: images/classifier_example_nte1_stage3.py
     :width: 100%
 
-    The second pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
+    The third pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
 
+The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node ID Output* = 0, as shown in the :num:`Figure #fig-classifier-example-nte1-stage3`, are then passed to the :math:`NTE_2` module where the traversal of the instance continues. The :math:`NTE_2` module performs the exact same 3 stages as the :math:`NTE_1` module did, but on a different DT node.
+
+.. _fig-classifier-example-nte2:
+
+.. bdp:: images/classifier_example_nte2.py
+    :width: 100%
+
+    The results of the node test evaluation on the second DT level by the :math:`NTE_2` module.
 
 Training Set Memory
 ...................

@@ -11,7 +11,7 @@ bus_cap = cap(length=0.4, width=0.6, inset=0, type='Stealth')
 bus = path(color="black!40", style=('', bus_cap), line_width=0.3, border_width=0.06, double=True)
 bus_text = text(font="\\footnotesize", margin=p(0.4,0.2))
 
-nte = block("Node Test Evaluator - NTE", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(5,6), p(3,1)])
+nte = block("Node Test Evaluator - NTE", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(5,5), p(3,1)])
 ports = group()
 
 def make_external(pos, direction='o'):
@@ -65,29 +65,29 @@ nte['w_net'] = w_net
 mul = group()
 for i in range(len(inp_coefs)//2):
     mul += mul_block().aligny(mid(inp_coefs[2*i].p, inp_coefs[2*i+1].p)).alignx(inst_fifo[0].e() - p(2.5,0), cur().c())
-    fig << path(inp_coefs[2*i].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
-    fig << path(inp_coefs[2*i+1].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
+    nte += path(inp_coefs[2*i].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
+    nte += path(inp_coefs[2*i+1].c(), mul[i].c(), shorten=(1.5, 1.5), style=('','>'), thick=True)
 
 nte['mul'] = mul
 
-#fig << text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="\\normalsize").alignx(mul[1].c(), cur().c()).aligny(mid(mul[1].c(), mul[2].c()), cur().c())
+#nte += text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="\\normalsize").alignx(mul[1].c(), cur().c()).aligny(mid(mul[1].c(), mul[2].c()), cur().c())
 
 add = group()
 
 for i in range(len(mul)//2):
     add += add_block().aligny(mid(mul[2*i].p, mul[2*i+1].p)).alignx(inst_fifo[1].c(), cur().c())
     nte += block(size=p(0.5, 1.2)).align(mid(add[i].c(), mul[2*i].c()), prev().c()).alignx(inst_fifo[1].n(), cur().c())
-    fig << path(mul[2*i].c(), add[i].c(), shorten=(1.2, 4.3), style=('','>'), thick=True)
-    fig << path(mul[2*i].c(), add[i].c(), shorten=(3.3, 1.2), style=('','>'), thick=True)
+    nte += path(mul[2*i].c(), add[i].c(), shorten=(1.2, 4.3), style=('','>'), thick=True)
+    nte += path(mul[2*i].c(), add[i].c(), shorten=(3.3, 1.2), style=('','>'), thick=True)
     nte += block(size=p(0.5, 1.2)).align(mid(add[i].c(), mul[2*i+1].c()), prev().c()).alignx(inst_fifo[1].n(), cur().c())
-    fig << path(mul[2*i+1].c(), add[i].c(), shorten=(1.2, 4.3), style=('','>'), thick=True)
-    fig << path(mul[2*i+1].c(), add[i].c(), shorten=(3.3, 1.2), style=('','>'), thick=True)
+    nte += path(mul[2*i+1].c(), add[i].c(), shorten=(1.2, 4.3), style=('','>'), thick=True)
+    nte += path(mul[2*i+1].c(), add[i].c(), shorten=(3.3, 1.2), style=('','>'), thick=True)
 
 nte['add0'] = add
 
 final_add_reg = block(size=p(0.5, 1.2)).aligny(add[-1].c(), cur().c()).alignx(inst_fifo[2].n(), cur().c())
 nte += final_add_reg
-fig << path(add[-1].c(), final_add_reg.w(0.5), shorten=(1.1, 0.1), style=('','>'), thick=True)
+nte += path(add[-1].c(), final_add_reg.w(0.5), shorten=(1.1, 0.1), style=('','>'), thick=True)
 
 struct_mem_reg = block(size=(0.5, 6)).below(inp_coefs[-1], 2).alignx(inst_fifo[-2].e(0), prev().c())
 nte += struct_mem_reg
@@ -151,39 +151,39 @@ node_id_net += bus(node_id_net[0][-1], mem_intf.s(4), routedef='-|')
 
 ports['node_id_net'] = node_id_net
 
-comp = block("$\geq$", p(3,3), text_font="\\large").right(add[-1], 5).aligny(mid(add[-1].c(), struct_mem_reg.w(1)), cur().c())
+comp = block("$\geq$", p(3,3), text_font="\\large").right(add[-1], 5).aligny(mid(add[-1].c(), struct_mem_reg.w(1)) + p(0,1), cur().c())
 nte += comp
 nte['final_add_reg_bus']  = bus(final_add_reg.e(0.5), poffx(1), comp.w(1), routedef='|-', shorten=p(0.3, 0.2))
-#fig << text("$\sum\limits_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
+#nte += text("$\sum\limits_{i=1}^{N^{M}_{A}}w_{i}\cdot x_{i}$").align(comp.w(1) + (0.5,-1), prev().s(1.0))
 
 mux_tmpl = block("MUX1", p(3,3), text_margin=p(0,1), alignment='nc')
 
 mux = mux_tmpl().right(comp, 2)
 nte += mux
-nte += bus_text("0").align(mux.s(1), prev().s(0.5))
-nte += bus_text("1").align(mux.s(2), prev().s(0.5))
+nte['mux10'] = bus_text("0").align(mux.s(1), prev().s(0.5))
+nte['mux11'] = bus_text("1").align(mux.s(2), prev().s(0.5))
 
 nte['thr_reg_bus'] = bus(struct_mem_reg.e(1), struct_mem_reg.e(1) + (1,0), comp.w(2), routedef='|-', shorten=p(0,0.2))
 nte['chl_reg_bus'] = bus(struct_mem_reg.e(3), mux.s(1), routedef='-|')
 nte['chr_reg_bus'] = bus(struct_mem_reg.e(5), mux.s(2), routedef='-|')
 
-fig << path(comp.e(0.5), mux.w(0.5), style=('', '>'))
+nte += path(comp.e(0.5), mux.w(0.5), style=('', '>'))
 mux2 = mux_tmpl("MUX2").over(mux, 3).alignx(mux.e(), cur().s(1))
 nte += mux2
-nte += bus_text("0").align(mux2.s(1), prev().s(0.5))
-nte += bus_text("1").align(mux2.s(2), prev().s(0.5))
+nte['mux20'] = bus_text("0").align(mux2.s(1), prev().s(0.5))
+nte['mux21'] = bus_text("1").align(mux2.s(2), prev().s(0.5))
 nte['mux1_res_bus'] = bus(mux.n(0.5), poffy(-1), mux2.s(1), routedef='-|')
 nte['node_id_mux'] = bus(node_fifo[-1].e(0.5), mux2.s(2), routedef='-|')
-fig << bus_text(r"Node ID").align(nte['node_id_mux'][0], prev().s())
+nte += bus_text(r"Node ID").align(nte['node_id_mux'][0], prev().s())
 
 nte['msb_path'] = path((mux2.s(2)[0], node_fifo[-1].e(0.5)[1]), (mux2.e(0.5)[0] + 2, node_fifo[-1].e(0.5)[1]),mux2.e(0.5), routedef='|-', style=('','>'), shorten=p(0.2, 0))
-fig << bus_text(r"[MSB]").alignx(mux2.s(2), prev().s()).aligny(node_fifo[-1].e(0.5), cur().s())
+nte['bla'] = bus_text(r"[MSB]").align(nte['msb_path'][0], cur().s())
 
 ports['node_id_out'] = bus(mux2.n(0.5), p(nte.e()[0] + 2, mux2.n()[1] -1), routedef='|-')
-fig << bus_text("Node ID Output").aligny(ports['node_id_out'][1], cur().s()).alignx(nte.e(), cur().s(1.0))
+ports += bus_text("Node ID Output").aligny(ports['node_id_out'][1], cur().s()).alignx(nte.e(), cur().s(1.0))
 
 ports['inst_out'] = bus(inst_fifo[-1].e(0.5), p(nte.e()[0] + 2, inst_fifo[-1].c()[1]))
-fig << bus_text("Instance Output").aligny(ports['inst_out'][1], prev().s()).alignx(nte.e(), prev().s(1.0))
+ports += bus_text("Instance Output").aligny(ports['inst_out'][1], prev().s()).alignx(nte.e(), prev().s(1.0))
 
 stages = [
     r'Stage \\ 1',
@@ -192,10 +192,10 @@ stages = [
 ]
 
 for stage_id, (n, i, s) in enumerate(zip(node_fifo, inst_fifo, stages)):
-    fig << path(inst_fifo[i].n() - p(0, 4), node_fifo[n].n(), dotted=True)
+    ports += path(inst_fifo[i].n() - p(0, 4), node_fifo[n].n(), dotted=True)
     if stage_id == len(inst_fifo) - 1:
-        fig << block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(mid(inst_fifo[i].n(), nte.e()), cur().c())
+        ports += block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(mid(inst_fifo[i].n(), nte.e()), cur().c())
     else:
-        fig << block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(inst_fifo[i].c(), cur().c())
+        ports += block(s, border=False).aligny(inst_fifo[i].n() - p(0,2), cur().s()).alignx(inst_fifo[i].c(), cur().c())
 
-fig << path(inst_fifo[0].n() - p(0, 2), poffx(nte.e() - inst_fifo[0].n()), dotted=True)
+ports += path(inst_fifo[0].n() - p(0, 2), poffx(nte.e() - inst_fifo[0].n()), dotted=True)

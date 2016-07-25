@@ -32,7 +32,7 @@ def draw_coeffs(node, bdp_node, pos='right'):
         w = [coef2hex(w*32768) for w in node['w']]
         w.append(coef2hex(node['thr']*32768/(1 << 1)))
         t_float = r"$\mathbf{{w}} = [{:.3f}, {:.3f}], \theta={:.3f}$".format(*(node['w'] + [node['thr']]))
-        t = r"$\mathbf{{w}} = [{}, {}], \theta={}$".format(*w)
+        t = r"$\mathbf{{w}} = [\mathtt{{{}}}, \mathtt{{{}}}], \theta=\mathtt{{{}}}$".format(*w)
         #print(t)
         fig << getattr(text(t, margin=p(0,0.1)), pos)(bdp_node)
         fig << text(t_float, margin=p(0,0)).align(fig[-1].n(), cur().s())
