@@ -1,17 +1,7 @@
 from eftirun_findt import dt
-from dtdtools import draw_dt, templdef
+from dtdtools import draw_dt, templdef, dt_for_hw
+import copy
 from bdp import *
-
-nodes_per_level = [0]*3
-def dt_for_hw(node, level):
-    if not node['c']:
-        node['id'] = '8' + str(int(node['id'].split('-')[0]) - 1)
-    else:
-        node['id'] = str(nodes_per_level[level])
-        nodes_per_level[level] += 1
-        level += 1
-        dt_for_hw(node['c'][0], level)
-        dt_for_hw(node['c'][1], level)
 
 
 bus_cap = cap(length=0.4, width=0.6, inset=0, type='Stealth')
@@ -19,6 +9,7 @@ bus = path(style=(bus_cap, bus_cap), line_width=0.3, double=True, border_width=0
 lvl_path = path(dotted=True)
 
 templdef['node'].nodesep = (0.3, 2)
+dt = copy.deepcopy(dt)
 dt_for_hw(dt, 0)
 root = draw_dt(dt)
 

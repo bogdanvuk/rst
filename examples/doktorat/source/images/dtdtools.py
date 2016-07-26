@@ -5,6 +5,18 @@ templdef = {'node': block(size=p(2,2), shape='circle', nodesep=(0.3,1)),
             'path': path(shorten=(1.4, 1.6), style=('', '>'))
 }
 
+
+def dt_for_hw(node, level, nodes_per_level = [0]*3):
+    if not node['c']:
+        node['id'] = '8' + str(node['id'] - 1)
+        del node['cls']
+    else:
+        node['id'] = nodes_per_level[level]
+        nodes_per_level[level] += 1
+        level += 1
+        dt_for_hw(node['c'][0], level, nodes_per_level)
+        dt_for_hw(node['c'][1], level, nodes_per_level)
+
 def draw_children(bdp_node, dt_node, templ=templdef):
 
     node_templ = []
@@ -15,6 +27,7 @@ def draw_children(bdp_node, dt_node, templ=templdef):
 
     for c, direction in zip(dt_node['c'], ['left', 'right']):
         node_templ = templ['node'] if c['c'] else templ['leaf']
+        node_text = str(c['id']) if not 'cls' in c else '{}_$C_{{{}}}$'.format(c['id'], c['cls'])
         child_node = node_templ(str(c['id'])).below(bdp_node)
         child_node.alignx(bdp_node.c() + p((sep if direction == 'right' else -sep), 0), prev().c())
 

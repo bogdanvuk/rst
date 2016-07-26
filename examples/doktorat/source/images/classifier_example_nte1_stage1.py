@@ -7,7 +7,7 @@ ports = copy.deepcopy(ports)
 fig << '\definecolor{emphcolor}{RGB}{135,206,235}\n'
 nte.text_t = "NTE$_1$"
 nte['Instance Queue'][0].fill = 'emphcolor'
-nte['Instance Queue'][0].text_t = r"$\mathbf{x}=[\mathtt{41FF},\mathtt{19FF}]$"
+nte['Instance Queue'][0].text_t = r"$[\mathtt{41FF},\mathtt{19FF}]$"
 nte['Node Queue'][0].fill = 'emphcolor'
 nte['Node Queue'][0].text_t = '0'
 text_vals = text(margin=(0.3, 0.4), color='red')

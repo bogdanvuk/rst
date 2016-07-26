@@ -11,7 +11,7 @@ for b in [r"$\geq$", 'MUX1', 'MUX2']:
     nte[b].fill = 'emphcolor'
 
 nte['Instance Queue'][2].fill = 'emphcolor'
-nte['Instance Queue'][2].text_t = r"$\mathbf{x}=[\mathtt{41FF},\mathtt{19FF}]$"
+nte['Instance Queue'][2].text_t = r"$[\mathtt{41FF},\mathtt{19FF}]$"
 nte['Node Queue'][2].fill = 'emphcolor'
 nte['Node Queue'][2].text_t = '0'
 text_vals = text(margin=(0.3, 0.4), color='red')

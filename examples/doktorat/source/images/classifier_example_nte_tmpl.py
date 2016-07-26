@@ -4,7 +4,7 @@ pin_extrude = 2
 
 mul_block = block("x", size=p(2,2), shape='circle')
 add_block = block("+", size=p(2,2), shape='circle')
-fifo_item = block(size=p(7,3), nodesep=p(0,0))
+fifo_item = block(size=p(7,2), nodesep=p(0,0))
 fifo_blk = block(text_margin=p(0.5, 0), alignment="tw", border=False, group='tight')
 
 bus_cap = cap(length=0.4, width=0.6, inset=0, type='Stealth')
@@ -32,7 +32,7 @@ inst_fifo_text = [
 inst_fifo = fifo_blk("Instance Queue")
 for i,t in enumerate(inst_fifo_text):
     if i == 0:
-        inst_fifo += fifo_item(t, size=p(10,3))
+        inst_fifo += fifo_item(t, size=p(10,2))
     else:
         inst_fifo += fifo_item(t).right(inst_fifo[-1])
 
@@ -101,7 +101,7 @@ node_fifo_text = [
 node_fifo = fifo_blk("Node Queue")
 for i,t in enumerate(node_fifo_text):
     if i == 0:
-        node_fifo += fifo_item(t, size=p(10,3)).below(struct_mem_reg, 3).alignx(inst_fifo[0].p)
+        node_fifo += fifo_item(t, size=p(10,2)).below(struct_mem_reg, 3).alignx(inst_fifo[0].p)
     else:
         node_fifo += fifo_item(t).right(node_fifo[-1])
 
