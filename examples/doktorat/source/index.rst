@@ -1171,6 +1171,14 @@ The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node
 
     The results of the node test evaluation on the second DT level by the :math:`NTE_2` module.
 
+.. _fig-classifier-example-nte3:
+
+.. bdp:: images/classifier_example_nte3.py
+    :width: 100%
+
+    The results of the node test evaluation on the second DT level by the :math:`NTE_3` module.
+
+
 Training Set Memory
 ...................
 

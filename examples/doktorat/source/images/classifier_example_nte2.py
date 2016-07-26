@@ -49,4 +49,4 @@ fig << text_vals(r"$80$").align(ports['node_id_out'][-1], cur().n(1.0))
 fig << ports
 fig << nte
 
-render_fig(fig)
+#render_fig(fig)
