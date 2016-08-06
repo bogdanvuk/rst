@@ -1089,6 +1089,8 @@ On the other hand, when the value received at the *Node ID Input* of an |NTE| co
 
     The NTE (Node Test Evaluator) block architecture
 
+** Nisu dobro numerisane instance u queue-ovima. Instance sa manjim indeksom su napred - pre su krenule. Treba ovo prokomentarisati u textu **
+
 The main parameter that needs to be specified by the user during the design phase of the |cop| is the maximum supported number of attributes per instance - |NAM|, i.e. the maximum supported sizes of the vectors |w| and |x|. This parameter affects the size and latency of the |NTE| module as it will be explained in the text that follows.
 
 The |NTE| module's main task is the dot product calculation of the vectors |w| and |x|. By using only two input multipliers and adders, this computation is parallelized and pipelined as much as possible as discussed in the :num:`Section #the-dot-product-parallelism`. The multiplications are all performed in parallel, for all |NAM| coefficient and attribute pairs. Since, usually, two input adders are used in hardware design, and the |NAM|-ary sum is needed, the tree of two input adders is necessary, that is :math:`\left \lceil ld(\NAM)  \right \rceil` deep. In order to acheive higher operating frequency of the implemented |cop| co-processor, the dot product calculation datapath is broken in stages, with one stage per calculation step, that comprises multiplications or additions that can be performed in parallel. Hence, the outputs of each of the adders and multipliers are registered to form the pipeline.
@@ -1162,7 +1164,7 @@ Finally, in the pipeline stage 3, the dot product calculation results are compar
 
     The third pipeline stage, where the addition of the elementwise products is performed. All the blocks and the signal paths active in this stage are marked in the figure.
 
-The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node ID Output* = 0, as shown in the :num:`Figure #fig-classifier-example-nte1-stage3`, are then passed to the :math:`NTE_2` module where the traversal of the instance continues. The :math:`NTE_2` module performs the exact same 3 stages as the :math:`NTE_1` module did, but on a different DT node.
+The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node ID Output* = 0, as shown in the :num:`Figure #fig-classifier-example-nte1-stage3`, are then passed to the :math:`NTE_2` module where the traversal of the instance continues. The :math:`NTE_2` module performs the exact same 3 stages as the :math:`NTE_1` module did, but on a different DT node. The :num:`Figure #fig-classifier-example-nte2` combines the results of all the computations from all 3 stages of :math:`NTE_2` module in one image. This time the value passed from the previous |NTE| (the value 0 in this example), is used to select the node for the test evaluation, among the two possible nodes on the DT level 2. As it is shown in the figure, the test evaluates to **false** and hence the traversal should be continued via the right child. In this case, the right child is a leaf with the id :math:`\mathtt{80}`, hence the instance's classification has been determined. Nevertheless, the instance is passed to the next (and also the last) |NTE| module, which will recognize that no further computation is needed for the instance, and simply pass the results to the Classifier output. The :num:`Figure #fig-classifier-example-nte3` shows the relevant computation results from all 3 stages of :math:`NTE_3` module in one image. The MUX2 component of the |NTE| module recognizes that it has received a leaf ID on its *Node ID Input* port (node ID's MSB value is 1), hence it disregards all the computation (whose results are omitted from the figure because of this reason) and simply outputs the same leaf ID value for the instance on the *Node ID Output* port, which is at the same time the output of the whole Classifier module too.
 
 .. _fig-classifier-example-nte2:
 
@@ -1178,6 +1180,37 @@ The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node
 
     The results of the node test evaluation on the second DT level by the :math:`NTE_3` module.
 
+.. subfigstart::
+
+.. _fig-pipeline-demo1:
+
+.. bdp:: images/pipeline_demo1.py
+    :width: 100%
+    :align: center
+
+    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+
+.. _fig-pipeline-demo2:
+
+.. bdp:: images/pipeline_demo2.py
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-pipeline-demo3:
+
+.. bdp:: images/pipeline_demo3.py
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. subfigend::
+    :width: 0.99
+    :label: fig-pipeline-demo
+
+    Caption
 
 Training Set Memory
 ...................
