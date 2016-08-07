@@ -9,7 +9,10 @@ import attrspace_plot
 pipstage = block(size=p(5.5,3.5), nodesep=p(0,0), text_margin=p(0,0))
 dt = copy.deepcopy(dt)
 dt_for_hw(dt, 0)
-fn = "/home/bvukobratovic/projects/rst/examples/doktorat/source/data/vene.csv"
+import os
+print(os.getcwd())
+#fn = "/home/bvukobratovic/projects/rst/examples/doktorat/source/data/vene.csv"
+fn = os.path.join(os.getcwd(), "source/data/vene.csv")
 attr, cls = attrspace_plot.load_arff(fn)
 
 def coef2hex(val):

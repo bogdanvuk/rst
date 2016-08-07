@@ -22,7 +22,7 @@ import shlex
 # # add custom extensions directory to python path
 # sys.path.append(os.path.join(CURDIR, 'extensions'))
 
-from sphinxpp import latex_mods
+#from sphinxpp import latex_mods
 sys.path.append('./source/images')
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -38,7 +38,7 @@ sys.path.append('./source/images')
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinx.ext.numfig', 'bdp.sphinxext.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
+extensions = ['sphinxcontrib.bibtex', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'sphinxpp.numfig', 'bdp.sphinxext.bdpfigure', 'sphinx.ext.graphviz', 'sphinx.ext.todo',
               'sphinxpp.plot_directive',
               'sphinx.ext.autodoc',
               'sphinx.ext.doctest',
