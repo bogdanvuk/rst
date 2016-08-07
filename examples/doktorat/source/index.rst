@@ -1089,7 +1089,7 @@ On the other hand, when the value received at the *Node ID Input* of an |NTE| co
 
     The NTE (Node Test Evaluator) block architecture
 
-** Nisu dobro numerisane instance u queue-ovima. Instance sa manjim indeksom su napred - pre su krenule. Treba ovo prokomentarisati u textu **
+**Nisu dobro numerisane instance u queue-ovima. Instance sa manjim indeksom su napred - pre su krenule. Treba ovo prokomentarisati u textu**
 
 The main parameter that needs to be specified by the user during the design phase of the |cop| is the maximum supported number of attributes per instance - |NAM|, i.e. the maximum supported sizes of the vectors |w| and |x|. This parameter affects the size and latency of the |NTE| module as it will be explained in the text that follows.
 
@@ -1127,6 +1127,8 @@ The :num:`Figure #fig-nte-example-dt` shows the induced DT with |th| and |w| dis
     :width: 100%
 
     The example DT used to discuss the |NTE| operation. |th| and |w| are displayed for all nodes, first in decimal format and then in the fixed point representation immediately below.
+
+**Naglasiti da Instance Queue nosi i informaciju o classi instance, ali da ovde nije prikazana jer nije relevantna**
 
 It will be shown now, how a single instance gets classified by the example DT using the Classifier module. For this example, the instance :math:`\mathbf{x}=[0.5156,0.2031]` will be classified, which encoded to Q0.15 becomes :math:`\mathbf{x}=[\mathtt{41FF},\mathtt{19FF}]`. As the :num:`Figure #fig-dt-classifier-bd` shows, the instance is first input to the :math:`\textrm{NTE}_1`. The :math:`\textrm{NTE}_1` module always has the node ID 0 selected, since the root node is the only possible choice for the first DT level.
 
@@ -1166,6 +1168,8 @@ Finally, in the pipeline stage 3, the dot product calculation results are compar
 
 The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node ID Output* = 0, as shown in the :num:`Figure #fig-classifier-example-nte1-stage3`, are then passed to the :math:`NTE_2` module where the traversal of the instance continues. The :math:`NTE_2` module performs the exact same 3 stages as the :math:`NTE_1` module did, but on a different DT node. The :num:`Figure #fig-classifier-example-nte2` combines the results of all the computations from all 3 stages of :math:`NTE_2` module in one image. This time the value passed from the previous |NTE| (the value 0 in this example), is used to select the node for the test evaluation, among the two possible nodes on the DT level 2. As it is shown in the figure, the test evaluates to **false** and hence the traversal should be continued via the right child. In this case, the right child is a leaf with the id :math:`\mathtt{80}`, hence the instance's classification has been determined. Nevertheless, the instance is passed to the next (and also the last) |NTE| module, which will recognize that no further computation is needed for the instance, and simply pass the results to the Classifier output. The :num:`Figure #fig-classifier-example-nte3` shows the relevant computation results from all 3 stages of :math:`NTE_3` module in one image. The MUX2 component of the |NTE| module recognizes that it has received a leaf ID on its *Node ID Input* port (node ID's MSB value is 1), hence it disregards all the computation (whose results are omitted from the figure because of this reason) and simply outputs the same leaf ID value for the instance on the *Node ID Output* port, which is at the same time the output of the whole Classifier module too.
 
+**Povezati ovo sa plotom dataseta i pokazati da je klasifikacija tacna**
+
 .. _fig-classifier-example-nte2:
 
 .. bdp:: images/classifier_example_nte2.py
@@ -1178,7 +1182,11 @@ The outputs: *Instance Output* = :math:`[\mathtt{41FF},\mathtt{19FF}]` and *Node
 .. bdp:: images/classifier_example_nte3.py
     :width: 100%
 
-    The results of the node test evaluation on the second DT level by the :math:`NTE_3` module.
+    The results of the node test evaluation on the third DT level by the :math:`NTE_3` module.
+
+The :num:`Figure #fig-pipeline-demo` shows the pipeline processing of the dataset instances. In this figure, only the contents of the Instance and Node queues are shown, depicting which instance is being processed by which stage of which |NTE|. Each pipeline stage is represented by a pair of Instance and Node queue elements which are shown horizontally aligned in the figure. The Instance Queue element of the pair shows the attribute vector and the class assigned to the instance it contains, while the Node Queue element shows the current ID of the node this instance is at.
+
+At the beginning, the queues are empty and the first instance :math:`I_0` is received from the Training Set Memory as shown in the :num:`Figure #fig-pipeline-demo1`. The node test evaluation computation is carried out stage by stage, and :math:`I_0` instance is transfered to the :math:`NTE_1` module, shown in the :num:`Figure #fig-pipeline-demo2`, and its traversal is continued via the node with ID 0 on the DT level 1 (:num:`Figure #fig-nte-example-dt`). By this time, three more instances have been loaded from the Training Set Memory, and are in the process of the node test evaluation in three stages of the :math:`NTE_0` module. Since they all need to start from the root node, their selected node IDs are all 0. Finally, the :num:`Figure #fig-pipeline-demo3` shows the moment in the classification where the first instance of the dataset :math:`I_0` has reached the end of the pipeline and is output to the Accuracy Calculator module, along with its classification into the leaf node with ID :math:`\mathtt{83}`.
 
 .. subfigstart::
 

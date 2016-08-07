@@ -6,7 +6,7 @@ import copy
 import random
 import attrspace_plot
 
-pipstage = block(size=p(5.5,3), nodesep=p(0,0), text_margin=p(0,0))
+pipstage = block(size=p(5.5,3.5), nodesep=p(0,0), text_margin=p(0,0))
 dt = copy.deepcopy(dt)
 dt_for_hw(dt, 0)
 fn = "/home/bvukobratovic/projects/rst/examples/doktorat/source/data/vene.csv"
@@ -18,7 +18,7 @@ def coef2hex(val):
 def create_queue(qtext):
     queue = group(group="tight")
     for i in range(3):
-        nte = group(group="tight")
+        nte = block(group="tight")
         for j in range(3):
             stage_id = i*3 + j
             nte += pipstage(qtext[stage_id])
@@ -34,7 +34,10 @@ def create_queue(qtext):
 
     queue += path(queue[2].e(0.5), poffx(2))
     if qtext[-1]:
-        queue += text(qtext[-1]).align(queue[-1].pos(0.1), cur().s(0))
+        if r"\\" in qtext[-1]:
+            queue += text(qtext[-1]).align(queue[-1].pos(0.1), cur().w(0.6))
+        else:
+            queue += text(qtext[-1]).align(queue[-1].pos(0.2), cur().s(0))
 
     queue += path(queue[0].w(0.5), poffx(-2))
 
@@ -43,11 +46,15 @@ def create_queue(qtext):
 def plot_pipeline(w):
     random.seed(28)
 
-    tset = [[float(a) for a in attr[i]] for i in reversed(random.sample(range(len(attr)), w.stop))]
+    tset = [[float(a) for a in attr[i]] + [cls[i]] for i in reversed(random.sample(range(len(attr)), w.stop))]
 
-    insttext = [r"$[\mathtt{{{}}}, \mathtt{{{}}}]$".format(*[coef2hex(xi*32768) for xi in x])
+    insttext = [r"$[\mathtt{{{}}}, \mathtt{{{}}}]$ \\ {}".format(*([coef2hex(xi*32768) for xi in x[:-1]] + [x[-1]]))
                 for x in tset[w]]
     insttext += ['-'] * (10 - w.stop + w.start)
+
+    # print(insttext)
+
+    # return
 
     instname = ["$I_{{{}}}$".format(i) for i in reversed(range(w.start, w.stop))]
     instname += [''] * (10 - w.stop + w.start)
@@ -57,13 +64,13 @@ def plot_pipeline(w):
         for j in range(3):
             set_id = i*3+j + w.start
             if set_id < w.stop:
-                n = classify(tset[set_id], dt, max_level=i)
+                n = classify(tset[set_id][:-1], dt, max_level=i)
                 nodetext.append(str(n['id']))
             else:
                 nodetext.append('-')
 
     if w.stop - w.start > 9:
-        n = classify(tset[set_id], dt)
+        n = classify(tset[set_id][:-1], dt)
         nodetext.append(str(n['id']))
     else:
         nodetext.append('-')
@@ -80,14 +87,15 @@ def plot_pipeline(w):
     pipeline += qnode.align(qinst[0].s() + p(0,2), qnode.n())
 
     for i in range(3):
-        pipeline += text(r"$NTE_{}$".format(i)).align(mid(qinst[i].s(0.5), qnode[i].n(0.5)), cur().c())
+        nte_size = qnode[0].s(1.0) - qinst[0].n() + p(1,4.5)
+        pipeline += block(r"$NTE_{}$".format(i), size=nte_size, dotted=True, alignment="nc").align(qinst[i].n() - p(0.5, 3), cur().n())
         for j in range(3):
             stage_id = i*3 + j
             if instname[stage_id]:
                 pipeline += text(instname[stage_id]).align(qinst[i][j].n(0.5), cur().s(0.5))
 
-    pipeline += text("Instance Queue").over(qinst[0], 2).alignx(qinst.c(), cur().c())
-    pipeline += text("Node Queue").below(qnode[0]).alignx(qinst.c(), cur().c())
+    pipeline += text("Instance Queue").align(qinst[0].s(), cur().n())
+    pipeline += text("Node Queue").align(qnode[0].s(), cur().n())
     return pipeline
 
     # print(insttext)
