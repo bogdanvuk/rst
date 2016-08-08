@@ -1225,7 +1225,7 @@ Training Set Memory
 
 This is the memory that holds all the training set instances that should be processed by the |cop| co-processor. It is a two-port memory with ports of different widths and is shown in the :num:`Figure #fig-inst-mem-org`. It is comprised of the 32-bit wide stripes, in order to be accessed by the host CPU via the 32-bit AXI interface. Each instance description, spanning multiple stripes, comprises the following fields:
 
-- Array of instance attribute values: :math:`A_{i,1}` to :math:`A_{i,\NAM}`, each :math:`R_A` bits wide (parameter specified by the user at design time),
+- Array of instance attribute values: :math:`x_{i,1}` to :math:`x_{i,\NAM}`, each :math:`R_A` bits wide (parameter specified by the user at design time),
 - Instance class: :math:`C_{i}`, which is :math:`R_C` bits wide (parameter specified by the user at design time)
 
 The training set memory can be accessed via two ports:
@@ -1237,7 +1237,7 @@ The width of the NTE Port is determined at the design phase of the |cop|, and co
 
 .. _fig-inst-mem-org:
 
-.. figure:: images/inst_mem.pdf
+.. bdp:: images/inst_mem.py
     :width: 80%
 
     The Training set memory organization
@@ -1247,32 +1247,32 @@ The instance attributes are encoded using an arbitrary fixed point number format
 DT Memory Array
 ...............
 
-DT Memory Array is composed of |DM| sub-modules, that are used for storing the DT description, including the structural information and the coefficient values for every node test of the DT. Each sub-module of the DT Memory Array is a three-port memory with ports of different widths (as shown in the :num:`Figure #fig-dt-mem-array-org`) and is comprised of 32-bit wide stripes in order to be accessed by the host CPU via the 32-bit AXI interface.
+DT Memory Array is composed of |DM| sub-modules used for storing the DT description, including the structural information and the coefficient values for every node test of the DT. Each sub-module of the DT Memory Array is a three-port memory with ports of different widths (as shown in the :num:`Figure #fig-dt-mem-array-org`) and is comprised of 32-bit wide stripes in order to be accessed by the host CPU via the 32-bit AXI interface.
 
 .. _fig-dt-mem-array-org:
 
-.. figure:: images/dt_mem.pdf
+.. bdp:: images/dt_mem.py
 
     The DT memory organization
 
-Each DT Memory Array sub-module contains a list of node descriptions as shown in the :num:`Figure #fig-dt-mem-array-org`, and has two parts. The CM part of the memory comprises the array of the node test coefficients: :math:`a_{i,1}` to :math:`a_{i,\NAM}`, each :math:`R_A` bits wide. The SM part of the memory contains the following fields:
+Each DT Memory Array sub-module contains a list of node descriptions as shown in the :num:`Figure #fig-dt-mem-array-org`, and has two parts. The CM part of the memory comprises the array of the node test coefficients: :math:`w_{i,1}` to :math:`w_{i,\NAM}`, each :math:`R_A` bits wide. The SM part of the memory contains the following fields:
 
-- The node test threshold: :math:`thr_{i}`, which is :math:`R_A` bits wide
-- The ID of the left child: :math:`ChL_{i}`, which is :math:`R_{Node\ ID}` bits wide
-- The ID of the right child: :math:`ChR_{i}`, which is :math:`R_{Node\ ID}` bits wide
+- The node test threshold: :math:`\theta_{i}`, which is :math:`R_A` bits wide
+- The ID of the left child: :math:`ChL_{i}`, which is |RN| bits wide
+- The ID of the right child: :math:`ChR_{i}`, which is |RN| bits wide
 
 An array of parameters, :math:`N^{M}_{n}(l), l \in (1, D^M)`, that can be specified by the user at the design stage, is used to control the size of the individual DT Memory Array sub-modules. These parameters impose a constraint on the maximum number of nodes that the induced DT can have on each level. The size of each DT Memory Array sub-module is configured separately, since the first DT level can only have one node (which is the root node). At the worst case, possible number of nodes per DT level increases exponentially with the depth of the DT level. However, in practice, the induced DTs are never full binary trees, hence the increase of the sub-modules' size with the corresponding DT level depth saturates quickly. To make the addressing of the DT Memory Array sub-modules of different size easier, every sub-module is given the address space of an identical size and it is up to the user to take care of how many DT node descriptions are actually available in each sub-module.
 
-Since the fields :math:`ChL_{i}` and :math:`ChR_{i}` can either contain a leaf or a non-leaf ID, and the ID's MSB is used to discern the ID type, with their width of :math:`R_{Node\ ID}`, they can encode :math:`2^{R_{Node\ ID} - 1}` IDs. The value of the parameter :math:`R_{Node\ ID}` is calculated at the design time so that the fields :math:`ChL_{i}` and :math:`ChR_{i}` can encode both the the maximum number of nodes per any DT level and the maximum number of leaves the induced DT can have, i.e.:
+Since the fields :math:`ChL_{i}` and :math:`ChR_{i}` can either contain a leaf or a non-leaf ID, and the ID's MSB is used to discern the ID type, with their width of |RN|, they can encode :math:`2^{R_N - 1}` IDs. The value of the parameter |RN| is calculated at the design time so that the fields :math:`ChL_{i}` and :math:`ChR_{i}` can encode both the the maximum number of nodes per any DT level and the maximum number of leaves the induced DT can have, i.e.:
 
-.. math:: R_{Node\ ID} = 1 + \left \lceil ld(max(N^{M}_{n}(1), ..., N^{M}_{n}(D^M), N^{M}_{l})) \right \rceil
+.. math:: R_N = 1 + \left \lceil ld(max(N^{M}_{n}(1), ..., N^{M}_{n}(D^M), N^{M}_{l})) \right \rceil
 	:label: r_node_id_constraint
 
 DT Memory Array sub-module can be accessed via three ports:
 
 - **User Port** - The read/write port, accessed by the CPU via the AXI interface, 32-bit wide.
 - **CM Port** - The read port for the parallel read-out of all node test coefficients for the addressed node, :math:`R_{A}\cdot\NAM` bit wide.
-- **SM Port** - The read port for the parallel read-out of the node structural information for the addressed node, :math:`R_{A} + 2\cdot R_{Node\ ID}` bit wide.
+- **SM Port** - The read port for the parallel read-out of the node structural information for the addressed node, :math:`R_{A} + 2\cdot R_N` bit wide.
 
 Accuracy Calculator
 ...................
@@ -1373,14 +1373,14 @@ The amount of hardware resources required to implement the |cop| co-processor is
       - :math:`\NIM\cdot (R_A*\NAM + R_C)`
     * - (total number of bits)
       - DT Memory Array
-      - :math:`\sum_{i=l}^{D^M}(N^{M}_{n}(l)\cdot((R_A+1)*\NAM + 2*R_{Node\ ID}))`
+      - :math:`\sum_{i=l}^{D^M}(N^{M}_{n}(l)\cdot((R_A+1)*\NAM + 2*R_N))`
     * -
       - Accuracy Calculator
       - :math:`\NlM\cdot C^{M}\cdot \left \lceil log_{2}(N^{M}_{I})  \right \rceil`
     * -
       - NTE
       - :math:`\DM\cdot N_P\cdot (R_{A}\cdot\NAM + R_{C}) +` :raw:`\newline`
-        :math:`\DM\cdot N_P\cdot R_{Node\ ID}`
+        :math:`\DM\cdot N_P\cdot R_N`
     * - Multipliers
       - NTE
       - :math:`\DM\cdot \NAM`
