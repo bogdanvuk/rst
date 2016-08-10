@@ -49,6 +49,7 @@
 .. |NDTc| replace:: :math:`N_{DTc}`
 .. |SM| replace:: *SM*
 .. |CM| replace:: *CM*
+.. |LDCC| replace:: *LDCC*
 .. |NPADD| replace:: :math:`\NPADD`
 
 .. role:: raw(raw)
@@ -555,6 +556,8 @@ Selection
 The selection task is responsible for deciding in each iteration which DT will be taken for candidate solution for the next iteration: either the current candidate solution, i.e. the parent, or the mutated individual. Whenever the mutated individual outperforms its parent in fitness, it is always taken as the new candidate solution.
 
 **Iz HEREBOY rada, prepevati**
+
+**Napraviti algoritam za selection**
 
 Evolving a solution is inherently an unpredictable process. Like running a maze and only seeing what is in the immediate vicinity, sometimes the system runs into a local dead-end and needs to backtrack to the main path. Consider :num:`Figure #fig-escaping-local-maxima`, a simple 1-dimensional curve of a scoring function. At point A, the solution is at a local maximum, all points in its neighborhood having lower scores. In order to get to point B the solution has to first traverse through the lower scoring regions in order to get to the base of the hill from which it can start scaling to a better solution. The probability test to accept poorer performing solutions is a process that allows the system to search its surrounding neighborhood for better opportunities. Without a search, the system would tend to get stuck at local maximas.
 
@@ -1188,6 +1191,8 @@ The :num:`Figure #fig-pipeline-demo` shows the pipeline processing of the datase
 
 At the beginning, the queues are empty and the first instance :math:`I_0` is received from the Training Set Memory as shown in the :num:`Figure #fig-pipeline-demo1`. The node test evaluation computation is carried out stage by stage, and :math:`I_0` instance is transfered to the :math:`NTE_1` module, shown in the :num:`Figure #fig-pipeline-demo2`, and its traversal is continued via the node with ID 0 on the DT level 1 (:num:`Figure #fig-nte-example-dt`). By this time, three more instances have been loaded from the Training Set Memory, and are in the process of the node test evaluation in three stages of the :math:`NTE_0` module. Since they all need to start from the root node, their selected node IDs are all 0. Finally, the :num:`Figure #fig-pipeline-demo3` shows the moment in the classification where the first instance of the dataset :math:`I_0` has reached the end of the pipeline and is output to the Accuracy Calculator module, along with its classification into the leaf node with ID :math:`\mathtt{83}`.
 
+**Povezati rezultat sa slikom dataseta u attribute space-u**
+
 .. subfigstart::
 
 .. _fig-pipeline-demo1:
@@ -1281,24 +1286,67 @@ This module calculates the accuracy of the DT via the distribution matrix, as de
 
 .. _fig-fit-calc-bd:
 
-.. figure:: images/fitness_calc_bd.pdf
+.. bdp:: images/fitness_calc_bd.py
     :width: 85%
 
     The Accuracy Calculator block diagram
 
-In order to speed up the dominant class calculation (second loop of the *fitness_eval()* function in the :num:`Algorithm #fig-fitness-eval-pca`), the Accuracy Calculator is implemented as an array of calculators, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation for a leaf (the *dominant_class* and the *dominant_class_cnt* variables from the :num:`Algorithm #fig-fitness-eval-pca`) and counting the total number of instances that finished the traversal in the leaf, can be performed in parallel for each leaf node. The number of elements in the array equals the value of the maximum number of leaf nodes parameter - |NlM|, which can be specified by the user during the design phase of the |cop| co-processor. This value imposes a constraint on the maximum number of leaves in the induced DT. Each calculator comprises:
+In order to speed up the dominant class calculation (second loop of the *fitness_eval()* function in the :num:`Algorithm #fig-fitness-eval-pca`), the Accuracy Calculator is implemented as an array of calculators, called Leaf Dominant Class Calculator - |LDCC|, whose each element keeps track of the distribution for the single leaf node. Hence, the dominant class calculation for a leaf (the *dominant_class* and the *dominant_class_cnt* variables from the :num:`Algorithm #fig-fitness-eval-pca`) and counting the total number of instances that finished the traversal in the leaf, can be performed in parallel for each leaf node. The number of elements in the array equals the value of the maximum number of leaf nodes parameter - |NlM|, which can be specified by the user during the design phase of the |cop| co-processor. This value imposes a constraint on the maximum number of leaves in the induced DT. Each calculator comprises:
 
 - **Class Distribution Memory** - For keeping track of the class distribution of the corresponding leaf node.
 - **Incrementer** - Updates the memory based on the Classifier output.
 - **Dominant Class Calculator** - Finds and outputs the following values: the dominant class for the leaf, the number of instances of the dominant class that were classified in the leaf and the total number of instances that were classified in the leaf, using the signals :math:`dominant\_class_{i}`, :math:`dominant\_class\_cnt_{i}` and :math:`total\_cnt_{i}` respectively, where :math:`i \in (1, N^{M}_{l})`, shown in the :num:`Figure #fig-fit-calc-bd`.
 
-For the leaf it is responsible for, each Dominant Class Calculator keeps track of how many instances of each of the training set classes were classified in the leaf. It then finds a class that has the largest number of instances in the leaf (the dominant class corresponding to the *dominant_class* variable in :num:`Algorithm #fig-fitness-eval-pca`), and outputs its ID via the *dominant_class* port. If the instance's class equals the dominant class of the leaf node it finished the traversal in, it is considered a hit, otherwise it is considered a miss. Hence, the value output to the *dominant_class_cnt* port represents the number of classification hits for the corresponding leaf node and corresponds to the *dominant_class_cnt* variable in :num:`Algorithm #fig-fitness-eval-pca`. The total number of instances classified in the leaf is output via *total_cnt* port.
+For the leaf it is responsible for, each |LDCC| keeps track of how many instances of each of the training set classes were classified in the leaf. It then finds a class that has the largest number of instances in the leaf (the dominant class corresponding to the *dominant_class* variable in :num:`Algorithm #fig-fitness-eval-pca`), and outputs its ID via the *dominant_class* port. If the instance's class equals the dominant class of the leaf node it finished the traversal in, it is considered a hit, otherwise it is considered a miss. Hence, the value output to the *dominant_class_cnt* port represents the number of classification hits for the corresponding leaf node and corresponds to the *dominant_class_cnt* variable in :num:`Algorithm #fig-fitness-eval-pca`. The total number of instances classified in the leaf is output via *hits* port.
 
 The Accuracy Provider then performs the following:
 
 - It sums the classification hits for all leaf nodes and outputs the sum as the number of hits for the whole DT (the *hits* port), which is then stored in the Classification Performance Register of the Control Unit.
-- It determines the impurities (corresponding to the *impurity* variable in :num:`Algorithm #fig-fitness-eval-pca`) for all the leaves, as the ratio of the their *dominant_class_cnt* to the *total_cnt*. The impurities are calculated using pipelined divider and provided as an array in parallel, via the *dt_impurity* port, for storing in Leaf Impurity Registers of the Control Unit.
 - Forms a bit vector that represents which training set classes have been found as dominant by any of the Fitness Calculators, and which ones are missing. This value is output via *dt_classes* port for storing in Classes Register in Control Unit.
+
+The Accuracy Calculator operation example
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+.. subfigstart::
+
+.. _fig-acc-calc-demo1:
+
+.. bdp:: images/acc_calc_demo1.py
+    :width: 100%
+    :align: center
+
+    iter: 000000, fit: 0.602, size: 2, acc: 0.600
+
+.. _fig-acc-calc-demo2:
+
+.. bdp:: images/acc_calc_demo2.py
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-acc-calc-demo3:
+
+.. bdp:: images/acc_calc_demo3.py
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+
+.. _fig-acc-calc-demo4:
+    
+.. bdp:: images/acc_calc_demo4.py
+    :width: 100%
+    :align: center
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+    
+.. subfigend::
+    :width: 0.49
+    :label: fig-acc-calc-demo
+
+    Caption
 
 Control Unit
 ............
@@ -1311,6 +1359,15 @@ Control Unit provides the AXI4 interface access to the configuration and the sta
 - **Classes Register** - Stores the bit vector output via Accuracy Calculator's *dt_classes* port.
 - **Leaf Impurity Registers** - Stores the impurity measures output via Accuracy Calculator's *dt_impurity* port.
 
+.. _fig-efti-fsm:
+    
+.. bdp:: images/efti_fsm.py
+    :width: 45%
+
+    iter: 000013, fit: 0.629, size: 2, acc: 0.627
+  
+**Opisati proces evaluacije, koji registri sta, kako ide registar mapa, proci kroz FSM, koje memorije treba napuniti**
+  
 Required Hardware Resources and Performance
 -------------------------------------------
 
@@ -1405,7 +1462,7 @@ With the |cop| co-processor performing the DT accuracy evaluation task, remainin
 
 .. _fig-co-design-sw-pca:
 
-.. literalinclude:: code/co_design_sw.py
+.. literalinclude:: code/efti_co_design_sw.py
     :caption: The pseudo-code of the |algo| algorithm using the |cop| co-processor
     :language: none
 

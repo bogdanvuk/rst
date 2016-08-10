@@ -1,92 +1,90 @@
-from bdp.node import *
+from bdp import *
 
-bus = path(double=True, thick=False)
-bus_text = text(font="scriptsize", margin=p(0,0.2))
+bus_cap = cap(length=0.4, width=0.6, inset=0, type='Stealth')
+bus = path(color="black!80", style=('', bus_cap), line_width=0.3, border_width=0.06, double=True)
+bus_text = text(font="\\scriptsize", margin=p(0,0.2))
+origin = p(0,0)
 
 def create_fitness_border(pos, name):
     if name:
-        bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0), text_font='small', text_align='nw', fill='white')()
+        return block(name, size=p(18,11), p=pos, text_margin=(0.5,0), text_font='\\small', alignment='nw', fill='white')
     else:
-        bd = block(name, size=p(18,11), p=pos, fill='white', dotted=True)()
+        return block(name, size=p(18,11), p=pos, fill='white', dotted=True)
 
 def create_fitness_block(pos, name):
-    bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0.5), text_font='small', text_align='nw', fill='white')()
-    incr = block("Incrementer", size=p(7,3)).align(bd.n() + (1,2))()
-    dc_calc = block("Dominant Class Calc.", size=p(7,3)).right(incr, 2)()
-    mem = block(r"Class Distribution \\ Memory", size=p(10, 3)).align_y(incr.s() + (0, 2)).align_x(mid(incr.c(), dc_calc.c()), prev().c())()
-    
-    bus([incr.s(5), mem.n(2)], style='<->')()
-    bus([dc_calc.s(2), mem.n(8)], style='<->')()
-    
-    return {'incr':incr,
-            'mem':mem,
-            'dc_calc':dc_calc,
-            'bd':bd
-            }
-    
+    bd = block(name, size=p(18,11), p=pos, text_margin=(0.5,0.5), text_font='\\small', alignment='nw', fill='white')
+    bd += block("Incrementer", size=p(7,3)).align(bd.n() + (1,2))
+    bd += block("Dominant Class Calc.", size=p(7,3)).right(bd["Incr*"], 2)
+    bd += block(r"Class Distribution \\ Memory", size=p(10, 3)).aligny(bd["Incr*"].s() + (0, 2)).alignx(mid(bd["Incr*"].c(), bd["Dominant*"].c()), prev().c())
+
+    bd += bus(bd["Incr*"].s(5), bd["*Memory"].n(2), style=(bus_cap, bus_cap))
+    bd += bus(bd["Dominant*"].s(2), bd["*Memory"].n(8), style=(bus_cap, bus_cap))
+
+    return bd
+
 
 # create_fitness_border(origin, "Fitness Calculator for Leaf Node ID 1")
 # create_fitness_border(origin + (1,1), "Fitness Calculator for Leaf Node ID 2")
 # create_fitness_border(origin + (2,2), "")
-fb = create_fitness_block(origin + (3,3), "Fitness Calculator for Leaf Node ID 1")
-fbm = create_fitness_block(origin + (3,18), "Fitness Calculator for Leaf Node ID $N^{M}_{l}$")
-text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="normalsize").align(mid(fb['bd'].c(), fbm['bd'].c()), prev().c())()
-# for i in range(3):
-#     text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", text_font='large').align_y(mid(fb1['bd'].c(), fb2['bd'].c()), prev().c()).align_x(fb1['bd'].n() + (2,0) + i*p(7,0))()
+acc = block("Accuracy Calculator", text_margin=p(0.5, 0.5), alignment="nw", dotted=True, group='tight', group_margin=[p(3,2), p(1,1)])
+#acc = group()
+
+acc += create_fitness_block(origin + (3,3), "$LDCC_1$")
+acc += create_fitness_block(origin + (3,18), "$LDCC_{N^{M}_{l}}$")
+fig << text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="\\normalsize").align(mid(acc[0].c(), acc[1].c()), prev().c())
+
+leaf_id_in = acc[0]['Incr*'].w(1) - (8,0)
+fig << path(leaf_id_in, acc[0]['Incr*'].w(1), style=('', bus_cap))
+fig << bus_text("$Leaf\ ID$").align(leaf_id_in, prev().s())
+
+class_in = acc[0]['Incr*'].w(2) - (8,0)
+fig << path(class_in, acc[0]['Incr*'].w(2), style=('', bus_cap))
+fig << bus_text("$C$").align(class_in, prev().s())
+
+fig << path(acc[0]['Incr*'].w(1) - (2,0), acc[1]['Incr*'].w(1), routedef='|-', style=('', bus_cap))
+fig << path(acc[0]['Incr*'].w(2) - (3,0), acc[1]['Incr*'].w(2), routedef='|-', style=('', bus_cap))
+
+acc += block("Accuracy Provider", (6,16)).align(mid(acc[0].s(1.0), acc[1].n(1.0)) + (11,-2), prev().w(0.5))
+fig << acc
+
+# # mux_block = block("MUX", (4,8)).align(mid(acc[0].s(1.0), acc[1].n(1.0)) + (3,0), prev().w(0.5))()
+# #
+
+fig << path(acc[0]['Dominant*'].e(1), acc[0]['Dominant*'].e(1) + (4,0), acc['*Provider'].w(2), style=('', bus_cap), routedef='|-')
+fig << bus_text("$dominant\\_class_1$").align(acc['*Provider'].w(2) - (0.5, 0), prev().s(1.0))
+fig << path(acc[0]['Dominant*'].e(2), acc[0]['Dominant*'].e(2) + (3,0), acc['*Provider'].w(4), style=('', bus_cap), routedef='|-')
+fig << bus_text("$dominant\\_class\\_cnt_{1}$").align(acc['*Provider'].w(4) - (0.5, 0), prev().s(1.0))
+# path([acc[0]['Dominant*'].e(0.75), acc[0]['Dominant*'].e(0.75) + (2,0), acc['*Provider'].w(5)], style='->', def_routing='|-')()
+# bus_text("$total\_cnt_{1}$").align(acc['*Provider'].w(5) - (0.5, 0), prev().s(1.0))()
+
+# path([acc[1]['Dominant*'].e(0.25), acc[1]['Dominant*'].e(0.25) + (2,0), acc['*Provider'].w(11)], style='->', def_routing='|-')()
+# bus_text("$total\_cnt_{N^{M}_{l}}$").align(acc['*Provider'].w(11) - (0.5, 0), prev().s(1.0))()
+fig << path(acc[1]['Dominant*'].e(1), acc[1]['Dominant*'].e(1) + (2,0), acc['*Provider'].w(13), style=('', bus_cap), routedef='|-')
+fig << bus_text("$dominant\\_class_{N^{M}_{l}}$").align(acc['*Provider'].w(13) - (0.5, 0), prev().s(1.0))
+fig << path(acc[1]['Dominant*'].e(2), acc[1]['Dominant*'].e(2) + (4,0), acc['*Provider'].w(15), style=('', bus_cap), routedef='|-')
+fig << bus_text("$dominant\\_class\\_cnt_{N^{M}_{l}}$").align(acc['*Provider'].w(15) - (0.5, 0), prev().s(1.0))
 
 
+# # path([acc[1]['Dominant*'].e(0.5), acc[1]['Dominant*'].e(0.5) + (2,0), mux_block.w(7)], style='->', def_routing='|-')()
+fig << text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="\\normalsize").align(acc['*Provider'].w(0.5) - (2,0), prev().c())
+# #
+# # sum_block = block("Sum Block", size=(7,8), alignment='nw').right(mux_block, 2).aligny(mux_block.c(), prev().c())()
+# #
+# # add_block = block("+", size=p(2,2), shape='circle')
+# # add = add_block.align(sum_block.w(0.5) + (2,0), prev().c())()
+# # reg = block(size=(2, 4)).right(add).aligny(add.c(), prev().c())()
+# #
+# # path([mux_block.e(0.5), add.w(0.5)], style='->')()
+# # path([add.e(0.5), reg.w(0.5)], style='->')()
+# # path([reg.s(0.5), reg.s(0.5) + (0,1), add.s(0.5)], def_routing = '-|', style='->')()
+# #
+# # # bus([acc[0]['Dominant*'].e(0.5), add.w(0.5)], style='->', shorten=(0,0.3))()
+# # #
+fig << path(acc['*Provider'].e(5), acc['*Provider'].e(5) + (5,0), style=('', bus_cap))
+fig << bus_text("hits", margin=p(0.2,0.3)).align(acc['*Provider'].e(5) + (1,0), prev().s())
+fig << bus(acc['*Provider'].e(7), acc['*Provider'].e(7) + (5,0), style=('', bus_cap))
+fig << bus_text("dt\\_classes", margin=p(0.2,0.3)).align(acc['*Provider'].e(7) + (1,0), prev().s())
+# bus([acc['*Provider'].e(9), acc['*Provider'].e(9) + (6,0)], style='->')()
+# bus_text("dt\\_impurity").align(acc['*Provider'].e(9) + (1,0), prev().s())()
 
-leaf_id_in = fb['incr'].w(1) - (8,0)
-path([leaf_id_in, fb['incr'].w(1)], style='->')()
-bus_text("$Leaf\ ID$").align(leaf_id_in, prev().s())()
-
-class_in = fb['incr'].w(2) - (8,0)
-path([class_in, fb['incr'].w(2)], style='->')()
-bus_text("$C$").align(class_in, prev().s())()
-
-path([fb['incr'].w(1) - (2,0), fbm['incr'].w(1)], def_routing='|-', style='->')()
-path([fb['incr'].w(2) - (3,0), fbm['incr'].w(2)], def_routing='|-', style='->')()
-
-acc_prov = block("Accuracy Provider", (6,16)).align(mid(fb['bd'].s(1.0), fbm['bd'].n(1.0)) + (11,-2), prev().w(0.5))()
-
-# mux_block = block("MUX", (4,8)).align(mid(fb['bd'].s(1.0), fbm['bd'].n(1.0)) + (3,0), prev().w(0.5))()
-# 
-path([fb['dc_calc'].e(0.25), fb['dc_calc'].e(0.25) + (4,0), acc_prov.w(1)], style='->', def_routing='|-')()
-bus_text("$dominant\\_class_1$").align(acc_prov.w(1) - (0.5, 0), prev().s(1.0))()
-path([fb['dc_calc'].e(0.5), fb['dc_calc'].e(0.5) + (3,0), acc_prov.w(3)], style='->', def_routing='|-')()
-bus_text("$dominant\\_class\\_cnt_{1}$").align(acc_prov.w(3) - (0.5, 0), prev().s(1.0))()
-path([fb['dc_calc'].e(0.75), fb['dc_calc'].e(0.75) + (2,0), acc_prov.w(5)], style='->', def_routing='|-')()
-bus_text("$total\_cnt_{1}$").align(acc_prov.w(5) - (0.5, 0), prev().s(1.0))()
-
-path([fbm['dc_calc'].e(0.25), fbm['dc_calc'].e(0.25) + (2,0), acc_prov.w(11)], style='->', def_routing='|-')()
-bus_text("$total\_cnt_{N^{M}_{l}}$").align(acc_prov.w(11) - (0.5, 0), prev().s(1.0))()
-path([fbm['dc_calc'].e(0.5), fbm['dc_calc'].e(0.5) + (3,0), acc_prov.w(13)], style='->', def_routing='|-')()
-bus_text("$dominant\\_class\\_cnt_{N^{M}_{l}}$").align(acc_prov.w(13) - (0.5, 0), prev().s(1.0))()
-path([fbm['dc_calc'].e(0.75), fbm['dc_calc'].e(0.75) + (4,0), acc_prov.w(15)], style='->', def_routing='|-')()
-bus_text("$dominant\\_class_{N^{M}_{l}}$").align(acc_prov.w(15) - (0.5, 0), prev().s(1.0))()
-
-
-# path([fbm['dc_calc'].e(0.5), fbm['dc_calc'].e(0.5) + (2,0), mux_block.w(7)], style='->', def_routing='|-')()
-text(r"$\cdot$ \\ $\cdot$ \\ $\cdot$", font="normalsize").align(acc_prov.w(0.5) - (2,0), prev().c())()
-# 
-# sum_block = block("Sum Block", size=(7,8), text_align='nw').right(mux_block, 2).align_y(mux_block.c(), prev().c())()
-# 
-# add_block = block("+", size=p(2,2), shape='circle')
-# add = add_block.align(sum_block.w(0.5) + (2,0), prev().c())()
-# reg = block(size=(2, 4)).right(add).align_y(add.c(), prev().c())()
-# 
-# path([mux_block.e(0.5), add.w(0.5)], style='->')()
-# path([add.e(0.5), reg.w(0.5)], style='->')()
-# path([reg.s(0.5), reg.s(0.5) + (0,1), add.s(0.5)], def_routing = '-|', style='->')()
-# 
-# # bus([fb['dc_calc'].e(0.5), add.w(0.5)], style='->', shorten=(0,0.3))()
-# # 
-path([acc_prov.e(5), acc_prov.e(5) + (6,0)], style='->')()
-bus_text("hits").align(acc_prov.e(5) + (1,0), prev().s())()
-bus([acc_prov.e(7), acc_prov.e(7) + (6,0)], style='->')()
-bus_text("dt\\_classes").align(acc_prov.e(7) + (1,0), prev().s())()
-bus([acc_prov.e(9), acc_prov.e(9) + (6,0)], style='->')()
-bus_text("dt\\_impurity").align(acc_prov.e(9) + (1,0), prev().s())()
-    
-
-
+render_fig(fig)
